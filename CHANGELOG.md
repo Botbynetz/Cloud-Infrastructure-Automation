@@ -5,6 +5,112 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-12-XX
+
+### Added - Phase 4: Multi-Cloud Support
+
+#### Multi-Cloud Infrastructure 🌐
+- **Azure Provider Configuration**: Complete Azure infrastructure setup
+  - `terraform/providers/azure/main.tf` - Azure provider with azurerm ~3.80, azuread ~2.45
+  - Resource Group and VNet (10.1.0.0/16) with app and data subnets
+  - Network Security Groups with HTTPS, HTTP, SSH rules
+  - Storage Account (LRS) with versioning, soft delete, and network rules
+  - Azure Key Vault with RBAC, purge protection, and service endpoints
+  - Log Analytics Workspace (30 days retention)
+  - Application Insights for monitoring
+  - Azure Container Registry with geo-replication support
+  - TLS 1.2 minimum security, encryption at rest
+
+- **GCP Provider Configuration**: Complete GCP infrastructure setup
+  - `terraform/providers/gcp/main.tf` - Google provider ~5.7
+  - VPC Network (10.2.0.0/16) with auto-create subnets disabled
+  - Application and data subnets with private Google access
+  - Firewall rules for internal, HTTP/HTTPS, SSH traffic
+  - Cloud NAT with router for outbound internet access
+  - Cloud Storage bucket with versioning and lifecycle policies
+  - Cloud KMS for customer-managed encryption keys (optional)
+  - Secret Manager for secure credential storage
+  - Cloud SQL PostgreSQL with regional availability (optional)
+  - Artifact Registry for container images
+  - Cloud Monitoring with alerting and Cloud Logging
+
+#### Cloud-Agnostic Module 🔄
+- **Unified Multi-Cloud Interface**: Single configuration for AWS, Azure, GCP
+  - `terraform/modules/cloud-agnostic/main.tf` - Cloud-agnostic module
+  - Variable-driven provider selection (aws, azure, gcp)
+  - Consistent resource naming and tagging across providers
+  - Normalized outputs for VPC, storage, database, monitoring
+  - Compute, storage, database, networking, and monitoring configuration
+  - High availability and cost management configurations
+  - Security configurations (encryption, network isolation)
+  - Container registry support for all providers
+
+#### Cost Optimization Tools 💰
+- **Cost Calculator Script**: Multi-cloud cost comparison
+  - `scripts/cost-calculator.ps1` - PowerShell cost calculator
+  - Compare costs across AWS, Azure, and GCP
+  - Environment profiles (dev, staging, production)
+  - Detailed cost breakdown by resource type
+  - Annual cost projections and savings analysis
+  - Export to JSON/CSV for reporting
+  - Instance type translation matrix
+
+- **Cost Monitoring Dashboard**: Real-time cost tracking
+  - `scripts/cost-monitoring.ps1` - PowerShell monitoring dashboard
+  - Real-time cost data from AWS, Azure, GCP APIs
+  - Budget threshold alerts (Warning, Critical, Emergency)
+  - Cost breakdown by service/resource
+  - Automated alert notifications
+  - Cost report generation (JSON)
+  - Cost optimization recommendations
+
+#### Documentation 📚
+- **Multi-Cloud Deployment Guide**: Comprehensive 800+ line guide
+  - `docs/MULTI_CLOUD_DEPLOYMENT.md` - Complete deployment guide
+  - Provider setup for AWS, Azure, and GCP
+  - Authentication and credential configuration
+  - Deployment patterns (single, DR, geographic, cost-optimized)
+  - Cost comparison matrix across providers
+  - Migration strategies (lift-and-shift, strangler fig, blue-green)
+  - Best practices for security, cost, and high availability
+  - Troubleshooting guide and resource links
+  - Cost optimization strategies and TCO calculator
+
+- **Cloud-Agnostic Module Documentation**: 
+  - `terraform/modules/cloud-agnostic/README.md` - Module usage guide
+  - Single configuration examples for each provider
+  - Variable reference documentation
+  - Instance type translation table
+  - Cost comparison and deployment scenarios
+  - Multi-cloud deployment strategies
+
+- **Cost Tools Documentation**:
+  - `scripts/README.md` - Cost tools usage guide
+  - Cost calculator usage and examples
+  - Cost monitoring setup and automation
+  - Cost optimization strategies
+  - Integration with CI/CD and scheduling
+
+### Changed
+- **Project Scope**: Expanded from AWS-only to multi-cloud
+  - Added Azure and GCP provider support
+  - Created cloud-agnostic abstraction layer
+  - Unified configuration interface across clouds
+
+- **Documentation**: Expanded to 35+ comprehensive guides
+  - Added multi-cloud deployment guide (800+ lines)
+  - Added cost optimization documentation
+  - Added provider-specific setup guides
+  - Enhanced migration strategies
+
+### Infrastructure Highlights
+- **3 Cloud Providers**: Complete infrastructure for AWS, Azure, GCP
+- **10+ New Files**: Azure provider (3), GCP provider (3), Cloud-agnostic module (4), Cost tools (3)
+- **3,000+ Lines**: New Terraform configurations and PowerShell scripts
+- **Cost Savings**: Tools for 20-50% cost optimization across clouds
+
+---
+
 ## [1.3.0] - 2025-11-16
 
 ### Added - Phase 3: Advanced CI/CD & Blue-Green Deployments
