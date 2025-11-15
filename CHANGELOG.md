@@ -5,6 +5,182 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-01-16
+
+### Added - Phase 5: Enhanced Monitoring & Observability
+
+#### CloudWatch Monitoring Module 📊
+- **Comprehensive CloudWatch Dashboards**: 4 specialized dashboards for complete visibility
+  - `terraform/modules/monitoring/main.tf` - Monitoring infrastructure (650+ lines)
+  - **Infrastructure Dashboard**: EC2 CPU/Network, EBS I/O, ALB metrics, RDS performance
+  - **Application Dashboard**: Request counts, response times (avg + p99), error rates (4xx/5xx), memory, disk usage
+  - **Cost Dashboard**: Estimated charges (6-hour periods), resource usage tracking
+  - **Security Dashboard**: Failed logins, unauthorized access (403), security event timelines
+  
+- **CloudWatch Alarms**: 8 configurable alarms with composite health monitoring
+  - High CPU alarm (2 evaluation periods, 300s, configurable threshold)
+  - High memory alarm (2 evaluation periods, 300s, configurable threshold)
+  - Disk full alarm (85% threshold, 1 evaluation period, critical severity)
+  - High error rate alarm (5xx errors, 2 evaluation periods, 60s)
+  - Slow response time alarm (3 evaluation periods, 60s, configurable threshold)
+  - Database CPU alarm (80% threshold, 2 evaluation periods, RDS)
+  - Database connections alarm (configurable threshold, 2 evaluation periods)
+  - **Composite Alarm**: Application health (CPU OR Memory OR Error Rate)
+
+- **Log Groups with KMS Encryption**: 4 separate log groups for complete log coverage
+  - Application logs (`/aws/{project}/{env}/application`) - 30 days retention
+  - Infrastructure logs (`/aws/{project}/{env}/infrastructure`) - 30 days retention
+  - Security logs (`/aws/{project}/{env}/security`) - 365 days retention
+  - Audit logs (`/aws/{project}/{env}/audit`) - 365 days retention
+  - KMS encryption with 90-day automatic key rotation
+  - CloudWatch Logs service principal with KMS decrypt permissions
+
+- **Metric Filters**: Automated metric extraction from logs
+  - ErrorCount filter (ERROR* pattern matching)
+  - WarningCount filter (WARN* pattern matching)
+  - SecurityEventCount filter (SecurityEvent* pattern matching)
+
+- **CloudWatch Insights Queries**: 3 pre-built troubleshooting queries
+  - TopErrors query - Find top 20 error messages with counts
+  - SlowRequests query - Identify requests >1000ms (top 50)
+  - SecurityAudit query - Track DENIED/FAILED actions (top 100)
+
+- **Module Configuration**: Comprehensive variables and outputs (250+ lines each)
+  - `terraform/modules/monitoring/variables.tf` - 250+ lines of configuration options
+  - `terraform/modules/monitoring/outputs.tf` - 200+ lines of module outputs
+  - `terraform/modules/monitoring/README.md` - 600+ lines comprehensive documentation
+
+#### Centralized Logging Module 📝
+- **S3 Log Export with Lifecycle**: Long-term log storage with cost optimization
+  - `terraform/modules/centralized-logging/main.tf` - Centralized logging (600+ lines)
+  - S3 bucket with versioning and public access block
+  - **Lifecycle policies**: Standard (0-90 days) → Glacier (90-180 days) → Deep Archive (180-2555 days)
+  - Automatic log expiration after 2555 days (7 years for compliance)
+  - Server-side encryption (KMS or AES256)
+  - CloudWatch Logs S3 export policy
+
+- **Kinesis Data Streams**: Real-time log streaming and processing
+  - Kinesis stream for real-time log processing (PROVISIONED or ON_DEMAND)
+  - Configurable shard count and retention period (24-8760 hours)
+  - KMS encryption support for encrypted streaming
+  - Shard-level metrics (IncomingBytes, IncomingRecords, OutgoingBytes, OutgoingRecords)
+
+- **Log Subscription Filters**: Route logs to Kinesis for real-time analysis
+  - Application log subscription filter
+  - Infrastructure log subscription filter (optional)
+  - Security log subscription filter (optional)
+  - IAM role for CloudWatch Logs to Kinesis publishing
+
+- **Lambda Log Export Function**: Automated daily log export to S3
+  - `terraform/modules/centralized-logging/lambda/index.py` - Python 3.11 Lambda
+  - Daily EventBridge schedule trigger (2 AM UTC default)
+  - Exports all log groups for previous day
+  - S3 destination with date-based prefix structure
+  - IAM role with CloudWatch Logs export permissions
+
+- **Cross-Account Log Aggregation**: Centralize logs from multiple AWS accounts
+  - CloudWatch Logs destination for cross-account subscriptions
+  - Destination policy for trusted account access
+  - Kinesis stream as aggregation target
+
+- **CloudWatch Insights Queries**: Cross-log-group analysis
+  - LogAggregationStats - Statistics across all log groups
+  - CrossLogGroupErrors - Errors from application, infrastructure, security logs
+
+- **Module Configuration**: Complete centralized logging setup
+  - `terraform/modules/centralized-logging/variables.tf` - Log export and streaming config
+  - `terraform/modules/centralized-logging/outputs.tf` - S3, Kinesis, Lambda outputs
+  - `terraform/modules/centralized-logging/lambda/build.ps1` - Lambda build script
+
+#### Advanced Alerting Module 🚨
+- **Multi-Severity SNS Topics**: Separate notification channels by severity
+  - `terraform/modules/alerting/main.tf` - Advanced alerting (600+ lines)
+  - Critical alerts SNS topic with KMS encryption
+  - Warning alerts SNS topic with KMS encryption
+  - Info alerts SNS topic with KMS encryption
+  - SNS topic policies for CloudWatch and Lambda publishers
+
+- **Email and SMS Subscriptions**: Multiple notification endpoints
+  - Configurable email subscriptions per severity level
+  - SMS subscriptions for critical alerts (E.164 format)
+  - Automatic subscription confirmation required
+
+- **Slack Integration**: Rich formatted notifications
+  - `terraform/modules/alerting/lambda/slack-notifier.py` - Python 3.11 Lambda
+  - Color-coded messages by alarm state (Red=ALARM, Green=OK, Orange=INSUFFICIENT)
+  - Alarm details with CloudWatch Console links
+  - Lambda function triggered by SNS (Critical and Warning topics)
+  - Configurable Slack channel and webhook URL
+
+- **PagerDuty Integration**: Incident management and on-call automation
+  - `terraform/modules/alerting/lambda/pagerduty-notifier.py` - Python 3.11 Lambda
+  - Automatic incident creation for ALARM state
+  - Automatic incident resolution for OK state
+  - PagerDuty Events API v2 integration
+  - Custom incident details with AWS context
+
+- **Alert Aggregation**: Prevent alert fatigue with intelligent deduplication
+  - `terraform/modules/alerting/lambda/alert-aggregator.py` - Python 3.11 Lambda
+  - DynamoDB table for alert state tracking (PAY_PER_REQUEST billing)
+  - Configurable aggregation window (300 seconds default)
+  - Count-based notification thresholds (5, 10, 20+ occurrences)
+  - 24-hour TTL for automatic state cleanup
+
+- **Escalation Workflow**: Step Functions for unacknowledged alert handling
+  - AWS Step Functions state machine for escalation
+  - Wait for acknowledgment period (900 seconds default)
+  - Check alert acknowledgment in DynamoDB
+  - Escalate to critical SNS topic if not acknowledged
+  - IAM role for Step Functions with SNS and DynamoDB permissions
+
+- **Module Configuration**: Complete alerting setup
+  - `terraform/modules/alerting/variables.tf` - Notification endpoints and config
+  - `terraform/modules/alerting/outputs.tf` - SNS topics, Lambda functions, DynamoDB
+  - `terraform/modules/alerting/lambda/build.ps1` - Build all 3 Lambda packages
+
+#### Monitoring Documentation 📚
+- **Comprehensive Monitoring Guide**: 500+ lines of operational documentation
+  - `docs/MONITORING_GUIDE.md` - Complete monitoring guide
+  - **Quick Start**: Module deployment examples for all 3 modules
+  - **Dashboard Guide**: Detailed explanation of all 4 dashboards
+  - **Alarm Configuration**: Threshold tuning recommendations by environment
+  - **Centralized Logging**: Log group structure and S3 lifecycle
+  - **Advanced Alerting**: Severity levels and notification channels
+  - **Alert Aggregation**: How deduplication works with examples
+  - **Escalation Workflow**: Step-by-step escalation process
+  - **Cost Optimization**: Log retention strategies and cost estimates
+  - **Troubleshooting**: Common issues and solutions
+  - **Best Practices**: Logging, alerting, dashboard design, cost management
+  - **Security Considerations**: Encryption, IAM, secrets management
+  - **Monitoring the Monitors**: Health checks for monitoring infrastructure
+
+### Changed
+- Updated `ROADMAP.md` - Marked Phase 5 complete, added Phase 6 preview
+- Updated project version to 1.5.0
+
+### Technical Details
+- **Total Files Added**: 20+ files
+- **Total Lines of Code**: 2,500+ lines
+- **Lambda Functions**: 4 (log-export, slack-notifier, pagerduty-notifier, alert-aggregator)
+- **Terraform Modules**: 3 (monitoring, centralized-logging, alerting)
+- **Documentation**: 1,100+ lines (README + Guide)
+
+### Infrastructure Components
+- **CloudWatch**: 4 dashboards, 8 alarms, 1 composite alarm, 4 log groups, 3 metric filters, 3 Insights queries
+- **S3**: 1 bucket with lifecycle policies and encryption
+- **Kinesis**: 1 data stream with encryption and shard-level metrics
+- **Lambda**: 4 functions (Python 3.11) with IAM roles
+- **SNS**: 3 topics (Critical, Warning, Info) with encryption
+- **DynamoDB**: 1 table for alert state with TTL
+- **Step Functions**: 1 state machine for escalation
+- **EventBridge**: 1 rule for daily log export
+
+### Dependencies
+- Terraform >= 1.0
+- AWS Provider >= 5.0
+- Python 3.11 (Lambda runtime)
+- PowerShell 5.1+ (build scripts)
+
 ## [1.4.0] - 2025-12-XX
 
 ### Added - Phase 4: Multi-Cloud Support
