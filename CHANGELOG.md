@@ -5,6 +5,106 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-11-16
+
+### Added - Phase 2: Security Hardening & Secrets Management
+
+#### Secrets Management 🔐
+- **AWS Secrets Manager Module**: Complete Terraform module for secret management
+  - `terraform/modules/secrets/` - Full module implementation
+  - Secret rotation with Lambda integration support
+  - KMS encryption for secrets at rest
+  - IAM policies for granular access control
+  - CloudWatch monitoring and rotation failure alarms
+  - Support for database credentials, API keys, SSH keys
+  - Recovery window configuration (7-30 days)
+  - Optional cross-region replication
+
+- **Dynamic Secrets in Ansible**: AWS Secrets Manager integration
+  - New playbook: `ansible/playbook-with-secrets.yml`
+  - AWS Secrets lookup plugin usage examples
+  - Runtime secret fetching (no hardcoded credentials)
+  - Documentation: `docs/ANSIBLE_SECRETS.md` (comprehensive guide)
+  - Pre-flight AWS credentials verification
+  - Template-based configuration with secrets
+  - Error handling and fallback mechanisms
+
+#### IAM Security Hardening 🛡️
+- **IAM Security Module**: Enterprise-grade IAM policies
+  - `terraform/modules/iam-security/` - Complete hardened IAM module
+  - Least-privilege principle enforcement
+  - MFA requirement configuration
+  - Session duration limits (1-12 hours, compliance-based)
+  - Permission boundaries support
+  - AWS Systems Manager Session Manager integration
+  - CloudWatch Logs integration for audit trails
+  - IAM Access Analyzer for external access detection
+  
+- **Role Templates**: Pre-configured security roles
+  - EC2 instance roles with minimal permissions
+  - Bastion host with MFA enforcement
+  - CI/CD roles for GitHub Actions (federated OIDC)
+  - Lambda execution roles
+  - Cross-account access roles with conditions
+  
+- **Compliance Presets**: Industry-standard configurations
+  - Standard (default 1-hour sessions)
+  - PCI-DSS (15-min sessions, mandatory MFA)
+  - HIPAA (30-min sessions, mandatory MFA)
+  - SOC2 (1-hour sessions, mandatory MFA)
+
+#### Drift Detection & Compliance 📊
+- **Drift Detection Guide**: Comprehensive documentation
+  - `docs/DRIFT_DETECTION.md` - Complete drift detection guide
+  - Terraform state refresh workflows
+  - driftctl integration examples
+  - GitHub Actions automated drift scanning
+  - Daily and on-demand drift detection workflows
+  - Automatic GitHub issue creation on drift
+  - Slack and email notification templates
+  - Remediation strategies (import, update, revert)
+  
+- **AWS Config Documentation**: Compliance monitoring
+  - AWS Config setup with Terraform examples
+  - Compliance rules for encrypted volumes
+  - Security group audit rules
+  - Required tags validation
+  - S3 public access prevention
+  - IAM password policy enforcement
+  - CloudWatch Event integration for alerts
+  - SNS notification configuration
+
+### Changed
+- **Documentation**: Expanded from 20+ to 25+ comprehensive guides
+  - Added secrets management integration guides
+  - Added IAM security best practices
+  - Added drift detection workflows
+  - Enhanced module documentation
+
+- **Security Posture**: Significantly improved
+  - Secrets no longer hardcoded
+  - IAM policies follow least-privilege
+  - MFA enforcement capability
+  - Session time limits
+  - Continuous drift monitoring
+
+### Security
+- AWS Secrets Manager for centralized secret management
+- Hardened IAM policies with granular permissions
+- MFA enforcement for sensitive operations
+- Session duration limits based on compliance level
+- IAM Access Analyzer for external access detection
+- CloudWatch audit logging for IAM activities
+- Drift detection with automated alerting
+
+### Documentation
+- Complete AWS Secrets Manager module documentation
+- Ansible secrets integration guide with 10+ examples
+- IAM security module with compliance presets
+- Drift detection comprehensive guide
+- AWS Config compliance documentation
+- Real-world usage examples for all modules
+
 ## [1.1.0] - 2025-11-16
 
 ### Added - Phase 1: Security & Documentation Enhancement
