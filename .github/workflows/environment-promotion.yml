@@ -1,0 +1,476 @@
+name: Environment Promotion Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_environment:
+        description: 'Source environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+      target_environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to promote (e.g., v1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+env:
+  TF_VERSION: '1.6.0'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  # ==========================================
+  # Validation: Ensure promotion is valid
+  # ==========================================
+  validate-promotion:
+    name: Validate Promotion Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate Environment Flow
+        run: |
+          SOURCE="${{ github.event.inputs.source_environment }}"
+          TARGET="${{ github.event.inputs.target_environment }}"
+          
+          # Validate promotion path
+          if [ "$SOURCE" = "dev" ] && [ "$TARGET" = "production" ]; then
+            echo "❌ Cannot promote directly from dev to production"
+            echo "Must promote: dev → staging → production"
+            exit 1
+          fi
+          
+          if [ "$SOURCE" = "staging" ] && [ "$TARGET" = "staging" ]; then
+            echo "❌ Source and target cannot be the same"
+            exit 1
+          fi
+          
+          echo "✅ Promotion path validated: $SOURCE → $TARGET"
+
+      - name: Check Source Environment Health
+        run: |
+          echo "Checking ${{ github.event.inputs.source_environment }} health..."
+          # Add health check logic here
+          # Example: curl health endpoint, check CloudWatch alarms
+          
+      - name: Verify Version Exists
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "❌ Version $VERSION not found in git"
+            exit 1
+          fi
+          echo "✅ Version $VERSION exists"
+
+  # ==========================================
+  # Backup: Create backup of target environment
+  # ==========================================
+  backup-target:
+    name: Backup Target Environment
+    runs-on: ubuntu-latest
+    needs: validate-promotion
+    environment: ${{ github.event.inputs.target_environment }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', github.event.inputs.target_environment)] }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Backup Current State
+        run: |
+          BACKUP_FILE="terraform-state-backup-$(date +%Y%m%d-%H%M%S).json"
+          
+          # Export current Terraform state
+          aws s3 cp \
+            s3://${{ secrets[format('TF_STATE_BUCKET_{0}', github.event.inputs.target_environment)] }}/${{ github.event.inputs.target_environment }}/terraform.tfstate \
+            /tmp/$BACKUP_FILE
+          
+          # Store backup
+          aws s3 cp /tmp/$BACKUP_FILE \
+            s3://${{ secrets[format('TF_STATE_BUCKET_{0}', github.event.inputs.target_environment)] }}/backups/$BACKUP_FILE
+          
+          echo "✅ Backup created: $BACKUP_FILE"
+
+      - name: Take AMI Snapshots
+        run: |
+          # Get running instances
+          INSTANCES=$(aws ec2 describe-instances \
+            --filters "Name=tag:Environment,Values=${{ github.event.inputs.target_environment }}" \
+                     "Name=instance-state-name,Values=running" \
+            --query 'Reservations[*].Instances[*].InstanceId' \
+            --output text)
+          
+          for INSTANCE in $INSTANCES; do
+            echo "Creating AMI for instance: $INSTANCE"
+            aws ec2 create-image \
+              --instance-id $INSTANCE \
+              --name "backup-${{ github.event.inputs.target_environment }}-$(date +%Y%m%d-%H%M%S)" \
+              --description "Backup before promotion to ${{ github.event.inputs.version }}" \
+              --no-reboot
+          done
+
+  # ==========================================
+  # Plan: Generate promotion plan
+  # ==========================================
+  plan-promotion:
+    name: Plan Promotion
+    runs-on: ubuntu-latest
+    needs: backup-target
+    environment: ${{ github.event.inputs.target_environment }}
+    steps:
+      - name: Checkout Code at Version
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', github.event.inputs.target_environment)] }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init \
+            -backend-config="bucket=${{ secrets[format('TF_STATE_BUCKET_{0}', github.event.inputs.target_environment)] }}" \
+            -backend-config="key=${{ github.event.inputs.target_environment }}/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          cd terraform
+          terraform plan \
+            -var-file=environments/${{ github.event.inputs.target_environment }}.tfvars \
+            -out=promotion-plan
+          
+          # Save plan output
+          terraform show -no-color promotion-plan > /tmp/plan-output.txt
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: promotion-plan-${{ github.event.inputs.target_environment }}
+          path: |
+            terraform/promotion-plan
+            /tmp/plan-output.txt
+
+      - name: Comment Plan on Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('/tmp/plan-output.txt', 'utf8');
+            
+            const body = `
+            ## 🚀 Promotion Plan
+            
+            **Source**: \`${{ github.event.inputs.source_environment }}\`  
+            **Target**: \`${{ github.event.inputs.target_environment }}\`  
+            **Version**: \`${{ github.event.inputs.version }}\`
+            
+            <details>
+            <summary>📋 Terraform Plan</summary>
+            
+            \`\`\`terraform
+            ${planOutput.slice(0, 60000)}
+            \`\`\`
+            
+            </details>
+            
+            **Triggered by**: @${{ github.actor }}
+            `;
+            
+            // Create issue for tracking
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Promotion: ${{ github.event.inputs.source_environment }} → ${{ github.event.inputs.target_environment }} (${{ github.event.inputs.version }})`,
+              body: body,
+              labels: ['deployment', 'promotion', '${{ github.event.inputs.target_environment }}']
+            });
+            
+            core.setOutput('issue_number', issue.data.number);
+
+  # ==========================================
+  # Approval: Manual approval gate
+  # ==========================================
+  approval-gate:
+    name: Approval Required
+    runs-on: ubuntu-latest
+    needs: plan-promotion
+    environment:
+      name: ${{ github.event.inputs.target_environment }}-approval
+    steps:
+      - name: Wait for Approval
+        run: |
+          echo "⏳ Waiting for manual approval..."
+          echo "Promote ${{ github.event.inputs.version }} to ${{ github.event.inputs.target_environment }}"
+
+      - name: Log Approval
+        run: |
+          echo "✅ Promotion approved by ${{ github.actor }}"
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+  # ==========================================
+  # Deploy: Execute promotion
+  # ==========================================
+  execute-promotion:
+    name: Execute Promotion
+    runs-on: ubuntu-latest
+    needs: approval-gate
+    environment: ${{ github.event.inputs.target_environment }}
+    steps:
+      - name: Checkout Code at Version
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', github.event.inputs.target_environment)] }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init \
+            -backend-config="bucket=${{ secrets[format('TF_STATE_BUCKET_{0}', github.event.inputs.target_environment)] }}" \
+            -backend-config="key=${{ github.event.inputs.target_environment }}/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: promotion-plan-${{ github.event.inputs.target_environment }}
+          path: terraform/
+
+      - name: Terraform Apply
+        id: apply
+        run: |
+          cd terraform
+          terraform apply -auto-approve promotion-plan
+
+      - name: Get Deployment Outputs
+        id: outputs
+        run: |
+          cd terraform
+          echo "### 📤 Deployment Outputs" >> $GITHUB_STEP_SUMMARY
+          terraform output -json | jq -r 'to_entries[] | "- **\(.key)**: \(.value.value)"' >> $GITHUB_STEP_SUMMARY
+
+      - name: Tag Deployment
+        run: |
+          git tag -a "deploy-${{ github.event.inputs.target_environment }}-$(date +%Y%m%d-%H%M%S)" \
+            -m "Deployed ${{ github.event.inputs.version }} to ${{ github.event.inputs.target_environment }}"
+          git push origin --tags
+
+  # ==========================================
+  # Smoke Tests: Validate deployment
+  # ==========================================
+  smoke-tests:
+    name: Run Smoke Tests
+    runs-on: ubuntu-latest
+    needs: execute-promotion
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+
+      - name: Get Application URL
+        id: get_url
+        run: |
+          # Get ALB DNS from Terraform outputs
+          URL="https://${{ github.event.inputs.target_environment }}.example.com"
+          echo "app_url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Health Check
+        run: |
+          URL="${{ steps.get_url.outputs.app_url }}"
+          
+          echo "Testing health endpoint..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL/health)
+          
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Health check passed"
+          else
+            echo "❌ Health check failed (HTTP $RESPONSE)"
+            exit 1
+          fi
+
+      - name: API Smoke Tests
+        run: |
+          URL="${{ steps.get_url.outputs.app_url }}"
+          
+          # Test critical endpoints
+          ENDPOINTS=("/api/status" "/api/version" "/api/users")
+          
+          for ENDPOINT in "${ENDPOINTS[@]}"; do
+            echo "Testing $ENDPOINT..."
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL$ENDPOINT)
+            
+            if [ "$RESPONSE" = "200" ] || [ "$RESPONSE" = "401" ]; then
+              echo "✅ $ENDPOINT responsive"
+            else
+              echo "❌ $ENDPOINT failed (HTTP $RESPONSE)"
+              exit 1
+            fi
+          done
+
+      - name: Performance Baseline
+        run: |
+          URL="${{ steps.get_url.outputs.app_url }}"
+          
+          # Measure response time
+          RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' $URL/health)
+          
+          echo "Response time: ${RESPONSE_TIME}s"
+          
+          # Alert if > 2 seconds
+          if (( $(echo "$RESPONSE_TIME > 2.0" | bc -l) )); then
+            echo "⚠️ Warning: Response time above baseline"
+          fi
+
+  # ==========================================
+  # Monitor: Post-deployment monitoring
+  # ==========================================
+  post-deployment-monitoring:
+    name: Monitor Deployment
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    steps:
+      - name: Wait for Metrics
+        run: |
+          echo "⏳ Waiting 5 minutes for metrics to stabilize..."
+          sleep 300
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', github.event.inputs.target_environment)] }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check CloudWatch Alarms
+        run: |
+          ALARMS=$(aws cloudwatch describe-alarms \
+            --alarm-name-prefix "${{ github.event.inputs.target_environment }}" \
+            --state-value ALARM \
+            --query 'MetricAlarms[*].AlarmName' \
+            --output text)
+          
+          if [ -n "$ALARMS" ]; then
+            echo "⚠️ Active alarms detected:"
+            echo "$ALARMS"
+            exit 1
+          else
+            echo "✅ No active alarms"
+          fi
+
+      - name: Check Error Rates
+        run: |
+          ERROR_COUNT=$(aws cloudwatch get-metric-statistics \
+            --namespace AWS/ApplicationELB \
+            --metric-name HTTPCode_Target_5XX_Count \
+            --start-time $(date -u -d '5 minutes ago' +%Y-%m-%dT%H:%M:%S) \
+            --end-time $(date -u +%Y-%m-%dT%H:%M:%S) \
+            --period 300 \
+            --statistics Sum \
+            --query 'Datapoints[0].Sum' \
+            --output text)
+          
+          if [ "$ERROR_COUNT" != "None" ] && [ "$ERROR_COUNT" -gt 10 ]; then
+            echo "❌ High error rate detected: $ERROR_COUNT errors"
+            exit 1
+          else
+            echo "✅ Error rate acceptable"
+          fi
+
+  # ==========================================
+  # Notification: Send deployment notification
+  # ==========================================
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: post-deployment-monitoring
+    if: success()
+    steps:
+      - name: Send Success Notification
+        run: |
+          echo "### ✅ Promotion Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ github.event.inputs.target_environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Promoted by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time**: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create Release
+        if: github.event.inputs.target_environment == 'production'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: '${{ github.event.inputs.version }}',
+              name: 'Release ${{ github.event.inputs.version }}',
+              body: 'Deployed to production via environment promotion workflow',
+              draft: false,
+              prerelease: false
+            });
+
+  # ==========================================
+  # Rollback: Automatic rollback on failure
+  # ==========================================
+  auto-rollback:
+    name: Automatic Rollback
+    runs-on: ubuntu-latest
+    needs: [execute-promotion, smoke-tests, post-deployment-monitoring]
+    if: failure()
+    environment: ${{ github.event.inputs.target_environment }}
+    steps:
+      - name: Restore from Backup
+        run: |
+          echo "🔄 Initiating automatic rollback..."
+          echo "Target: ${{ github.event.inputs.target_environment }}"
+          
+          # Restore latest backup
+          # Implementation depends on your backup strategy
+
+      - name: Notify Rollback
+        run: |
+          echo "### ❌ Deployment Failed - Rollback Initiated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ github.event.inputs.target_environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Failed Version**: ${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time**: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY

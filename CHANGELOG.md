@@ -5,6 +5,129 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-11-16
+
+### Added - Phase 3: Advanced CI/CD & Blue-Green Deployments
+
+#### CI/CD Pipeline 🚀
+- **GitHub Actions Terraform CI/CD Pipeline**: Multi-stage deployment workflow
+  - `.github/workflows/terraform-cicd.yml` - Complete CI/CD implementation
+  - 9-stage pipeline: Validate → Test → Plan → Apply → Monitor
+  - Environment-based deployments (dev, staging, production)
+  - OIDC authentication with AWS (no static credentials)
+  - Automated Terraform plan comments on PRs
+  - Manual approval gates for staging and production
+  - Terratest execution in CI pipeline
+  - Security scanning integration (tfsec, Checkov)
+  - Artifact management for Terraform plans
+  - Drift detection job (scheduled and on-demand)
+  - CloudWatch metrics monitoring post-deployment
+
+- **Environment Promotion Workflow**: Safe production promotions
+  - `.github/workflows/environment-promotion.yml` - Promotion pipeline
+  - Validation: Ensure proper promotion path (dev → staging → production)
+  - Backup: Automatic state backup and AMI snapshots
+  - Planning: Terraform plan with artifact storage
+  - Approval: Manual approval gate with notifications
+  - Execution: Automated deployment with rollback capability
+  - Smoke tests: Health checks and API validation
+  - Monitoring: CloudWatch alarm verification
+  - Auto-rollback: Automatic rollback on failure
+
+#### Blue-Green Deployment Module 🔵🟢
+- **Zero-Downtime Deployment Module**: Complete blue-green implementation
+  - `terraform/modules/blue-green-deployment/` - Full module (600+ lines)
+  - Application Load Balancer with dual target groups
+  - Instant traffic switching between blue and green
+  - Test traffic listener for inactive environment (port 8080)
+  - Canary deployment support with weighted traffic distribution
+  - Health check configuration with customizable thresholds
+  - Sticky session support for stateful applications
+  - Auto Scaling group integration
+  - HTTPS/SSL support with configurable policies
+  - CloudWatch alarms for unhealthy hosts and response time
+  - CloudWatch dashboard for deployment monitoring
+  - Comprehensive outputs and switching commands
+
+- **Deployment Strategies**: Multiple deployment patterns
+  - Blue-Green: Instant cutover with immediate rollback
+  - Canary: Gradual traffic shifting (10% → 25% → 50% → 100%)
+  - Rolling: Incremental updates within target group
+  - Feature Flags: Progressive feature enablement
+  - A/B Testing: Statistical validation of changes
+  - Shadow: Mirror traffic for testing without user impact
+
+#### Infrastructure Testing Framework 🧪
+- **Terratest Integration**: Automated infrastructure testing
+  - `test/terraform_test.go` - 12 comprehensive tests
+  - Unit tests for all modules (EC2, Security Groups, Secrets, IAM)
+  - Integration tests for blue-green deployment
+  - Configuration validation tests (HTTPS, canary, sticky sessions)
+  - Health check and Auto Scaling integration tests
+  - Parallel test execution support
+  - Retry logic for transient failures
+  - Coverage tracking and reporting
+  - `test/README.md` - Complete testing documentation
+
+#### Documentation 📚
+- **Deployment Strategies Guide**: Comprehensive deployment patterns
+  - `docs/DEPLOYMENT_STRATEGIES.md` - 700+ lines complete guide
+  - Blue-Green deployment workflow and examples
+  - Canary deployment with CloudWatch monitoring
+  - Rolling deployment with Auto Scaling
+  - Feature flag implementation with LaunchDarkly
+  - A/B testing with statistical validation
+  - Shadow deployment with NGINX
+  - Comparison matrix and use cases
+  - Best practices and monitoring strategies
+
+### Changed
+- **CI/CD Workflows**: Enhanced deployment automation
+  - Replaced basic infra.yml with comprehensive terraform-cicd.yml
+  - Added multi-environment support (dev, staging, production)
+  - Integrated Terratest execution
+  - Added manual approval gates
+  - Enhanced security scanning
+
+- **Documentation**: Expanded from 25+ to 30+ comprehensive guides
+  - Added blue-green deployment module documentation
+  - Added deployment strategies comprehensive guide
+  - Added Terratest testing documentation
+  - Added environment promotion workflow guide
+  - Enhanced CI/CD pipeline documentation
+
+- **Infrastructure Capabilities**: Zero-downtime deployments
+  - Instant traffic switching capabilities
+  - Canary deployment support
+  - Automated rollback mechanisms
+  - Health-based routing
+  - Multi-environment promotion pipelines
+
+### Security
+- OIDC authentication for GitHub Actions (no long-lived credentials)
+- Environment-specific IAM roles for deployments
+- Encrypted Terraform state artifacts
+- Manual approval gates for production deployments
+- Automated drift detection and alerting
+- CloudWatch alarm integration for deployment validation
+
+### Testing
+- 12+ automated Terratest infrastructure tests
+- Unit tests for individual modules
+- Integration tests for full deployments
+- Configuration validation tests
+- Parallel test execution (10x speedup)
+- Coverage tracking and reporting
+
+### DevOps
+- Multi-stage CI/CD pipeline with 9 stages
+- Environment promotion workflow with approval gates
+- Automated backup before deployments
+- Post-deployment health checks
+- CloudWatch metrics monitoring
+- Automatic rollback on failure
+- Deployment tracking and tagging
+
 ## [1.2.0] - 2025-11-16
 
 ### Added - Phase 2: Security Hardening & Secrets Management
