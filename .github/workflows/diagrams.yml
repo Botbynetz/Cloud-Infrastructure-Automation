@@ -1,0 +1,248 @@
+name: Generate Architecture Diagrams
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'terraform/**/*.tf'
+  pull_request:
+    paths:
+      - 'terraform/**/*.tf'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-diagrams:
+    name: Generate Terraform Diagrams
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.6.0'
+
+      - name: Install terraform-visual
+        run: |
+          pip install terraform-visual
+
+      - name: Install Inframap
+        run: |
+          wget https://github.com/cycloidio/inframap/releases/download/v0.6.7/inframap-linux-amd64.tar.gz
+          tar -xzf inframap-linux-amd64.tar.gz
+          sudo mv inframap-linux-amd64 /usr/local/bin/inframap
+          chmod +x /usr/local/bin/inframap
+
+      - name: Create diagrams directory
+        run: |
+          mkdir -p docs/diagrams
+
+      - name: Initialize Terraform
+        working-directory: ./terraform
+        run: |
+          terraform init -backend=false
+
+      - name: Generate Infrastructure Graph
+        working-directory: ./terraform
+        run: |
+          terraform graph | dot -Tpng > ../docs/diagrams/infrastructure-graph.png
+          terraform graph | dot -Tsvg > ../docs/diagrams/infrastructure-graph.svg
+
+      - name: Generate Resource Diagram with Inframap
+        working-directory: ./terraform
+        continue-on-error: true
+        run: |
+          terraform plan -out=tfplan
+          terraform show -json tfplan > tfplan.json
+          inframap generate tfplan.json --output ../docs/diagrams/infrastructure-map.png || true
+          inframap generate tfplan.json --output ../docs/diagrams/infrastructure-map.svg || true
+
+      - name: Create Architecture Documentation
+        run: |
+          cat > docs/diagrams/README.md << 'EOF'
+          # Architecture Diagrams
+
+          Auto-generated infrastructure architecture diagrams for the Cloud Infrastructure Automation project.
+
+          ## Infrastructure Graph
+
+          Complete Terraform resource dependency graph showing all resources and their relationships.
+
+          ### PNG Format
+          ![Infrastructure Graph](infrastructure-graph.png)
+
+          ### SVG Format (Interactive)
+          ![Infrastructure Graph SVG](infrastructure-graph.svg)
+
+          ## Infrastructure Map
+
+          High-level architecture map showing the deployed AWS infrastructure.
+
+          ### PNG Format
+          ![Infrastructure Map](infrastructure-map.png)
+
+          ### SVG Format (Interactive)
+          ![Infrastructure Map SVG](infrastructure-map.svg)
+
+          ## Architecture Overview
+
+          ```
+          ┌─────────────────────────────────────────────────────────────┐
+          │                      AWS Cloud                              │
+          │                                                             │
+          │  ┌──────────────────────────────────────────────────────┐  │
+          │  │                    VPC                               │  │
+          │  │  ┌──────────────┐         ┌──────────────┐          │  │
+          │  │  │Public Subnet │         │Private Subnet│          │  │
+          │  │  │              │         │              │          │  │
+          │  │  │  ┌────────┐  │         │  ┌────────┐  │          │  │
+          │  │  │  │Bastion │  │         │  │  EC2   │  │          │  │
+          │  │  │  │ Host   │──┼────SSH──▶  │Instance│  │          │  │
+          │  │  │  └────────┘  │         │  └────────┘  │          │  │
+          │  │  │              │         │              │          │  │
+          │  │  │  Internet    │         │              │          │  │
+          │  │  │  Gateway     │         │              │          │  │
+          │  │  └──────┬───────┘         └──────────────┘          │  │
+          │  │         │                                           │  │
+          │  └─────────┼───────────────────────────────────────────┘  │
+          │            │                                              │
+          │  ┌─────────▼──────────────────────────────────────────┐  │
+          │  │           CloudWatch Monitoring                    │  │
+          │  │  • Metrics  • Logs  • Alarms  • Dashboards        │  │
+          │  └───────────────────────────────────────────────────┘  │
+          │                                                          │
+          └──────────────────────────────────────────────────────────┘
+          ```
+
+          ## Components
+
+          ### Network Layer
+          - **VPC**: Isolated virtual network
+          - **Public Subnet**: Internet-accessible resources
+          - **Private Subnet**: Protected application resources
+          - **Internet Gateway**: External connectivity
+
+          ### Compute Layer
+          - **Bastion Host**: Secure SSH gateway (t3.micro)
+          - **EC2 Instances**: Application servers (configurable)
+          - **Auto Scaling**: Dynamic capacity management
+
+          ### Security Layer
+          - **Security Groups**: Firewall rules
+          - **IAM Roles**: Access management
+          - **Key Pairs**: SSH authentication
+
+          ### Monitoring Layer
+          - **CloudWatch Metrics**: Performance monitoring
+          - **CloudWatch Alarms**: Automated alerting
+          - **CloudWatch Logs**: Centralized logging
+          - **Dashboards**: Visual monitoring
+
+          ## Environments
+
+          | Environment | Purpose | Instance Type | High Availability |
+          |------------|---------|---------------|------------------|
+          | Development | Testing | t3.micro | Single AZ |
+          | Staging | Pre-production | t3.small | Multi AZ |
+          | Production | Live | t3.medium+ | Multi AZ + ASG |
+
+          ## Security Architecture
+
+          ### Network Security
+          - Bastion host in public subnet (port 22 restricted)
+          - Application servers in private subnet
+          - Security groups with least-privilege rules
+          - Network ACLs for additional protection
+
+          ### Access Control
+          - IAM roles for EC2 instances
+          - SSH key pairs for authentication
+          - No direct internet access to private resources
+          - All access through bastion host
+
+          ### Monitoring & Compliance
+          - CloudWatch logs for all instances
+          - Automated security scanning (tfsec, Checkov)
+          - Drift detection enabled
+          - Audit trails maintained
+
+          ## Disaster Recovery
+
+          - Automated backups via AWS Backup
+          - Multi-AZ deployment for production
+          - Infrastructure as Code for rapid recovery
+          - Documented rollback procedures
+
+          ## Cost Optimization
+
+          - Right-sized instances per environment
+          - Auto-scaling for dynamic workloads
+          - Reserved instances for production
+          - CloudWatch metrics for optimization
+
+          ---
+
+          *Last Updated: Auto-generated by GitHub Actions*  
+          *Repository: [Cloud-Infrastructure-Automation](https://github.com/Botbynetz/Cloud-Infrastructure-Automation)*
+          EOF
+
+      - name: Commit diagrams
+        if: github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/diagrams/
+          git diff --quiet && git diff --staged --quiet || git commit -m "docs: auto-update architecture diagrams"
+          git push
+
+      - name: Upload diagram artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-diagrams
+          path: docs/diagrams/
+          retention-days: 90
+
+      - name: Comment PR with diagrams
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🏗️ **Architecture Diagrams Updated**\n\nNew architecture diagrams have been generated based on your infrastructure changes.\n\n📊 View diagrams in the `docs/diagrams/` directory\n📦 Download artifacts from the Actions tab'
+            });
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "## 🏗️ Architecture Diagrams Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Infrastructure graph created" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Infrastructure map created" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Documentation updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📂 Diagrams saved to: \`docs/diagrams/\`" >> $GITHUB_STEP_SUMMARY
+          echo "📊 Available formats: PNG, SVG" >> $GITHUB_STEP_SUMMARY

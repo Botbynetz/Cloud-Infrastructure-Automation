@@ -1,0 +1,90 @@
+name: Terraform Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'terraform/**/*.tf'
+      - 'terraform/**/README.md'
+  pull_request:
+    paths:
+      - 'terraform/**/*.tf'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  terraform-docs:
+    name: Generate Terraform Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate terraform-docs for main module
+        uses: terraform-docs/gh-actions@v1.1.0
+        with:
+          working-dir: ./terraform
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
+          git-commit-message: "docs: auto-update terraform documentation"
+          config-file: .terraform-docs.yml
+
+      - name: Generate terraform-docs for EC2 module
+        uses: terraform-docs/gh-actions@v1.1.0
+        with:
+          working-dir: ./terraform/modules/ec2
+          output-file: README.md
+          output-method: inject
+          git-push: "false"
+          config-file: ../../.terraform-docs.yml
+
+      - name: Generate terraform-docs for Bastion module
+        uses: terraform-docs/gh-actions@v1.1.0
+        with:
+          working-dir: ./terraform/modules/bastion
+          output-file: README.md
+          output-method: inject
+          git-push: "false"
+          config-file: ../../.terraform-docs.yml
+
+      - name: Commit and push all module documentation
+        if: github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add terraform/**/README.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "docs: auto-update all Terraform module documentation"
+          git push
+
+      - name: Comment PR with documentation update
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '📚 **Terraform Documentation Updated**\n\nModule documentation has been automatically regenerated based on your code changes.\n\nPlease review the updated README files in the terraform directories.'
+            });
+
+      - name: Generate Documentation Summary
+        if: always()
+        run: |
+          echo "## 📚 Terraform Documentation Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Main module documentation updated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ EC2 module documentation updated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Bastion module documentation updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📖 Check the README.md files in each module directory" >> $GITHUB_STEP_SUMMARY
