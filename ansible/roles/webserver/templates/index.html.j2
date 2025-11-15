@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Infrastructure - {{ environment }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, {{ gradient_start | default('#667eea') }} 0%, {{ gradient_end | default('#764ba2') }} 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+            max-width: 900px;
+            width: 100%;
+        }
+        h1 {
+            color: {{ gradient_start | default('#667eea') }};
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .environment-badge {
+            background: {{ gradient_end | default('#764ba2') }};
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        .center {
+            text-align: center;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .value {
+            color: {{ gradient_start | default('#667eea') }};
+            font-weight: 600;
+        }
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .tech-badge {
+            background: {{ gradient_start | default('#667eea') }};
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .status {
+            color: #28a745;
+            font-size: 1.2em;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .feature-list {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .feature-list h3 {
+            color: #0066cc;
+            margin-bottom: 15px;
+        }
+        .feature-list ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        .deployment-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .deployment-info strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 {{ project_name | default('Cloud Infrastructure') }}</h1>
+        <div class="center">
+            <span class="environment-badge">{{ environment }} Environment</span>
+        </div>
+        <p class="subtitle">Automated Deployment with Terraform & Ansible</p>
+        
+        <div class="info-box">
+            <div class="info-item">
+                <span class="label">Environment:</span>
+                <span class="value">{{ environment }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Server Hostname:</span>
+                <span class="value">{{ ansible_hostname }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Public IP:</span>
+                <span class="value">{{ ansible_default_ipv4.address }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Private IP:</span>
+                <span class="value">{{ ansible_default_ipv4.address }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Operating System:</span>
+                <span class="value">{{ ansible_distribution }} {{ ansible_distribution_version }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Kernel Version:</span>
+                <span class="value">{{ ansible_kernel }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Deployment Date:</span>
+                <span class="value">{{ ansible_date_time.date }} {{ ansible_date_time.time }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Deployed By:</span>
+                <span class="value">Ansible</span>
+            </div>
+        </div>
+
+        <div class="feature-list">
+            <h3>📊 Infrastructure Features</h3>
+            <ul>
+                <li><strong>Infrastructure as Code:</strong> Terraform managed AWS resources</li>
+                <li><strong>Configuration Management:</strong> Ansible role-based setup</li>
+                <li><strong>Multi-Environment:</strong> Separate dev, staging, and prod configs</li>
+                <li><strong>High Availability:</strong> VPC with public subnet and internet gateway</li>
+                <li><strong>Security:</strong> Security groups with least privilege access</li>
+                <li><strong>Monitoring:</strong> CloudWatch logs and metrics integration</li>
+                <li><strong>CI/CD:</strong> Automated deployment via GitHub Actions</li>
+                <li><strong>Scalability:</strong> Modular architecture for easy scaling</li>
+            </ul>
+        </div>
+
+        <div class="deployment-info">
+            <strong>ℹ️ Deployment Method:</strong> 
+            This server was configured using Ansible playbook with the 'webserver' role.
+            All configurations are version-controlled and reproducible.
+        </div>
+
+        <div class="tech-stack">
+            <span class="tech-badge">Terraform</span>
+            <span class="tech-badge">Ansible</span>
+            <span class="tech-badge">AWS EC2</span>
+            <span class="tech-badge">Nginx</span>
+            <span class="tech-badge">CloudWatch</span>
+            <span class="tech-badge">GitHub Actions</span>
+            <span class="tech-badge">Ubuntu 22.04</span>
+        </div>
+
+        <p class="status center">✅ Successfully Deployed via Ansible Role!</p>
+    </div>
+</body>
+</html>

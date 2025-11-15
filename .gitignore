@@ -1,0 +1,57 @@
+# Terraform
+**/*.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.terraform.lock.hcl
+tfplan
+
+# Ansible
+*.retry
+.ansible/
+
+# SSH Keys
+*.pem
+*.key
+id_rsa*
+cloud-infra-key*
+
+# Environment files
+.env
+*.env
+.envrc
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup

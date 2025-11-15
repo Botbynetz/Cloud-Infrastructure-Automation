@@ -1,0 +1,345 @@
+name: Infrastructure Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+env:
+  TERRAFORM_VERSION: '1.6.0'
+  AWS_REGION: 'ap-southeast-1'
+  ANSIBLE_VERSION: '2.15'
+
+jobs:
+  determine-environment:
+    name: Determine Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+    steps:
+      - name: Set environment based on branch or input
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    needs: determine-environment
+    environment: ${{ needs.determine-environment.outputs.environment }}
+    defaults:
+      run:
+        working-directory: ./terraform
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Cache Terraform plugins
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.terraform.d/plugin-cache
+            .terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: |
+          terraform init \
+            -backend-config="backend/${{ needs.determine-environment.outputs.environment }}.conf"
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan \
+            -var-file="env/${{ needs.determine-environment.outputs.environment }}.tfvars" \
+            -out=tfplan \
+            -no-color
+        continue-on-error: true
+
+      - name: Save Plan Output
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform show -no-color tfplan > plan.txt
+          
+      - name: Comment PR with Plan
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('terraform/plan.txt', 'utf8');
+            const truncatedPlan = plan.length > 65000 ? plan.substring(0, 65000) + '\n... (truncated)' : plan;
+            
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`terraform
+            ${truncatedPlan}
+            \`\`\`
+            
+            </details>
+            
+            **Environment:** \`${{ needs.determine-environment.outputs.environment }}\`
+            **Pusher:** @${{ github.actor }}
+            **Action:** \`${{ github.event_name }}\``;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Terraform Apply
+        id: apply
+        if: |
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && 
+          github.event_name == 'push' ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
+        run: |
+          terraform apply -auto-approve tfplan
+          
+      - name: Get Terraform Outputs
+        id: outputs
+        if: steps.apply.outcome == 'success'
+        run: |
+          echo "ec2_public_ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
+          echo "ec2_instance_id=$(terraform output -raw ec2_instance_id)" >> $GITHUB_OUTPUT
+          echo "website_url=$(terraform output -raw website_url)" >> $GITHUB_OUTPUT
+
+      - name: Save outputs to artifact
+        if: steps.apply.outcome == 'success'
+        run: |
+          terraform output -json > terraform-outputs.json
+          
+      - name: Upload Terraform outputs
+        if: steps.apply.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-outputs-${{ needs.determine-environment.outputs.environment }}
+          path: terraform/terraform-outputs.json
+          retention-days: 30
+
+      - name: Terraform Destroy
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+        run: |
+          terraform destroy \
+            -var-file="env/${{ needs.determine-environment.outputs.environment }}.tfvars" \
+            -auto-approve
+
+    outputs:
+      ec2_public_ip: ${{ steps.outputs.outputs.ec2_public_ip }}
+      website_url: ${{ steps.outputs.outputs.website_url }}
+      apply_outcome: ${{ steps.apply.outcome }}
+
+  ansible-lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    needs: determine-environment
+    defaults:
+      run:
+        working-directory: ./ansible
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Ansible and ansible-lint
+        run: |
+          pip install ansible ansible-lint
+
+      - name: Run ansible-lint
+        run: |
+          ansible-lint playbook.yml || true
+        continue-on-error: true
+
+      - name: Syntax Check
+        run: |
+          ansible-playbook playbook.yml --syntax-check
+
+  ansible:
+    name: Ansible Configuration
+    runs-on: ubuntu-latest
+    needs: [determine-environment, terraform, ansible-lint]
+    if: needs.terraform.outputs.apply_outcome == 'success'
+    defaults:
+      run:
+        working-directory: ./ansible
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Terraform outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-outputs-${{ needs.determine-environment.outputs.environment }}
+          path: ./terraform-outputs
+
+      - name: Extract EC2 IP
+        id: extract-ip
+        run: |
+          EC2_IP=$(cat ../terraform-outputs/terraform-outputs.json | jq -r '.ec2_public_ip.value')
+          echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
+          echo "EC2 Public IP: $EC2_IP"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache Ansible collections
+        uses: actions/cache@v4
+        with:
+          path: ~/.ansible/collections
+          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('**/requirements.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ansible-collections-
+
+      - name: Install Ansible
+        run: |
+          pip install ansible
+
+      - name: Create dynamic inventory
+        run: |
+          mkdir -p inventory
+          cat > inventory/${{ needs.determine-environment.outputs.environment }} << EOF
+          [webservers]
+          ${{ steps.extract-ip.outputs.ec2_ip }}
+          
+          [webservers:vars]
+          ansible_user=ubuntu
+          ansible_ssh_private_key_file=./ssh_key
+          ansible_python_interpreter=/usr/bin/python3
+          ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+          EOF
+
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
+          chmod 600 ssh_key
+
+      - name: Wait for EC2 to be ready
+        run: |
+          echo "Waiting for EC2 instance to be ready..."
+          for i in {1..30}; do
+            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i ssh_key ubuntu@${{ steps.extract-ip.outputs.ec2_ip }} "echo 'SSH connection successful'"; then
+              echo "EC2 instance is ready!"
+              break
+            fi
+            echo "Attempt $i: EC2 not ready yet, waiting 10 seconds..."
+            sleep 10
+          done
+
+      - name: Ansible Version
+        run: ansible --version
+
+      - name: Ping hosts
+        run: |
+          ansible -i inventory/${{ needs.determine-environment.outputs.environment }} \
+            webservers -m ping
+
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i inventory/${{ needs.determine-environment.outputs.environment }} \
+            playbook.yml \
+            -v
+
+      - name: Verify Deployment
+        run: |
+          echo "Verifying web server deployment..."
+          sleep 5
+          curl -f http://${{ steps.extract-ip.outputs.ec2_ip }} || echo "Web server verification failed"
+          curl -f http://${{ steps.extract-ip.outputs.ec2_ip }}/health || echo "Health check failed"
+
+      - name: Cleanup SSH Key
+        if: always()
+        run: |
+          rm -f ssh_key
+
+  notify:
+    name: Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [determine-environment, terraform, ansible]
+    if: always()
+    steps:
+      - name: Deployment Success
+        if: needs.ansible.result == 'success'
+        run: |
+          echo "✅ Deployment to ${{ needs.determine-environment.outputs.environment }} completed successfully!"
+          echo "🌐 Access your application at: ${{ needs.terraform.outputs.website_url }}"
+          echo "📊 Environment: ${{ needs.determine-environment.outputs.environment }}"
+
+      - name: Deployment Failed
+        if: needs.ansible.result == 'failure' || needs.terraform.result == 'failure'
+        run: |
+          echo "❌ Deployment to ${{ needs.determine-environment.outputs.environment }} failed!"
+          exit 1

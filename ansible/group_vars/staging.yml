@@ -1,0 +1,14 @@
+---
+# Staging environment variables
+
+environment: staging
+project_name: cloud-infra
+region: ap-southeast-1
+
+# Styling
+gradient_start: "#f093fb"
+gradient_end: "#f5576c"
+
+# Webserver config
+website_name: cloud-infra-website
+site_name: cloud-infra

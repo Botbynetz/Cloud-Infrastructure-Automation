@@ -1,0 +1,14 @@
+---
+# Production environment variables
+
+environment: prod
+project_name: cloud-infra
+region: ap-southeast-1
+
+# Styling
+gradient_start: "#4facfe"
+gradient_end: "#00f2fe"
+
+# Webserver config
+website_name: cloud-infra-website
+site_name: cloud-infra

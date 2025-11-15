@@ -1,0 +1,14 @@
+---
+# Development environment variables
+
+environment: dev
+project_name: cloud-infra
+region: ap-southeast-1
+
+# Styling
+gradient_start: "#667eea"
+gradient_end: "#764ba2"
+
+# Webserver config
+website_name: cloud-infra-website
+site_name: cloud-infra

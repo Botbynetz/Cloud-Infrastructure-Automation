@@ -1,0 +1,7 @@
+---
+# Ansible role: webserver
+# Default variables
+
+website_name: "cloud-infra-website"
+website_root: "/var/www/{{ website_name }}"
+site_name: "cloud-infra"
