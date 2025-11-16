@@ -1,10 +1,10 @@
-﻿# ðŸ—ï¸ Cloud Infrastructure Automation Platform
+# 🏗️ Cloud Infrastructure Automation Platform
 
-> **ðŸš€ Enterprise-grade Infrastructure as Code** - Complete AWS deployment automation using Terraform, Ansible, and GitHub Actions for scalable multi-environment infrastructure.
+> **🚀 Enterprise-grade Infrastructure as Code** - Complete AWS deployment automation using Terraform, Ansible, and GitHub Actions for scalable multi-environment infrastructure.
 
 ---
 
-## ðŸŽ–ï¸ **Professional Badges & Certifications**
+## 🎖️ **Professional Badges & Certifications**
 
 ### **Core Technologies**
 [![AWS](https://img.shields.io/badge/AWS-Cloud%20Infrastructure-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
@@ -13,10 +13,10 @@
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 
 ### **Quality & Standards**
-[![Infrastructure as Code](https://img.shields.io/badge/Infrastructure%20as%20Code-âœ…-brightgreen?style=for-the-badge)](.)
-[![Production Ready](https://img.shields.io/badge/Production%20Ready-âœ…-brightgreen?style=for-the-badge)](.)
-[![Security Hardened](https://img.shields.io/badge/Security%20Hardened-ðŸ”’-blue?style=for-the-badge)](./SECURITY.md)
-[![Well Documented](https://img.shields.io/badge/Well%20Documented-ðŸ“š-informational?style=for-the-badge)](./docs/)
+[![Infrastructure as Code](https://img.shields.io/badge/Infrastructure%20as%20Code-✅-brightgreen?style=for-the-badge)](.)
+[![Production Ready](https://img.shields.io/badge/Production%20Ready-✅-brightgreen?style=for-the-badge)](.)
+[![Security Hardened](https://img.shields.io/badge/Security%20Hardened-🔒-blue?style=for-the-badge)](./SECURITY.md)
+[![Well Documented](https://img.shields.io/badge/Well%20Documented-📚-informational?style=for-the-badge)](./docs/)
 
 ### **Project Metrics**
 [![Lines of Code](https://img.shields.io/badge/Lines%20of%20Code-5000+-blue?style=flat-square)](.)
@@ -26,26 +26,26 @@
 
 ### **Enterprise Features**
 [![Multi Environment](https://img.shields.io/badge/Multi%20Environment-Dev%2FStaging%2FProd-success?style=flat-square)](.)
-[![Cost Optimized](https://img.shields.io/badge/Cost%20Optimized-ðŸ’°-yellow?style=flat-square)](.)
-[![Scalable](https://img.shields.io/badge/Scalable-ðŸ“ˆ-blue?style=flat-square)](.)
-[![Monitored](https://img.shields.io/badge/Monitored-ðŸ“Š-purple?style=flat-square)](.)
+[![Cost Optimized](https://img.shields.io/badge/Cost%20Optimized-💰-yellow?style=flat-square)](.)
+[![Scalable](https://img.shields.io/badge/Scalable-📈-blue?style=flat-square)](.)
+[![Monitored](https://img.shields.io/badge/Monitored-📊-purple?style=flat-square)](.)
 
 ---
 
-## ðŸŒŸ **Project Showcase**
+## 🌟 **Project Showcase**
 
-| **ðŸ† Achievement** | **ðŸ“Š Metric** | **âœ¨ Description** |
+| **🏆 Achievement** | **📊 Metric** | **✨ Description** |
 |:---:|:---:|:---|
-| **ðŸš€ Setup Time** | **10 minutes** | From clone to deployment |
-| **ðŸ’° Cost Range** | **$10-200/month** | Scalable pricing tiers |
-| **ðŸ“ˆ Uptime Target** | **99.9%** | Production-grade reliability |
-| **ðŸ”’ Security Score** | **A+** | Hardened configurations |
-| **ðŸ“š Documentation** | **15+ pages** | Comprehensive guides |
-| **ðŸ§ª Test Coverage** | **95%+** | Automated validation |
+| **🚀 Setup Time** | **10 minutes** | From clone to deployment |
+| **💰 Cost Range** | **$10-200/month** | Scalable pricing tiers |
+| **📈 Uptime Target** | **99.9%** | Production-grade reliability |
+| **🔒 Security Score** | **A+** | Hardened configurations |
+| **📚 Documentation** | **15+ pages** | Comprehensive guides |
+| **🧪 Test Coverage** | **95%+** | Automated validation |
 
 ---
 
-## ðŸ“– Table of Contents
+## 📖 Table of Contents
 
 - [Overview](#-overview)
 - [Features](#-features)
@@ -68,7 +68,7 @@
 
 ---
 
-## ðŸŽ¯ Overview
+## 🎯 Overview
 
 Project ini adalah **complete infrastructure automation solution** yang siap dipakai untuk production. Dengan satu command, Anda bisa deploy entire cloud infrastructure including:
 
@@ -81,124 +81,124 @@ Project ini adalah **complete infrastructure automation solution** yang siap dip
 - **CI/CD pipeline** dengan GitHub Actions
 
 **Use Cases:**
-- âœ… Development, staging, dan production environments
-- âœ… Web application hosting
-- âœ… Microservices deployment
-- âœ… Learning DevOps practices
-- âœ… Infrastructure testing and validation
+- ✅ Development, staging, dan production environments
+- ✅ Web application hosting
+- ✅ Microservices deployment
+- ✅ Learning DevOps practices
+- ✅ Infrastructure testing and validation
 
 ---
 
-## âœ¨ Features
+## ✨ Features
 
-### ðŸ—ï¸ Infrastructure as Code (Terraform)
-
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **Multi-environment** | Separate configs for dev/staging/prod | âœ… |
-| **Modular architecture** | Reusable EC2 and bastion modules | âœ… |
-| **Remote state** | S3 backend with DynamoDB locking | âœ… |
-| **Security hardening** | Encrypted EBS, minimal SG rules | âœ… |
-| **Auto-tagging** | Consistent resource tagging | âœ… |
-| **Region-specific** | Optimized for ap-southeast-1 | âœ… |
-
-### âš™ï¸ Configuration Management (Ansible)
+### 🏗️ Infrastructure as Code (Terraform)
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **Role-based structure** | Organized webserver role | âœ… |
-| **Dynamic templates** | Jinja2 for environment configs | âœ… |
-| **Environment styling** | Unique colors per environment | âœ… |
-| **Idempotent** | Safe to run multiple times | âœ… |
-| **Auto-inventory** | Script to update from Terraform | âœ… |
+| **Multi-environment** | Separate configs for dev/staging/prod | ✅ |
+| **Modular architecture** | Reusable EC2 and bastion modules | ✅ |
+| **Remote state** | S3 backend with DynamoDB locking | ✅ |
+| **Security hardening** | Encrypted EBS, minimal SG rules | ✅ |
+| **Auto-tagging** | Consistent resource tagging | ✅ |
+| **Region-specific** | Optimized for ap-southeast-1 | ✅ |
 
-### ðŸ“Š Monitoring & Observability
-
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **CloudWatch integration** | Automated log collection | âœ… |
-| **Smart alarms** | CPU, memory, disk, health | âœ… |
-| **Centralized logging** | System + Nginx logs | âœ… |
-| **Dashboard template** | Pre-configured CloudWatch dashboard | âœ… |
-| **AWS X-Ray tracing** | Distributed tracing for applications | âœ… |
-| **Container Insights** | ECS/EKS monitoring with Fluent Bit | âœ… |
-| **Lambda Insights** | Serverless function monitoring | âœ… |
-| **Application Insights** | ML-powered anomaly detection | âœ… |
-
-### ðŸ”’ Security & Compliance
+### ⚙️ Configuration Management (Ansible)
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **AWS Config** | Compliance monitoring with 15 managed rules | âœ… |
-| **Conformance Packs** | CIS Benchmark + Operational Best Practices (90+ rules) | âœ… |
-| **GuardDuty** | Threat detection with auto-remediation | âœ… |
-| **Security Hub** | Centralized security dashboard | âœ… |
-| **Security Standards** | CIS, PCI-DSS, NIST 800-53, AWS Foundational | âœ… |
-| **Automated Remediation** | Lambda-based security response | âœ… |
-| **Multi-Account Support** | Centralized security across accounts | âœ… |
+| **Role-based structure** | Organized webserver role | ✅ |
+| **Dynamic templates** | Jinja2 for environment configs | ✅ |
+| **Environment styling** | Unique colors per environment | ✅ |
+| **Idempotent** | Safe to run multiple times | ✅ |
+| **Auto-inventory** | Script to update from Terraform | ✅ |
 
-### ðŸ”„ CI/CD & Testing
+### 📊 Monitoring & Observability
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **GitHub Actions** | Automated deployment | âœ… |
-| **Terraform validation** | fmt/validate checks | âœ… |
-| **Ansible linting** | ansible-lint integration | âœ… |
-| **Terratest** | Go-based infrastructure tests | âœ… |
-| **Manual approvals** | Production deployment gates | âœ… |
+| **CloudWatch integration** | Automated log collection | ✅ |
+| **Smart alarms** | CPU, memory, disk, health | ✅ |
+| **Centralized logging** | System + Nginx logs | ✅ |
+| **Dashboard template** | Pre-configured CloudWatch dashboard | ✅ |
+| **AWS X-Ray tracing** | Distributed tracing for applications | ✅ |
+| **Container Insights** | ECS/EKS monitoring with Fluent Bit | ✅ |
+| **Lambda Insights** | Serverless function monitoring | ✅ |
+| **Application Insights** | ML-powered anomaly detection | ✅ |
+
+### 🔒 Security & Compliance
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **AWS Config** | Compliance monitoring with 15 managed rules | ✅ |
+| **Conformance Packs** | CIS Benchmark + Operational Best Practices (90+ rules) | ✅ |
+| **GuardDuty** | Threat detection with auto-remediation | ✅ |
+| **Security Hub** | Centralized security dashboard | ✅ |
+| **Security Standards** | CIS, PCI-DSS, NIST 800-53, AWS Foundational | ✅ |
+| **Automated Remediation** | Lambda-based security response | ✅ |
+| **Multi-Account Support** | Centralized security across accounts | ✅ |
+
+### 🔄 CI/CD & Testing
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **GitHub Actions** | Automated deployment | ✅ |
+| **Terraform validation** | fmt/validate checks | ✅ |
+| **Ansible linting** | ansible-lint integration | ✅ |
+| **Terratest** | Go-based infrastructure tests | ✅ |
+| **Manual approvals** | Production deployment gates | ✅ |
 
 ---
 
-## ðŸ—ï¸ Architecture
+## 🏗️ Architecture
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                     AWS Cloud (ap-southeast-1)                          â”‚
-â”‚                                                                           â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
-â”‚  â”‚                    VPC (10.0.0.0/16)                               â”‚ â”‚
-â”‚  â”‚                                                                    â”‚ â”‚
-â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚ â”‚
-â”‚  â”‚  â”‚         Public Subnet (10.0.1.0/24)                      â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚                                                          â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”           â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                     â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚  â”‚ Bastion  â”‚    SSH    â”‚   EC2    â”‚                     â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚  â”‚  Host    â”‚â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¶â”‚ Instance â”‚                    â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚  â”‚(Optional)â”‚           â”‚  Nginx   â”‚                     â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚  â”‚ t2.micro â”‚           â”‚  Docker  â”‚                     â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜           â”‚CloudWatchâ”‚                     â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚       â”‚                 â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜                     â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚       â”‚                      â”‚                           â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚       â”‚      Security Groups â”‚                           â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚       â”‚     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”            â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚       â””â”€â”€â”€â”€â–¶â”‚ SSH: 22 â”‚ HTTP: 80 â”‚ HTTPS: 443â”‚           â”‚    â”‚ â”‚
-â”‚  â”‚  â”‚             â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜          â”‚    â”‚ â”‚
-â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚ â”‚
-â”‚  â”‚                                                                    â”‚ â”‚
-â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                         â”‚ â”‚
-â”‚  â”‚  â”‚  Internet Gateway    â”‚                                         â”‚ â”‚
-â”‚  â”‚  â”‚  0.0.0.0/0 â†’ Public  â”‚                                         â”‚ â”‚
-â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                         â”‚ â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
-â”‚                                                                           â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                â”‚
-â”‚  â”‚     S3     â”‚  â”‚  DynamoDB  â”‚  â”‚   CloudWatch      â”‚                â”‚
-â”‚  â”‚ Terraform  â”‚  â”‚   State    â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚                â”‚
-â”‚  â”‚   State    â”‚  â”‚  Locking   â”‚  â”‚  â”‚ Log Groups   â”‚ â”‚                â”‚
-â”‚  â”‚ Versioned  â”‚  â”‚            â”‚  â”‚  â”‚ Alarms       â”‚ â”‚                â”‚
-â”‚  â”‚ Encrypted  â”‚  â”‚            â”‚  â”‚  â”‚ Dashboard    â”‚ â”‚                â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-        â–²                      â–²                    â–²
-        â”‚                      â”‚                    â”‚
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     AWS Cloud (ap-southeast-1)                          │
+│                                                                           │
+│  ┌────────────────────────────────────────────────────────────────────┐ │
+│  │                    VPC (10.0.0.0/16)                               │ │
+│  │                                                                    │ │
+│  │  ┌──────────────────────────────────────────────────────────┐    │ │
+│  │  │         Public Subnet (10.0.1.0/24)                      │    │ │
+│  │  │                                                          │    │ │
+│  │  │  ┌──────────┐           ┌──────────┐                     │    │ │
+│  │  │  │ Bastion  │    SSH    │   EC2    │                     │    │ │
+│  │  │  │  Host    │──────────▶│ Instance │                    │    │ │
+│  │  │  │(Optional)│           │  Nginx   │                     │    │ │
+│  │  │  │ t2.micro │           │  Docker  │                     │    │ │
+│  │  │  └────┬─────┘           │CloudWatch│                     │    │ │
+│  │  │       │                 └────┬─────┘                     │    │ │
+│  │  │       │                      │                           │    │ │
+│  │  │       │      Security Groups │                           │    │ │
+│  │  │       │     ┌────────────────▼──────────────┐            │    │ │
+│  │  │       └────▶│ SSH: 22 │ HTTP: 80 │ HTTPS: 443│           │    │ │
+│  │  │             └─────────────────────────────────┘          │    │ │
+│  │  └──────────────────────────────────────────────────────────┘    │ │
+│  │                                                                    │ │
+│  │  ┌──────────────────────┐                                         │ │
+│  │  │  Internet Gateway    │                                         │ │
+│  │  │  0.0.0.0/0 → Public  │                                         │ │
+│  │  └──────────────────────┘                                         │ │
+│  └────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│  ┌────────────┐  ┌────────────┐  ┌───────────────────┐                │
+│  │     S3     │  │  DynamoDB  │  │   CloudWatch      │                │
+│  │ Terraform  │  │   State    │  │  ┌──────────────┐ │                │
+│  │   State    │  │  Locking   │  │  │ Log Groups   │ │                │
+│  │ Versioned  │  │            │  │  │ Alarms       │ │                │
+│  │ Encrypted  │  │            │  │  │ Dashboard    │ │                │
+│  └────────────┘  └────────────┘  └───────────────────┘                │
+└─────────────────────────────────────────────────────────────────────────┘
+        ▲                      ▲                    ▲
+        │                      │                    │
    GitHub Actions        Ansible Playbook     Terraform Apply
 ```
 
-**ðŸ“„ Detailed Architecture**: See [docs/architecture.md](docs/architecture.md) untuk Mermaid diagram dan component details.
+**📄 Detailed Architecture**: See [docs/architecture.md](docs/architecture.md) untuk Mermaid diagram dan component details.
 
 ---
 
-## ðŸ“‹ Prerequisites
+## 📋 Prerequisites
 
 ### Required Software
 
@@ -212,15 +212,15 @@ Project ini adalah **complete infrastructure automation solution** yang siap dip
 
 ### AWS Requirements
 
-- âœ… Active AWS Account dengan billing enabled
-- âœ… IAM user dengan permissions:
+- ✅ Active AWS Account dengan billing enabled
+- ✅ IAM user dengan permissions:
   - EC2 (full access)
   - VPC (full access)
   - S3 (for state storage)
   - DynamoDB (for state locking)
   - CloudWatch (optional, for monitoring)
-- âœ… AWS CLI configured (`aws configure`)
-- âœ… SSH key pair (akan dibuat di quick start)
+- ✅ AWS CLI configured (`aws configure`)
+- ✅ SSH key pair (akan dibuat di quick start)
 
 ### Budget Requirements
 
@@ -230,11 +230,11 @@ Project ini adalah **complete infrastructure automation solution** yang siap dip
 | **Staging** | ~$13 | Pre-production validation |
 | **Production** | ~$49 | Live workloads |
 
-âš ï¸ **IMPORTANT**: Resources akan create **real costs** di AWS. Destroy resources saat tidak digunakan!
+⚠️ **IMPORTANT**: Resources akan create **real costs** di AWS. Destroy resources saat tidak digunakan!
 
 ---
 
-## ðŸš€ Quick Start
+## 🚀 Quick Start
 
 ### Step 1: Clone Repository
 
@@ -315,7 +315,7 @@ terraform apply -var-file="env/dev.tfvars"
 # Type: yes
 ```
 
-â±ï¸ **Wait**: 2-3 minutes for resources to be created
+⏱️ **Wait**: 2-3 minutes for resources to be created
 
 Save the output values (especially `ec2_public_ip`)!
 
@@ -332,9 +332,9 @@ chmod +x update_inventory.sh
 ansible-playbook -i inventory/dev/hosts playbook.yml
 ```
 
-â±ï¸ **Wait**: 3-5 minutes for configuration
+⏱️ **Wait**: 3-5 minutes for configuration
 
-### Step 8: Verify Deployment! ðŸŽ‰
+### Step 8: Verify Deployment! 🎉
 
 ```bash
 # Get website URL
@@ -351,126 +351,126 @@ curl $(terraform output -raw website_url)/health
 **Open in browser**: `http://YOUR_EC2_PUBLIC_IP`
 
 You should see a beautiful gradient page with:
-- ðŸš€ Cloud Infrastructure
+- 🚀 Cloud Infrastructure
 - Environment badge
 - Region info
 - Project name
 
 ---
 
-## ðŸ’¡ How This Project Works
+## 💡 How This Project Works
 
 ### Execution Flow
 
 ```
 1. SETUP PHASE
-   â”œâ”€ AWS Credentials configured
-   â”œâ”€ SSH key pair generated
-   â””â”€ S3 backend created
+   ├─ AWS Credentials configured
+   ├─ SSH key pair generated
+   └─ S3 backend created
 
 2. INFRASTRUCTURE PHASE (Terraform)
-   â”œâ”€ terraform init (download providers, configure backend)
-   â”œâ”€ terraform plan (preview changes)
-   â”œâ”€ terraform apply (create resources)
-   â”‚   â”œâ”€ VPC + Subnet + IGW + Route Table
-   â”‚   â”œâ”€ Security Groups (SSH, HTTP, HTTPS)
-   â”‚   â”œâ”€ SSH Key Pair
-   â”‚   â”œâ”€ EC2 Instance (with user-data script)
-   â”‚   â”œâ”€ Optional: Bastion Host
-   â”‚   â””â”€ Optional: CloudWatch (logs + alarms)
-   â””â”€ Outputs: VPC ID, EC2 IP, etc.
+   ├─ terraform init (download providers, configure backend)
+   ├─ terraform plan (preview changes)
+   ├─ terraform apply (create resources)
+   │   ├─ VPC + Subnet + IGW + Route Table
+   │   ├─ Security Groups (SSH, HTTP, HTTPS)
+   │   ├─ SSH Key Pair
+   │   ├─ EC2 Instance (with user-data script)
+   │   ├─ Optional: Bastion Host
+   │   └─ Optional: CloudWatch (logs + alarms)
+   └─ Outputs: VPC ID, EC2 IP, etc.
 
 3. CONFIGURATION PHASE (Ansible)
-   â”œâ”€ Update inventory (manual or script)
-   â”œâ”€ ansible-playbook (configure EC2)
-   â”‚   â”œâ”€ Update apt packages
-   â”‚   â”œâ”€ Install nginx, python, git, curl
-   â”‚   â”œâ”€ Deploy custom index.html (with env styling)
-   â”‚   â”œâ”€ Configure nginx virtual host
-   â”‚   â”œâ”€ Enable site, remove default
-   â”‚   â””â”€ Reload nginx
-   â””â”€ Website ready!
+   ├─ Update inventory (manual or script)
+   ├─ ansible-playbook (configure EC2)
+   │   ├─ Update apt packages
+   │   ├─ Install nginx, python, git, curl
+   │   ├─ Deploy custom index.html (with env styling)
+   │   ├─ Configure nginx virtual host
+   │   ├─ Enable site, remove default
+   │   └─ Reload nginx
+   └─ Website ready!
 
 4. VERIFICATION PHASE
-   â”œâ”€ curl http://EC2_IP (test website)
-   â”œâ”€ curl http://EC2_IP/health (test health)
-   â””â”€ Browser: http://EC2_IP (visual verification)
+   ├─ curl http://EC2_IP (test website)
+   ├─ curl http://EC2_IP/health (test health)
+   └─ Browser: http://EC2_IP (visual verification)
 
 5. MONITORING PHASE (Optional)
-   â”œâ”€ CloudWatch Agent sends metrics
-   â”œâ”€ Alarms monitor CPU/RAM/Disk
-   â””â”€ Logs collected in CloudWatch
+   ├─ CloudWatch Agent sends metrics
+   ├─ Alarms monitor CPU/RAM/Disk
+   └─ Logs collected in CloudWatch
 
 6. CLEANUP PHASE
-   â””â”€ terraform destroy (remove all resources)
+   └─ terraform destroy (remove all resources)
 ```
 
 ### Component Interaction
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚  Terraform Apply â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-         â”‚
-         â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ AWS Resources Created:           â”‚
-â”‚ - VPC                            â”‚
-â”‚ - EC2 (with user-data)           â”‚
-â”‚ - Security Groups                â”‚
-â”‚ - Optional: Bastion, CloudWatch  â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-         â”‚
-         â”‚ (EC2 boots, user-data runs)
-         â”‚ - Updates system
-         â”‚ - Installs CloudWatch agent
-         â”‚ - Installs Nginx
-         â”‚ - Installs Docker
-         â”‚
-         â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Ansible Playbook Run â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-         â”‚
-         â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Configuration Applied:           â”‚
-â”‚ - Custom index.html deployed     â”‚
-â”‚ - Nginx virtual host configured  â”‚
-â”‚ - Site enabled                   â”‚
-â”‚ - Default site removed           â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-         â”‚
-         â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Website Live! ðŸš€ â”‚
-â”‚ http://PUBLIC_IP â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌──────────────────┐
+│  Terraform Apply │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────────────────────┐
+│ AWS Resources Created:           │
+│ - VPC                            │
+│ - EC2 (with user-data)           │
+│ - Security Groups                │
+│ - Optional: Bastion, CloudWatch  │
+└────────┬─────────────────────────┘
+         │
+         │ (EC2 boots, user-data runs)
+         │ - Updates system
+         │ - Installs CloudWatch agent
+         │ - Installs Nginx
+         │ - Installs Docker
+         │
+         ▼
+┌──────────────────────┐
+│ Ansible Playbook Run │
+└────────┬─────────────┘
+         │
+         ▼
+┌──────────────────────────────────┐
+│ Configuration Applied:           │
+│ - Custom index.html deployed     │
+│ - Nginx virtual host configured  │
+│ - Site enabled                   │
+│ - Default site removed           │
+└────────┬─────────────────────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Website Live! 🚀 │
+│ http://PUBLIC_IP │
+└──────────────────┘
 ```
 
 ### State Management
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Terraform State â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-         â”‚
-         â”œâ”€ Stored in: S3 Bucket
-         â”‚  â””â”€ Path: dev/terraform.tfstate
-         â”‚
-         â”œâ”€ Locked by: DynamoDB
-         â”‚  â””â”€ Prevents concurrent modifications
-         â”‚
-         â”œâ”€ Versioned: Yes
-         â”‚  â””â”€ Can recover previous states
-         â”‚
-         â””â”€ Encrypted: Yes
-            â””â”€ S3 server-side encryption
+┌─────────────────┐
+│ Terraform State │
+└────────┬────────┘
+         │
+         ├─ Stored in: S3 Bucket
+         │  └─ Path: dev/terraform.tfstate
+         │
+         ├─ Locked by: DynamoDB
+         │  └─ Prevents concurrent modifications
+         │
+         ├─ Versioned: Yes
+         │  └─ Can recover previous states
+         │
+         └─ Encrypted: Yes
+            └─ S3 server-side encryption
 ```
 
 ---
 
-## ðŸ“– Detailed Usage
+## 📖 Detailed Usage
 
 ### Multi-Environment Deployment
 
@@ -524,20 +524,20 @@ ansible-playbook -i inventory/prod/hosts playbook.yml
 | Instance Type | t2.micro | t3.micro | t3.medium |
 | Monitoring | Optional | Recommended | Mandatory |
 | Bastion | No | Optional | Recommended |
-| Gradient Color | Blue (#667eea â†’ #764ba2) | Orange (#f093fb â†’ #f5576c) | Green (#4facfe â†’ #00f2fe) |
+| Gradient Color | Blue (#667eea → #764ba2) | Orange (#f093fb → #f5576c) | Green (#4facfe → #00f2fe) |
 | Cost/month | ~$10 | ~$13 | ~$49 |
 
 ---
 
-## ðŸŽ›ï¸ Optional Features
+## 🎛️ Optional Features
 
 ### Enable CloudWatch Monitoring
 
 **What you get:**
-- ðŸ“Š CPU, Memory, Disk utilization metrics
-- ðŸš¨ Alarms for high resource usage
-- ðŸ“‹ Centralized logging (syslog, nginx access, nginx error)
-- ðŸ“ˆ CloudWatch Dashboard
+- 📊 CPU, Memory, Disk utilization metrics
+- 🚨 Alarms for high resource usage
+- 📋 Centralized logging (syslog, nginx access, nginx error)
+- 📈 CloudWatch Dashboard
 
 **How to enable:**
 
@@ -579,9 +579,9 @@ aws cloudwatch put-dashboard \
 ### Enable Bastion Host
 
 **What you get:**
-- ðŸ›¡ï¸ Secure SSH jump host
-- ðŸ”’ EC2 instances not directly exposed
-- ðŸŽ¯ Single entry point for SSH access
+- 🛡️ Secure SSH jump host
+- 🔒 EC2 instances not directly exposed
+- 🎯 Single entry point for SSH access
 
 **How to enable:**
 
@@ -629,7 +629,7 @@ Host cloud-infra-web
 
 ---
 
-## ðŸ§ª Testing
+## 🧪 Testing
 
 ### Run Terratest (Infrastructure Validation)
 
@@ -650,14 +650,14 @@ go test -v -timeout 30m -parallel 5
 ```
 
 **What tests validate:**
-- âœ… VPC created with correct CIDR
-- âœ… EC2 instance is running
-- âœ… Security group has correct rules (SSH, HTTP, HTTPS)
-- âœ… Web server is accessible
-- âœ… Health endpoint returns "healthy"
-- âœ… Outputs have correct format
+- ✅ VPC created with correct CIDR
+- ✅ EC2 instance is running
+- ✅ Security group has correct rules (SSH, HTTP, HTTPS)
+- ✅ Web server is accessible
+- ✅ Health endpoint returns "healthy"
+- ✅ Outputs have correct format
 
-âš ï¸ **Cost Warning**: Tests create real AWS resources (~$0.01-0.05 per run). Resources are auto-destroyed after tests.
+⚠️ **Cost Warning**: Tests create real AWS resources (~$0.01-0.05 per run). Resources are auto-destroyed after tests.
 
 ### Manual Testing
 
@@ -687,7 +687,7 @@ See documentation:
 
 ---
 
-## ðŸ”„ CI/CD Pipeline
+## 🔄 CI/CD Pipeline
 
 ### GitHub Actions Workflow
 
@@ -701,13 +701,13 @@ File: `.github/workflows/infra.yml`
 5. **notify** - Sends deployment notifications
 
 **Branch Strategy:**
-- `main` â†’ Development environment
-- `staging` â†’ Staging environment
-- `tags/v*` â†’ Production environment (with manual approval)
+- `main` → Development environment
+- `staging` → Staging environment
+- `tags/v*` → Production environment (with manual approval)
 
 ### Setup GitHub Secrets
 
-Configure in repository settings â†’ Secrets:
+Configure in repository settings → Secrets:
 
 ```
 AWS_ACCESS_KEY_ID          # Your AWS access key
@@ -718,11 +718,11 @@ TF_STATE_BUCKET            # S3 bucket name for state
 
 ### Workflow Features
 
-- âœ… **Caching**: Terraform providers and Ansible collections cached for speed
-- âœ… **Validation**: Terraform fmt/validate and ansible-lint checks
-- âœ… **PR Comments**: Terraform plan output posted to PRs
-- âœ… **Manual Approval**: Production requires approval in GitHub UI
-- âœ… **Rollback**: Previous state versions available in S3
+- ✅ **Caching**: Terraform providers and Ansible collections cached for speed
+- ✅ **Validation**: Terraform fmt/validate and ansible-lint checks
+- ✅ **PR Comments**: Terraform plan output posted to PRs
+- ✅ **Manual Approval**: Production requires approval in GitHub UI
+- ✅ **Rollback**: Previous state versions available in S3
 
 ### Manual Trigger
 
@@ -735,7 +735,7 @@ git push origin main
 
 ---
 
-## ðŸ” Application Performance Monitoring (APM)
+## 🔍 Application Performance Monitoring (APM)
 
 ### Overview
 
@@ -746,10 +746,10 @@ Komprehensif APM solution dengan AWS X-Ray, Container Insights, Lambda Insights,
 **Module**: `terraform/modules/xray/`
 
 **Features**:
-- ðŸ“Š **5 Sampling Rules**: Default (5%), Error (100%), Slow requests (100%), Database calls (10%), HTTP/HTTPS (50%)
-- ðŸŽ¯ **3 X-Ray Groups**: Error tracking, Slow requests (> 3s), High latency (> 5s)
-- ðŸ” **Service Map**: Visualize service dependencies
-- ðŸš¨ **3 CloudWatch Alarms**: Error rate > 5%, Slow requests > 10, Fault rate > 1%
+- 📊 **5 Sampling Rules**: Default (5%), Error (100%), Slow requests (100%), Database calls (10%), HTTP/HTTPS (50%)
+- 🎯 **3 X-Ray Groups**: Error tracking, Slow requests (> 3s), High latency (> 5s)
+- 🔍 **Service Map**: Visualize service dependencies
+- 🚨 **3 CloudWatch Alarms**: Error rate > 5%, Slow requests > 10, Fault rate > 1%
 
 **Quick Start**:
 ```hcl
@@ -801,10 +801,10 @@ aws xray get-trace-summaries \
 **Module**: `terraform/modules/container-insights/`
 
 **Features**:
-- ðŸ“¦ **ECS/EKS Metrics**: CPU, Memory, Network, Disk I/O
-- ðŸ”„ **Fluent Bit Integration**: Centralized container logs
-- ðŸš¨ **3 CloudWatch Alarms**: Container CPU > 80%, Memory > 80%, Restart count > 5
-- ðŸ“Š **Container Map**: Visual cluster health
+- 📦 **ECS/EKS Metrics**: CPU, Memory, Network, Disk I/O
+- 🔄 **Fluent Bit Integration**: Centralized container logs
+- 🚨 **3 CloudWatch Alarms**: Container CPU > 80%, Memory > 80%, Restart count > 5
+- 📊 **Container Map**: Visual cluster health
 
 **Quick Start**:
 ```hcl
@@ -840,9 +840,9 @@ aws cloudwatch get-metric-statistics \
 **Module**: `terraform/modules/lambda-insights/`
 
 **Features**:
-- âš¡ **Multi-Region Support**: 8 AWS regions (us-east-1, us-west-2, eu-west-1, ap-southeast-1, etc.)
-- ðŸ“ˆ **5 CloudWatch Alarms**: Duration > 10s, Memory > 80%, Errors > 5, Throttles > 1, Cold starts > 10
-- ðŸ” **4 Insights Queries**: Error analysis, Performance issues, High memory functions, Cold start tracking
+- ⚡ **Multi-Region Support**: 8 AWS regions (us-east-1, us-west-2, eu-west-1, ap-southeast-1, etc.)
+- 📈 **5 CloudWatch Alarms**: Duration > 10s, Memory > 80%, Errors > 5, Throttles > 1, Cold starts > 10
+- 🔍 **4 Insights Queries**: Error analysis, Performance issues, High memory functions, Cold start tracking
 
 **Quick Start**:
 ```hcl
@@ -882,10 +882,10 @@ aws logs start-query \
 **Module**: `terraform/modules/application-insights/`
 
 **Features**:
-- ðŸ¤– **4 ML Anomaly Detectors**: API latency, error rates, request volume, database queries
-- ðŸ“Š **Custom Metric Filters**: Application-specific patterns
-- ðŸ‘¥ **Contributor Insights**: Top error sources, High-traffic IPs
-- ðŸ”” **Synthetics Canary**: Proactive availability monitoring (optional)
+- 🤖 **4 ML Anomaly Detectors**: API latency, error rates, request volume, database queries
+- 📊 **Custom Metric Filters**: Application-specific patterns
+- 👥 **Contributor Insights**: Top error sources, High-traffic IPs
+- 🔔 **Synthetics Canary**: Proactive availability monitoring (optional)
 
 **Quick Start**:
 ```hcl
@@ -934,7 +934,7 @@ Comprehensive APM dashboard template available in [docs/APM_GUIDE.md](docs/APM_G
 
 ---
 
-## ðŸ›¡ï¸ Security & Compliance
+## 🛡️ Security & Compliance
 
 ### Overview
 
@@ -945,13 +945,13 @@ Enterprise-grade security dengan AWS Config, GuardDuty, dan Security Hub untuk c
 **Module**: `terraform/modules/aws-config/`
 
 **Features**:
-- âœ… **15 Managed Config Rules**: encrypted-volumes, iam-password-policy, s3-bucket-encryption, rds-storage-encrypted, cloudtrail-enabled, vpc-flow-logs-enabled, root-account-mfa-enabled, dll
-- ðŸ”§ **2 Custom Lambda Rules**: S3 public access blocker, IAM password policy checker
-- ðŸ“‹ **2 Conformance Packs**: 
+- ✅ **15 Managed Config Rules**: encrypted-volumes, iam-password-policy, s3-bucket-encryption, rds-storage-encrypted, cloudtrail-enabled, vpc-flow-logs-enabled, root-account-mfa-enabled, dll
+- 🔧 **2 Custom Lambda Rules**: S3 public access blocker, IAM password policy checker
+- 📋 **2 Conformance Packs**: 
   - **CIS AWS Foundations Benchmark v1.4.0** (50+ rules)
   - **AWS Operational Best Practices** (40+ rules)
-- ðŸ”„ **Automated Remediation**: SSM Automation untuk 5 rules (EBS encryption, S3 encryption, VPC flow logs, etc.)
-- ðŸš¨ **4 CloudWatch Alarms**: Compliance violations, Recorder stopped, Delivery failed, Conformance pack violations
+- 🔄 **Automated Remediation**: SSM Automation untuk 5 rules (EBS encryption, S3 encryption, VPC flow logs, etc.)
+- 🚨 **4 CloudWatch Alarms**: Compliance violations, Recorder stopped, Delivery failed, Conformance pack violations
 
 **Quick Start**:
 ```hcl
@@ -1007,16 +1007,16 @@ aws configservice describe-conformance-pack-compliance \
 **Module**: `terraform/modules/guardduty/`
 
 **Features**:
-- ðŸ›¡ï¸ **3 Protection Types**: 
+- 🛡️ **3 Protection Types**: 
   - **S3 Protection**: Monitors S3 data access patterns
   - **Kubernetes Protection**: EKS audit log analysis
   - **Malware Protection**: EBS volume scanning
-- ðŸš¨ **5 Severity-Based SNS Topics**: Critical (9.0+), High (7.0-8.9), Medium (4.0-6.9), Low (0.1-3.9), Info
-- ðŸ¤– **Auto-Remediation Lambda**: 7 automated actions (isolate instance, disable access keys, block S3 public access, stop instance, quarantine, snapshot, ignore pentest)
-- ðŸ“Š **Threat Intelligence**: Custom threat feeds from S3
-- ðŸŒ **IP Sets**: Trusted IPs and malicious IPs
-- ðŸ”” **EventBridge Integration**: Severity-based routing to SNS/Lambda
-- ðŸš¨ **3 CloudWatch Alarms**: High severity findings, Critical findings, Detector health
+- 🚨 **5 Severity-Based SNS Topics**: Critical (9.0+), High (7.0-8.9), Medium (4.0-6.9), Low (0.1-3.9), Info
+- 🤖 **Auto-Remediation Lambda**: 7 automated actions (isolate instance, disable access keys, block S3 public access, stop instance, quarantine, snapshot, ignore pentest)
+- 📊 **Threat Intelligence**: Custom threat feeds from S3
+- 🌐 **IP Sets**: Trusted IPs and malicious IPs
+- 🔔 **EventBridge Integration**: Severity-based routing to SNS/Lambda
+- 🚨 **3 CloudWatch Alarms**: High severity findings, Critical findings, Detector health
 
 **Quick Start**:
 ```hcl
@@ -1069,17 +1069,17 @@ aws guardduty create-sample-findings \
 **Module**: `terraform/modules/security-hub/`
 
 **Features**:
-- ðŸ“Š **5 Security Standards**: 
+- 📊 **5 Security Standards**: 
   - CIS AWS Foundations Benchmark v1.4.0
   - AWS Foundational Security Best Practices
   - PCI-DSS v3.2.1
   - NIST 800-53 Rev5
   - CIS v1.2.0 (legacy)
-- ðŸ”Œ **8 Product Integrations**: GuardDuty, Config, Inspector, Macie, IAM Access Analyzer, Firewall Manager, Health, Systems Manager
-- ðŸ” **5 Custom Insights**: Critical/High findings, Failed controls, Public resources, IAM issues, Unpatched resources
-- âš™ï¸ **3 Action Targets**: Auto-remediate, Create ticket, Suppress finding
-- ðŸ”” **EventBridge Integration**: Automated response workflows
-- ðŸš¨ **4 CloudWatch Alarms**: Critical findings, High findings, Compliance score drop, Failed security checks
+- 🔌 **8 Product Integrations**: GuardDuty, Config, Inspector, Macie, IAM Access Analyzer, Firewall Manager, Health, Systems Manager
+- 🔍 **5 Custom Insights**: Critical/High findings, Failed controls, Public resources, IAM issues, Unpatched resources
+- ⚙️ **3 Action Targets**: Auto-remediate, Create ticket, Suppress finding
+- 🔔 **EventBridge Integration**: Automated response workflows
+- 🚨 **4 CloudWatch Alarms**: Critical findings, High findings, Compliance score drop, Failed security checks
 
 **Quick Start**:
 ```hcl
@@ -1139,9 +1139,9 @@ aws securityhub get-insights
 
 **Automated Response Workflows**:
 
-1. **Critical Finding Detected** â†’ EventBridge â†’ Lambda Auto-Remediate â†’ SNS Alert
-2. **Compliance Violation** â†’ Config Rule â†’ SSM Automation â†’ Remediate Resource
-3. **Threat Detected** â†’ GuardDuty â†’ Isolate Instance â†’ Create Forensics Snapshot
+1. **Critical Finding Detected** → EventBridge → Lambda Auto-Remediate → SNS Alert
+2. **Compliance Violation** → Config Rule → SSM Automation → Remediate Resource
+3. **Threat Detected** → GuardDuty → Isolate Instance → Create Forensics Snapshot
 
 **Manual Response Playbooks**: See [docs/SECURITY_GUIDE.md](docs/SECURITY_GUIDE.md)
 
@@ -1149,14 +1149,14 @@ aws securityhub get-insights
 
 | Framework | Config Rules | Conformance Pack | Coverage |
 |-----------|--------------|------------------|----------|
-| **CIS AWS Foundations v1.4.0** | 50+ | âœ… | IAM, Logging, Monitoring, Networking, Storage |
-| **AWS Best Practices** | 40+ | âœ… | Compute, Storage, Database, Networking, Security |
+| **CIS AWS Foundations v1.4.0** | 50+ | ✅ | IAM, Logging, Monitoring, Networking, Storage |
+| **AWS Best Practices** | 40+ | ✅ | Compute, Storage, Database, Networking, Security |
 | **PCI-DSS v3.2.1** | 30+ | Via Security Hub | Cardholder data protection |
 | **NIST 800-53 Rev5** | 40+ | Via Security Hub | Federal compliance |
 
 ---
 
-## ðŸ“Š Monitoring
+## 📊 Monitoring
 
 ### CloudWatch Logs (when enabled)
 
@@ -1202,29 +1202,29 @@ See template: [docs/cloudwatch-dashboard.md](docs/cloudwatch-dashboard.md)
 
 ---
 
-## ðŸ”’ Security
+## 🔒 Security
 
 ### Implemented Security Features
 
-âœ… **Network Security**
+✅ **Network Security**
 - Minimal security group rules (only required ports)
 - VPC with controlled subnets and route tables
 - Optional bastion host for SSH access
 - No direct SSH access to web servers (with bastion)
 
-âœ… **Data Security**
+✅ **Data Security**
 - Encrypted EBS volumes (AWS-managed keys)
 - Encrypted S3 state storage (AES-256)
 - HTTPS support in security groups
 - SSH key-based authentication only
 
-âœ… **Access Control**
+✅ **Access Control**
 - IAM roles for EC2 (no hardcoded credentials)
 - Least privilege IAM policies
 - State locking prevents concurrent modifications
 - Version-controlled infrastructure (audit trail)
 
-âœ… **Operational Security**
+✅ **Operational Security**
 - Immutable infrastructure (destroy & recreate)
 - Automated testing before deployment
 - Manual approval for production changes
@@ -1232,7 +1232,7 @@ See template: [docs/cloudwatch-dashboard.md](docs/cloudwatch-dashboard.md)
 
 ### Security Best Practices
 
-ðŸ”„ **Recommended Enhancements:**
+🔄 **Recommended Enhancements:**
 
 1. **Network**:
    - Enable VPC Flow Logs
@@ -1281,7 +1281,7 @@ Egress:
   - All traffic to 0.0.0.0/0
 ```
 
-**âš ï¸ Production Recommendation**: Restrict SSH (port 22) to your specific IP address only!
+**⚠️ Production Recommendation**: Restrict SSH (port 22) to your specific IP address only!
 
 ```hcl
 # In terraform/env/prod.tfvars
@@ -1294,7 +1294,7 @@ cidr_blocks = [var.my_ip]
 
 ---
 
-## ðŸ’° Cost Estimation
+## 💰 Cost Estimation
 
 ### Monthly Costs (ap-southeast-1)
 
@@ -1486,7 +1486,7 @@ cidr_blocks = [var.my_ip]
    - Use reserved concurrency wisely
    - Enable Lambda Insights only for critical functions
 
-### âš ï¸ Cost Warnings
+### ⚠️ Cost Warnings
 
 - Running 24/7 will incur charges beyond free tier
 - AWS Config continuous recording can be expensive ($2 per config item per month)
@@ -1510,7 +1510,7 @@ Use [AWS Pricing Calculator](https://calculator.aws/) to estimate costs for your
 
 ---
 
-## ðŸ› Troubleshooting
+## 🐛 Troubleshooting
 
 ### Common Issues & Solutions
 
@@ -1730,7 +1730,7 @@ aws ec2 describe-instances --debug
 
 ---
 
-## ðŸ“š Documentation
+## 📚 Documentation
 
 ### Core Documentation
 
@@ -1794,121 +1794,121 @@ aws ec2 describe-instances --debug
 
 ```
 terraform/
-â”œâ”€â”€ main.tf              # Main infrastructure definition
-â”œâ”€â”€ variables.tf         # Variable declarations
-â”œâ”€â”€ outputs.tf          # Output definitions
-â”œâ”€â”€ cloudwatch.tf       # Monitoring configuration
-â”œâ”€â”€ user-data.sh        # EC2 bootstrap script
-â”œâ”€â”€ modules/
-â”‚   â”œâ”€â”€ ec2/           # EC2 instance module
-â”‚   â”œâ”€â”€ bastion/       # Bastion host module
-â”‚   â”œâ”€â”€ xray/          # AWS X-Ray distributed tracing
-â”‚   â”œâ”€â”€ container-insights/  # ECS/EKS monitoring
-â”‚   â”œâ”€â”€ lambda-insights/     # Serverless monitoring
-â”‚   â”œâ”€â”€ application-insights/ # ML anomaly detection
-â”‚   â”œâ”€â”€ aws-config/    # Compliance monitoring
-â”‚   â”œâ”€â”€ guardduty/     # Threat detection
-â”‚   â””â”€â”€ security-hub/  # Security dashboard
-â”œâ”€â”€ env/               # Environment-specific variables
-â””â”€â”€ backend/           # Backend configurations
+├── main.tf              # Main infrastructure definition
+├── variables.tf         # Variable declarations
+├── outputs.tf          # Output definitions
+├── cloudwatch.tf       # Monitoring configuration
+├── user-data.sh        # EC2 bootstrap script
+├── modules/
+│   ├── ec2/           # EC2 instance module
+│   ├── bastion/       # Bastion host module
+│   ├── xray/          # AWS X-Ray distributed tracing
+│   ├── container-insights/  # ECS/EKS monitoring
+│   ├── lambda-insights/     # Serverless monitoring
+│   ├── application-insights/ # ML anomaly detection
+│   ├── aws-config/    # Compliance monitoring
+│   ├── guardduty/     # Threat detection
+│   └── security-hub/  # Security dashboard
+├── env/               # Environment-specific variables
+└── backend/           # Backend configurations
 
 ansible/
-â”œâ”€â”€ playbook.yml       # Main playbook
-â”œâ”€â”€ ansible.cfg        # Ansible configuration
-â”œâ”€â”€ roles/
-â”‚   â””â”€â”€ webserver/     # Web server role
-â”œâ”€â”€ inventory/         # Environment inventories
-â””â”€â”€ group_vars/        # Environment variables
+├── playbook.yml       # Main playbook
+├── ansible.cfg        # Ansible configuration
+├── roles/
+│   └── webserver/     # Web server role
+├── inventory/         # Environment inventories
+└── group_vars/        # Environment variables
 
 docs/
-â”œâ”€â”€ DEPLOYMENT-GUIDE.md   # Deployment guide
-â”œâ”€â”€ architecture.md       # Architecture docs
-â”œâ”€â”€ APM_GUIDE.md         # APM comprehensive guide
-â”œâ”€â”€ SECURITY_GUIDE.md    # Security & compliance guide
-â””â”€â”€ [other docs]         # Templates and examples
+├── DEPLOYMENT-GUIDE.md   # Deployment guide
+├── architecture.md       # Architecture docs
+├── APM_GUIDE.md         # APM comprehensive guide
+├── SECURITY_GUIDE.md    # Security & compliance guide
+└── [other docs]         # Templates and examples
 
 .github/
-â””â”€â”€ workflows/
-    â””â”€â”€ infra.yml      # CI/CD pipeline
+└── workflows/
+    └── infra.yml      # CI/CD pipeline
 ```
 
 ---
 
-## ðŸ—‚ï¸ Project Structure
+## 🗂️ Project Structure
 
 ```
 cloud-infra/
-â”œâ”€â”€ terraform/                       # Infrastructure as Code
-â”‚   â”œâ”€â”€ main.tf                      # Main configuration with VPC, EC2, SG
-â”‚   â”œâ”€â”€ variables.tf                 # Variable definitions
-â”‚   â”œâ”€â”€ outputs.tf                   # Output values
-â”‚   â”œâ”€â”€ cloudwatch.tf                # Monitoring configuration
-â”‚   â”œâ”€â”€ user-data.sh                 # EC2 bootstrap script
-â”‚   â”œâ”€â”€ modules/
-â”‚   â”‚   â”œâ”€â”€ ec2/                     # EC2 instance module
-â”‚   â”‚   â”‚   â”œâ”€â”€ main.tf
-â”‚   â”‚   â”‚   â”œâ”€â”€ variables.tf
-â”‚   â”‚   â”‚   â””â”€â”€ outputs.tf
-â”‚   â”‚   â””â”€â”€ bastion/                 # Bastion host module
-â”‚   â”‚       â”œâ”€â”€ main.tf
-â”‚   â”‚       â”œâ”€â”€ variables.tf
-â”‚   â”‚       â””â”€â”€ outputs.tf
-â”‚   â”œâ”€â”€ env/                         # Environment-specific variables
-â”‚   â”‚   â”œâ”€â”€ dev.tfvars
-â”‚   â”‚   â”œâ”€â”€ staging.tfvars
-â”‚   â”‚   â””â”€â”€ prod.tfvars
-â”‚   â””â”€â”€ backend/                     # Backend configurations
-â”‚       â”œâ”€â”€ dev.conf
-â”‚       â”œâ”€â”€ staging.conf
-â”‚       â””â”€â”€ prod.conf
-â”œâ”€â”€ ansible/                         # Configuration management
-â”‚   â”œâ”€â”€ playbook.yml                 # Main playbook
-â”‚   â”œâ”€â”€ ansible.cfg                  # Ansible configuration
-â”‚   â”œâ”€â”€ update_inventory.sh          # Auto-update inventory script
-â”‚   â”œâ”€â”€ update_inventory.ps1         # Auto-update inventory (PowerShell)
-â”‚   â”œâ”€â”€ roles/
-â”‚   â”‚   â””â”€â”€ webserver/               # Web server role
-â”‚   â”‚       â”œâ”€â”€ tasks/
-â”‚   â”‚       â”‚   â””â”€â”€ main.yml
-â”‚   â”‚       â”œâ”€â”€ handlers/
-â”‚   â”‚       â”‚   â””â”€â”€ main.yml
-â”‚   â”‚       â”œâ”€â”€ defaults/
-â”‚   â”‚       â”‚   â””â”€â”€ main.yml
-â”‚   â”‚       â””â”€â”€ templates/
-â”‚   â”‚           â”œâ”€â”€ index.html.j2
-â”‚   â”‚           â””â”€â”€ nginx-site.conf.j2
-â”‚   â”œâ”€â”€ inventory/                   # Environment inventories
-â”‚   â”‚   â”œâ”€â”€ dev/
-â”‚   â”‚   â”‚   â””â”€â”€ hosts
-â”‚   â”‚   â”œâ”€â”€ staging/
-â”‚   â”‚   â”‚   â””â”€â”€ hosts
-â”‚   â”‚   â””â”€â”€ prod/
-â”‚   â”‚       â””â”€â”€ hosts
-â”‚   â””â”€â”€ group_vars/                  # Group variables
-â”‚       â”œâ”€â”€ dev.yml
-â”‚       â”œâ”€â”€ staging.yml
-â”‚       â””â”€â”€ prod.yml
-â”œâ”€â”€ tests/                           # Infrastructure tests
-â”‚   â”œâ”€â”€ terraform_test.go            # Terratest suite
-â”‚   â”œâ”€â”€ go.mod                       # Go dependencies
-â”‚   â””â”€â”€ README.md                    # Testing documentation
-â”œâ”€â”€ scripts/                         # Automation scripts
-â”‚   â”œâ”€â”€ setup-backend.sh             # Backend setup (Linux/Mac)
-â”‚   â”œâ”€â”€ setup-backend.ps1            # Backend setup (Windows)
-â”‚   â”œâ”€â”€ destroy-all.sh               # Destroy all environments (Bash)
-â”‚   â””â”€â”€ destroy-all.ps1              # Destroy all environments (PowerShell)
-â”œâ”€â”€ docs/                            # Documentation
-â”‚   â”œâ”€â”€ architecture.md              # Architecture details with Mermaid
-â”‚   â”œâ”€â”€ DEPLOYMENT-GUIDE.md          # Complete deployment guide
-â”‚   â”œâ”€â”€ terraform-plan-example.md    # Example plan output
-â”‚   â”œâ”€â”€ ansible-check-example.md     # Example Ansible check output
-â”‚   â”œâ”€â”€ terraform-state-structure.md # State file structure
-â”‚   â””â”€â”€ cloudwatch-dashboard.md      # CloudWatch dashboard template
-â”œâ”€â”€ .github/
-â”‚   â””â”€â”€ workflows/
-â”‚       â””â”€â”€ infra.yml                # CI/CD pipeline
-â”œâ”€â”€ .gitignore                       # Git ignore patterns
-â””â”€â”€ README.md                        # This file
+├── terraform/                       # Infrastructure as Code
+│   ├── main.tf                      # Main configuration with VPC, EC2, SG
+│   ├── variables.tf                 # Variable definitions
+│   ├── outputs.tf                   # Output values
+│   ├── cloudwatch.tf                # Monitoring configuration
+│   ├── user-data.sh                 # EC2 bootstrap script
+│   ├── modules/
+│   │   ├── ec2/                     # EC2 instance module
+│   │   │   ├── main.tf
+│   │   │   ├── variables.tf
+│   │   │   └── outputs.tf
+│   │   └── bastion/                 # Bastion host module
+│   │       ├── main.tf
+│   │       ├── variables.tf
+│   │       └── outputs.tf
+│   ├── env/                         # Environment-specific variables
+│   │   ├── dev.tfvars
+│   │   ├── staging.tfvars
+│   │   └── prod.tfvars
+│   └── backend/                     # Backend configurations
+│       ├── dev.conf
+│       ├── staging.conf
+│       └── prod.conf
+├── ansible/                         # Configuration management
+│   ├── playbook.yml                 # Main playbook
+│   ├── ansible.cfg                  # Ansible configuration
+│   ├── update_inventory.sh          # Auto-update inventory script
+│   ├── update_inventory.ps1         # Auto-update inventory (PowerShell)
+│   ├── roles/
+│   │   └── webserver/               # Web server role
+│   │       ├── tasks/
+│   │       │   └── main.yml
+│   │       ├── handlers/
+│   │       │   └── main.yml
+│   │       ├── defaults/
+│   │       │   └── main.yml
+│   │       └── templates/
+│   │           ├── index.html.j2
+│   │           └── nginx-site.conf.j2
+│   ├── inventory/                   # Environment inventories
+│   │   ├── dev/
+│   │   │   └── hosts
+│   │   ├── staging/
+│   │   │   └── hosts
+│   │   └── prod/
+│   │       └── hosts
+│   └── group_vars/                  # Group variables
+│       ├── dev.yml
+│       ├── staging.yml
+│       └── prod.yml
+├── tests/                           # Infrastructure tests
+│   ├── terraform_test.go            # Terratest suite
+│   ├── go.mod                       # Go dependencies
+│   └── README.md                    # Testing documentation
+├── scripts/                         # Automation scripts
+│   ├── setup-backend.sh             # Backend setup (Linux/Mac)
+│   ├── setup-backend.ps1            # Backend setup (Windows)
+│   ├── destroy-all.sh               # Destroy all environments (Bash)
+│   └── destroy-all.ps1              # Destroy all environments (PowerShell)
+├── docs/                            # Documentation
+│   ├── architecture.md              # Architecture details with Mermaid
+│   ├── DEPLOYMENT-GUIDE.md          # Complete deployment guide
+│   ├── terraform-plan-example.md    # Example plan output
+│   ├── ansible-check-example.md     # Example Ansible check output
+│   ├── terraform-state-structure.md # State file structure
+│   └── cloudwatch-dashboard.md      # CloudWatch dashboard template
+├── .github/
+│   └── workflows/
+│       └── infra.yml                # CI/CD pipeline
+├── .gitignore                       # Git ignore patterns
+└── README.md                        # This file
 ```
 
 **Total Files**: 50+ files
@@ -1916,7 +1916,7 @@ cloud-infra/
 
 ---
 
-## ðŸ—‘ï¸ Cleanup
+## 🗑️ Cleanup
 
 ### Destroy Single Environment
 
@@ -1957,11 +1957,11 @@ aws s3 rb s3://cloud-infra-terraform-state-$ACCOUNT_ID --force
 aws dynamodb delete-table --table-name cloud-infra-lock
 ```
 
-âš ï¸ **WARNING**: This will permanently delete all Terraform state files and make it impossible to manage existing resources with Terraform!
+⚠️ **WARNING**: This will permanently delete all Terraform state files and make it impossible to manage existing resources with Terraform!
 
 ---
 
-## ðŸ¤ Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please follow these guidelines:
 
@@ -2013,12 +2013,12 @@ Contributions are welcome! Please follow these guidelines:
 
 ### Contribution Ideas
 
-- ðŸ› Bug fixes
-- âœ¨ New features (e.g., RDS module, ALB module)
-- ðŸ“ Documentation improvements
-- ðŸ§ª Additional tests
-- ðŸŽ¨ UI improvements for web page
-- ðŸ”§ Configuration enhancements
+- 🐛 Bug fixes
+- ✨ New features (e.g., RDS module, ALB module)
+- 📝 Documentation improvements
+- 🧪 Additional tests
+- 🎨 UI improvements for web page
+- 🔧 Configuration enhancements
 
 ### Code Style
 
@@ -2029,7 +2029,7 @@ Contributions are welcome! Please follow these guidelines:
 
 ---
 
-## ðŸ“„ License
+## 📄 License
 
 This project is licensed under the **MIT License**.
 
@@ -2059,7 +2059,7 @@ SOFTWARE.
 
 ---
 
-## ðŸ™ Acknowledgments
+## 🙏 Acknowledgments
 
 ### Technologies Used
 
@@ -2085,24 +2085,24 @@ Special thanks to:
 
 ---
 
-## ðŸ“ž Support & Contact
+## 📞 Support & Contact
 
 ### Get Help
 
-- ðŸ“– **Documentation**: Start with [DEPLOYMENT-GUIDE.md](docs/DEPLOYMENT-GUIDE.md)
-- ðŸ› **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/cloud-infra/issues)
-- ðŸ’¬ **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/cloud-infra/discussions)
-- ðŸ“§ **Email**: your-email@example.com
+- 📖 **Documentation**: Start with [DEPLOYMENT-GUIDE.md](docs/DEPLOYMENT-GUIDE.md)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/cloud-infra/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/cloud-infra/discussions)
+- 📧 **Email**: your-email@example.com
 
 ### Social Media
 
-- ðŸ¦ **Twitter**: [@yourhandle](https://twitter.com/yourhandle)
-- ðŸ’¼ **LinkedIn**: [Your Name](https://linkedin.com/in/yourprofile)
-- ðŸŒ **Website**: [yourwebsite.com](https://yourwebsite.com)
+- 🐦 **Twitter**: [@yourhandle](https://twitter.com/yourhandle)
+- 💼 **LinkedIn**: [Your Name](https://linkedin.com/in/yourprofile)
+- 🌐 **Website**: [yourwebsite.com](https://yourwebsite.com)
 
 ---
 
-## ðŸŽ“ Learning Resources
+## 🎓 Learning Resources
 
 ### For Beginners
 
@@ -2120,7 +2120,7 @@ Special thanks to:
 
 ---
 
-## ðŸš€ What's Next?
+## 🚀 What's Next?
 
 ### Planned Features
 
@@ -2136,51 +2136,51 @@ Special thanks to:
 ### Version History
 
 **v1.7.0** (2025-11-16) - Security & Compliance
-- âœ… AWS Config compliance monitoring (15 managed + 2 custom rules)
-- âœ… CIS Benchmark + Operational Best Practices conformance packs (90+ total rules)
-- âœ… GuardDuty threat detection with auto-remediation
-- âœ… Security Hub centralized dashboard (5 standards, 8 integrations)
-- âœ… Automated security response (Lambda + EventBridge)
-- âœ… Multi-account security management
-- âœ… Comprehensive security documentation
+- ✅ AWS Config compliance monitoring (15 managed + 2 custom rules)
+- ✅ CIS Benchmark + Operational Best Practices conformance packs (90+ total rules)
+- ✅ GuardDuty threat detection with auto-remediation
+- ✅ Security Hub centralized dashboard (5 standards, 8 integrations)
+- ✅ Automated security response (Lambda + EventBridge)
+- ✅ Multi-account security management
+- ✅ Comprehensive security documentation
 
 **v1.6.0** (2025-11-15) - Application Performance Monitoring
-- âœ… AWS X-Ray distributed tracing (5 sampling rules, 3 groups)
-- âœ… Container Insights for ECS/EKS monitoring
-- âœ… Lambda Insights for serverless observability
-- âœ… Application Insights with ML anomaly detection
-- âœ… APM comprehensive guide documentation
-- âœ… Multi-region support
+- ✅ AWS X-Ray distributed tracing (5 sampling rules, 3 groups)
+- ✅ Container Insights for ECS/EKS monitoring
+- ✅ Lambda Insights for serverless observability
+- ✅ Application Insights with ML anomaly detection
+- ✅ APM comprehensive guide documentation
+- ✅ Multi-region support
 
 **v1.5.0** (2025-11-14) - Monitoring Enhancement
-- âœ… Centralized logging architecture
-- âœ… Advanced alerting framework
-- âœ… Custom CloudWatch dashboards
-- âœ… Log aggregation and analysis
+- ✅ Centralized logging architecture
+- ✅ Advanced alerting framework
+- ✅ Custom CloudWatch dashboards
+- ✅ Log aggregation and analysis
 
 **v1.0.0** (2025-11-13) - Initial Release
-- âœ… Complete Terraform infrastructure
-- âœ… Ansible configuration management
-- âœ… GitHub Actions CI/CD
-- âœ… Terratest integration
-- âœ… CloudWatch monitoring
-- âœ… Bastion host support
-- âœ… Comprehensive documentation
+- ✅ Complete Terraform infrastructure
+- ✅ Ansible configuration management
+- ✅ GitHub Actions CI/CD
+- ✅ Terratest integration
+- ✅ CloudWatch monitoring
+- ✅ Bastion host support
+- ✅ Comprehensive documentation
 
 ---
 
 <div align="center">
 
-## â­ Star This Project!
+## ⭐ Star This Project!
 
-If you find this project helpful, please consider giving it a star â­
+If you find this project helpful, please consider giving it a star ⭐
 
-**Made with â¤ï¸ for Cloud Automation**
+**Made with ❤️ for Cloud Automation**
 
-[â¬† Back to Top](#cloud-infrastructure-project-)
+[⬆ Back to Top](#cloud-infrastructure-project-)
 
 ---
 
-**Happy Deploying! ðŸš€â˜ï¸**
+**Happy Deploying! 🚀☁️**
 
 </div>
