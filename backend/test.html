@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Test - CloudStack</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0066FF;
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.disconnected { background: #f8d7da; color: #721c24; }
+        .status.connecting { background: #fff3cd; color: #856404; }
+        
+        button {
+            background: #0066FF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover { background: #0052cc; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .console {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 5px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+        .console .log { margin: 5px 0; }
+        .console .log.error { color: #ff4444; }
+        .console .log.success { color: #00ff00; }
+        .console .log.info { color: #44bbff; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .progress {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #0066FF, #00C9FF);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Backend Test</h1>
+        <p>Test koneksi dan deployment ke backend Heroku</p>
+        
+        <div id="status" class="status connecting">⏳ Connecting to server...</div>
+        
+        <div class="form-group">
+            <label>Server URL:</label>
+            <input type="text" id="serverUrl" value="http://localhost:3000" placeholder="http://localhost:3000 atau https://your-app.herokuapp.com">
+        </div>
+        
+        <button onclick="connect()">🔌 Connect</button>
+        <button onclick="testHealth()">💚 Test Health</button>
+        <button onclick="testDeploy()" id="deployBtn" disabled>🚀 Test Deploy</button>
+        <button onclick="clearConsole()">🗑️ Clear</button>
+        
+        <div class="progress" style="display:none" id="progressBar">
+            <div class="progress-bar" id="progressFill">0%</div>
+        </div>
+        
+        <div class="console" id="console">
+            <div class="log info">🔌 Waiting for connection...</div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        
+        function addLog(message, type = 'info') {
+            const console = document.getElementById('console');
+            const log = document.createElement('div');
+            log.className = `log ${type}`;
+            log.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            console.appendChild(log);
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        function clearConsole() {
+            document.getElementById('console').innerHTML = '';
+            document.getElementById('progressBar').style.display = 'none';
+        }
+        
+        function updateStatus(status, message) {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${status}`;
+            statusEl.textContent = message;
+        }
+        
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            progressBar.style.display = 'block';
+            progressFill.style.width = percent + '%';
+            progressFill.textContent = percent + '%';
+        }
+        
+        async function testHealth() {
+            const url = document.getElementById('serverUrl').value;
+            addLog('Testing health endpoint...', 'info');
+            
+            try {
+                const response = await fetch(`${url}/health`);
+                const data = await response.json();
+                addLog('✅ Health check successful!', 'success');
+                addLog(`Response: ${JSON.stringify(data)}`, 'success');
+            } catch (error) {
+                addLog(`❌ Health check failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function connect() {
+            const url = document.getElementById('serverUrl').value;
+            addLog(`Connecting to ${url}...`, 'info');
+            
+            if (socket) {
+                socket.disconnect();
+            }
+            
+            socket = io(url);
+            
+            socket.on('connect', () => {
+                updateStatus('connected', '✅ Connected to server');
+                addLog('✅ WebSocket connected!', 'success');
+                document.getElementById('deployBtn').disabled = false;
+            });
+            
+            socket.on('disconnect', () => {
+                updateStatus('disconnected', '❌ Disconnected from server');
+                addLog('❌ WebSocket disconnected', 'error');
+                document.getElementById('deployBtn').disabled = true;
+            });
+            
+            socket.on('log', (data) => {
+                addLog(data.message, data.type);
+            });
+            
+            socket.on('progress', (data) => {
+                updateProgress(data.percent);
+                addLog(`Progress: ${data.percent}% - ${data.status}`, 'info');
+            });
+            
+            socket.on('module-status', (data) => {
+                addLog(`Module ${data.moduleId}: ${data.status}`, 'info');
+            });
+            
+            socket.on('complete', (data) => {
+                addLog('═══════════════════════════════════════', 'success');
+                addLog('🎉 DEPLOYMENT COMPLETE!', 'success');
+                addLog(`Duration: ${data.duration}s`, 'success');
+                addLog(`Resources: ${data.totalResources}`, 'success');
+                addLog(`Modules: ${data.modulesDeployed}`, 'success');
+                addLog('═══════════════════════════════════════', 'success');
+            });
+            
+            socket.on('error', (data) => {
+                addLog(`❌ Error: ${data.message}`, 'error');
+            });
+        }
+        
+        function testDeploy() {
+            if (!socket || !socket.connected) {
+                addLog('❌ Not connected to server', 'error');
+                return;
+            }
+            
+            const config = {
+                awsAccessKey: 'AKIATEST123456',
+                awsSecretKey: 'test-secret-key-123',
+                awsRegion: 'us-east-1',
+                projectName: 'test-project',
+                environment: 'development',
+                modules: ['self-service-portal', 'observability'],
+                tier: 'professional'
+            };
+            
+            addLog('🚀 Starting test deployment...', 'info');
+            addLog(`Config: ${JSON.stringify(config, null, 2)}`, 'info');
+            
+            socket.emit('deploy', config);
+        }
+        
+        // Auto connect on load
+        window.addEventListener('load', () => {
+            setTimeout(connect, 1000);
+        });
+    </script>
+</body>
+</html>
