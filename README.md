@@ -2152,6 +2152,18 @@ Special thanks to:
 - ✅ APM comprehensive guide documentation
 - ✅ Multi-region support
 
+**v2.0.0** (2025-11-17) - **Platform Security & User Management** 🔐
+- ✅ **Password Security**: bcrypt hashing with salt (10 rounds)
+- ✅ **Database System**: File-based JSON storage with full CRUD
+- ✅ **Rate Limiting**: API protection (100 req/15min general, 10 req/15min auth)
+- ✅ **User Dashboard**: Stats, deployment history, account overview
+- ✅ **Profile Management**: Edit personal info, change password
+- ✅ **Email Verification**: GitHub-style minimal design
+- ✅ **Forgot Password**: 3-step secure reset flow
+- ✅ **Session Management**: Secure authentication flow
+- ✅ **Backend APIs**: 8 new endpoints (register, login, verify, update, etc.)
+- ✅ **Frontend Pages**: dashboard.html, profile.html
+
 **v1.5.0** (2025-11-14) - Monitoring Enhancement
 - ✅ Centralized logging architecture
 - ✅ Advanced alerting framework
