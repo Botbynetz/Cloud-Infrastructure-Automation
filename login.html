@@ -15,7 +15,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -25,12 +25,23 @@
 
         .login-container {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 450px;
-            padding: 40px;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
             animation: slideUp 0.5s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+            .branding-section {
+                display: none !important;
+            }
         }
 
         @keyframes slideUp {
@@ -44,47 +55,96 @@
             }
         }
 
-        .logo-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo-icon {
-            width: 80px;
-            height: 80px;
+        .branding-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
-            margin-bottom: 15px;
-        }
-
-        .logo-icon i {
-            font-size: 36px;
             color: white;
         }
 
-        .logo-section h1 {
-            font-size: 28px;
-            color: #1a1a1a;
-            margin-bottom: 8px;
+        .branding-section .logo-area {
+            margin-bottom: 40px;
         }
 
-        .logo-section p {
-            color: #666;
-            font-size: 14px;
+        .branding-section .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .branding-section .logo-icon i {
+            font-size: 32px;
+            color: white;
+        }
+
+        .branding-section h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .branding-section .tagline {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .features-list li {
+            padding: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+
+        .features-list li i {
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .form-section {
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .welcome-text {
-            text-align: center;
             margin-bottom: 30px;
         }
 
         .welcome-text h2 {
-            font-size: 24px;
+            font-size: 28px;
             color: #1a1a1a;
             margin-bottom: 8px;
+            font-weight: 700;
         }
 
         .welcome-text p {
@@ -252,6 +312,34 @@
             text-decoration: underline;
         }
 
+        .stats-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
         .alert {
             padding: 12px 16px;
             border-radius: 8px;
@@ -283,54 +371,71 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-
-        .features {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .features h3 {
-            font-size: 14px;
-            color: #1a1a1a;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .feature-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .feature-item i {
-            color: #667eea;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo-section">
-            <div class="logo-icon">
-                <i class="fas fa-layer-group"></i>
+        <!-- Left Side - Branding -->
+        <div class="branding-section">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <h1>CloudStack</h1>
+                <p class="tagline">Enterprise Infrastructure Automation Platform</p>
             </div>
-            <h1>CloudStack</h1>
-            <p>Enterprise Infrastructure Platform</p>
+
+            <ul class="features-list">
+                <li>
+                    <i class="fas fa-check"></i>
+                    <span>10 Enterprise Modules Ready to Deploy</span>
+                </li>
+                <li>
+                    <i class="fas fa-check"></i>
+                    <span>Real-time Deployment Dashboard</span>
+                </li>
+                <li>
+                    <i class="fas fa-check"></i>
+                    <span>Disaster Recovery & High Availability</span>
+                </li>
+                <li>
+                    <i class="fas fa-check"></i>
+                    <span>Advanced Security & Compliance</span>
+                </li>
+                <li>
+                    <i class="fas fa-check"></i>
+                    <span>Multi-Cloud Support (AWS, Azure, GCP)</span>
+                </li>
+                <li>
+                    <i class="fas fa-check"></i>
+                    <span>$216K-407K Business Value</span>
+                </li>
+            </ul>
+
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">10min</div>
+                        <div class="stat-label">Deploy Time</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">Uptime SLA</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">30%</div>
+                        <div class="stat-label">Cost Savings</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="welcome-text">
-            <h2>Welcome Back</h2>
-            <p>Login to access your cloud infrastructure dashboard</p>
-        </div>
+        <!-- Right Side - Login Form -->
+        <div class="form-section">
+            <div class="welcome-text">
+                <h2>Welcome Back</h2>
+                <p>Login to access your infrastructure dashboard</p>
+            </div>
 
         <div id="alert" class="alert"></div>
 
@@ -381,28 +486,7 @@
         <div class="register-link">
             Don't have an account? <a href="auth.html?from=login">Create Account</a>
         </div>
-
-        <div class="features">
-            <h3>What You'll Get Access To:</h3>
-            <div class="feature-list">
-                <div class="feature-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>10 Enterprise Modules</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Real-time Deployment</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Disaster Recovery</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Advanced Security</span>
-                </div>
-            </div>
-        </div>
+    </div>
     </div>
 
     <script src="google-config.js"></script>
