@@ -281,6 +281,19 @@ document.getElementById('register-form').addEventListener('submit', async functi
         tier: 'free',
         createdAt: Date.now(),
         deployments: 0,
+        verified: false,
+        verificationCode: verificationCode
+    };
+    
+    // Save to localStorage with expiry (10 minutes)
+    const pendingKey = `pending_verification_${email}`;
+    localStorage.setItem(pendingKey, JSON.stringify(pendingUser));
+    setTimeout(() => {
+        localStorage.removeItem(pendingKey);
+    }, 10 * 60 * 1000); // 10 minutes
+        tier: 'free',
+        createdAt: Date.now(),
+        deployments: 0,
         verified: false
     };
     
@@ -475,11 +488,19 @@ async function resendCode() {
     document.getElementById('code1').focus();
 }
 
-// Check if redirected from pricing page
+// Check if redirected from pricing page or email verification link
 window.addEventListener('load', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const tier = urlParams.get('tier');
     const from = urlParams.get('from');
+    const verifyCode = urlParams.get('verify');
+    const verifyEmail = urlParams.get('email');
+    
+    // Handle email verification link
+    if (verifyCode && verifyEmail) {
+        handleEmailVerification(verifyCode, verifyEmail);
+        return;
+    }
     
     if (from === 'pricing' && tier) {
         showAlert(`Please login or register to access ${tier.toUpperCase()} tier`, 'error');
@@ -490,3 +511,73 @@ window.addEventListener('load', function() {
         initGoogleSignIn();
     }, 500);
 });
+
+// Handle email verification from link
+async function handleEmailVerification(code, email) {
+    try {
+        // Decode email
+        const decodedEmail = decodeURIComponent(email);
+        
+        // Find pending user by email from localStorage (if exists)
+        const pendingKey = `pending_verification_${decodedEmail}`;
+        const pendingData = localStorage.getItem(pendingKey);
+        
+        if (!pendingData) {
+            showAlert('Verification session expired. Please register again.', 'error');
+            switchTab('register');
+            return;
+        }
+        
+        const userData = JSON.parse(pendingData);
+        
+        // Verify the code matches
+        if (userData.verificationCode !== code) {
+            showAlert('Invalid verification code. Please try again.', 'error');
+            switchTab('register');
+            return;
+        }
+        
+        // Check if already verified
+        const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
+        if (users.find(u => u.email === decodedEmail)) {
+            showAlert('Email already verified. Please login.', 'success');
+            switchTab('login');
+            document.getElementById('login-email').value = decodedEmail;
+            return;
+        }
+        
+        // Save user to cloudstack_users
+        const newUser = {
+            email: userData.email,
+            company: userData.company,
+            phone: userData.phone,
+            password: userData.password,
+            tier: 'free',
+            createdAt: Date.now(),
+            deployments: 0,
+            verified: true
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('cloudstack_users', JSON.stringify(users));
+        
+        // Remove pending verification
+        localStorage.removeItem(pendingKey);
+        
+        // Show success and switch to login
+        showAlert('✅ Email verified successfully! You can now login.', 'success');
+        
+        setTimeout(() => {
+            switchTab('login');
+            document.getElementById('login-email').value = decodedEmail;
+            
+            // Clear URL parameters
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Verification error:', error);
+        showAlert('Verification failed. Please try again.', 'error');
+        switchTab('register');
+    }
+}
