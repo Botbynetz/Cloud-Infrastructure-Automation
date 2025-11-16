@@ -1,34 +1,13 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Email configuration
-const EMAIL_CONFIG = {
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER || 'bynetzg@gmail.com',
-        pass: process.env.EMAIL_PASS // App-specific password dari Gmail
-    }
-};
-
-// Create transporter
-let transporter = null;
-
-function createTransporter() {
-    if (!transporter) {
-        transporter = nodemailer.createTransport(EMAIL_CONFIG);
-    }
-    return transporter;
-}
+// Initialize Resend with API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Send verification code email
 async function sendVerificationEmail(email, code) {
     try {
-        const transport = createTransporter();
-        
-        const mailOptions = {
-            from: {
-                name: 'CloudStack Platform',
-                address: EMAIL_CONFIG.auth.user
-            },
+        const { data, error } = await resend.emails.send({
+            from: 'CloudStack <noreply@resend.dev>',
             to: email,
             subject: 'CloudStack - Email Verification Code',
             html: `
@@ -231,14 +210,21 @@ CloudStack Platform
 Enterprise Infrastructure Automation
 info@cloudstack.com
             `
-        };
+        });
         
-        const info = await transport.sendMail(mailOptions);
-        console.log('✓ Verification email sent:', info.messageId);
+        if (error) {
+            console.error('✗ Failed to send verification email:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+        
+        console.log('✓ Verification email sent via Resend:', data.id);
         
         return {
             success: true,
-            messageId: info.messageId
+            messageId: data.id
         };
         
     } catch (error) {
@@ -250,12 +236,14 @@ info@cloudstack.com
     }
 }
 
-// Verify transporter configuration
+// Verify Resend configuration
 async function verifyEmailConfig() {
     try {
-        const transport = createTransporter();
-        await transport.verify();
-        console.log('✓ Email service ready');
+        if (!process.env.RESEND_API_KEY) {
+            console.error('✗ RESEND_API_KEY not configured');
+            return false;
+        }
+        console.log('✓ Resend email service ready');
         return true;
     } catch (error) {
         console.error('✗ Email service error:', error.message);
