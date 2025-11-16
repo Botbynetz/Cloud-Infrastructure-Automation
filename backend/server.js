@@ -6,7 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
 const { spawn } = require('child_process');
-const { sendVerificationEmail, verifyEmailConfig } = require('./emailService');
+const { sendVerificationEmail, sendPasswordResetEmail, verifyEmailConfig } = require('./emailService');
 require('dotenv').config();
 
 const app = express();
@@ -108,6 +108,63 @@ app.post('/api/send-verification-email', async (req, res) => {
         
     } catch (error) {
         console.error('Error in send-verification-email endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Internal server error',
+            details: error.message
+        });
+    }
+});
+
+// Send password reset email endpoint
+app.post('/api/send-password-reset-email', async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        
+        // Validate input
+        if (!email || !code) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email and code are required' 
+            });
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid email format' 
+            });
+        }
+        
+        // Validate code format (6 digits)
+        if (!/^\d{6}$/.test(code)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Code must be 6 digits' 
+            });
+        }
+        
+        // Send email
+        const result = await sendPasswordResetEmail(email, code);
+        
+        if (result.success) {
+            res.json({ 
+                success: true, 
+                message: 'Password reset email sent successfully',
+                messageId: result.messageId
+            });
+        } else {
+            res.status(500).json({ 
+                success: false, 
+                error: 'Failed to send email',
+                details: result.error
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error in send-password-reset-email endpoint:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Internal server error',

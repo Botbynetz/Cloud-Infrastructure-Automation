@@ -581,3 +581,239 @@ async function handleEmailVerification(code, email) {
         switchTab('register');
     }
 }
+
+// ============= FORGOT PASSWORD FUNCTIONS =============
+
+let forgotPasswordData = {
+    email: '',
+    verificationCode: ''
+};
+
+function showForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'flex';
+    // Reset to step 1
+    document.getElementById('forgotPasswordStep1').style.display = 'block';
+    document.getElementById('forgotPasswordStep2').style.display = 'none';
+    document.getElementById('forgotPasswordStep3').style.display = 'none';
+    document.getElementById('forgotPasswordSubtitle').textContent = 'Enter your email to receive a verification code';
+    document.getElementById('forgotPasswordEmail').value = '';
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+    // Clear all inputs
+    document.getElementById('forgotPasswordEmail').value = '';
+    for (let i = 1; i <= 6; i++) {
+        document.getElementById(`resetCode${i}`).value = '';
+    }
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmNewPassword').value = '';
+}
+
+async function requestPasswordReset() {
+    const email = document.getElementById('forgotPasswordEmail').value.trim();
+    
+    if (!email) {
+        alert('Please enter your email address');
+        return;
+    }
+    
+    // Check if email exists
+    const users = JSON.parse(localStorage.getItem('cloudstack_users')) || [];
+    const userExists = users.find(u => u.email === email);
+    
+    if (!userExists) {
+        alert('Email not found. Please check your email or register a new account.');
+        return;
+    }
+    
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    forgotPasswordData.email = email;
+    forgotPasswordData.verificationCode = code;
+    
+    // Save to localStorage with expiry
+    const resetData = {
+        email: email,
+        code: code,
+        createdAt: Date.now()
+    };
+    localStorage.setItem(`password_reset_${email}`, JSON.stringify(resetData));
+    
+    // Set expiry (10 minutes)
+    setTimeout(() => {
+        localStorage.removeItem(`password_reset_${email}`);
+    }, 10 * 60 * 1000);
+    
+    try {
+        // Send email via backend
+        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-password-reset-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, code })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Move to step 2
+            document.getElementById('forgotPasswordStep1').style.display = 'none';
+            document.getElementById('forgotPasswordStep2').style.display = 'block';
+            document.getElementById('forgotPasswordSubtitle').innerHTML = `We've sent a 6-digit code to<br><span class="verification-email">${email}</span>`;
+            
+            // Setup code inputs
+            setupResetCodeInputs();
+        } else {
+            alert('Failed to send verification code. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to send email. Please check your connection and try again.');
+    }
+}
+
+function setupResetCodeInputs() {
+    const inputs = [];
+    for (let i = 1; i <= 6; i++) {
+        const input = document.getElementById(`resetCode${i}`);
+        inputs.push(input);
+        
+        input.addEventListener('input', function(e) {
+            if (e.target.value.length === 1) {
+                if (i < 6) {
+                    document.getElementById(`resetCode${i + 1}`).focus();
+                }
+            }
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && e.target.value === '') {
+                if (i > 1) {
+                    document.getElementById(`resetCode${i - 1}`).focus();
+                }
+            }
+        });
+        
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pasteData = e.clipboardData.getData('text').slice(0, 6);
+            for (let j = 0; j < pasteData.length; j++) {
+                if (j < 6) {
+                    document.getElementById(`resetCode${j + 1}`).value = pasteData[j];
+                }
+            }
+            if (pasteData.length === 6) {
+                document.getElementById('resetCode6').focus();
+            }
+        });
+    }
+}
+
+function verifyResetCode() {
+    let code = '';
+    for (let i = 1; i <= 6; i++) {
+        const digit = document.getElementById(`resetCode${i}`).value;
+        if (!digit) {
+            alert('Please enter all 6 digits');
+            return;
+        }
+        code += digit;
+    }
+    
+    // Verify code
+    const resetKey = `password_reset_${forgotPasswordData.email}`;
+    const resetData = JSON.parse(localStorage.getItem(resetKey));
+    
+    if (!resetData) {
+        alert('Verification code expired. Please request a new one.');
+        closeForgotPasswordModal();
+        return;
+    }
+    
+    if (resetData.code !== code) {
+        alert('Invalid verification code. Please try again.');
+        return;
+    }
+    
+    // Move to step 3
+    document.getElementById('forgotPasswordStep2').style.display = 'none';
+    document.getElementById('forgotPasswordStep3').style.display = 'block';
+    document.getElementById('forgotPasswordSubtitle').textContent = 'Enter your new password';
+}
+
+function resetPassword() {
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmNewPassword').value;
+    
+    if (!newPassword || newPassword.length < 8) {
+        alert('Password must be at least 8 characters');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+    
+    // Update user password
+    const users = JSON.parse(localStorage.getItem('cloudstack_users')) || [];
+    const userIndex = users.findIndex(u => u.email === forgotPasswordData.email);
+    
+    if (userIndex === -1) {
+        alert('User not found. Please try again.');
+        closeForgotPasswordModal();
+        return;
+    }
+    
+    // Update password
+    users[userIndex].password = newPassword;
+    localStorage.setItem('cloudstack_users', JSON.stringify(users));
+    
+    // Remove reset data
+    localStorage.removeItem(`password_reset_${forgotPasswordData.email}`);
+    
+    // Close modal and show success
+    closeForgotPasswordModal();
+    alert('✅ Password reset successfully! You can now login with your new password.');
+    
+    // Pre-fill email in login form
+    document.getElementById('login-email').value = forgotPasswordData.email;
+    switchTab('login');
+}
+
+async function resendPasswordResetCode() {
+    // Generate new code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    forgotPasswordData.verificationCode = code;
+    
+    // Update localStorage
+    const resetData = {
+        email: forgotPasswordData.email,
+        code: code,
+        createdAt: Date.now()
+    };
+    localStorage.setItem(`password_reset_${forgotPasswordData.email}`, JSON.stringify(resetData));
+    
+    try {
+        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-password-reset-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: forgotPasswordData.email, code })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ New verification code sent!');
+        } else {
+            alert('Failed to resend code. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to resend email. Please check your connection.');
+    }
+}

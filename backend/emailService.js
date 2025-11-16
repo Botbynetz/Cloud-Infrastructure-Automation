@@ -361,6 +361,220 @@ info@cloudstack.com
     }
 }
 
+// Send password reset email
+async function sendPasswordResetEmail(email, code) {
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'CloudStack <noreply@resend.dev>',
+            to: email,
+            subject: 'CloudStack - Password Reset Code',
+            html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        .header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 50px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            margin: 10px 0 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+        .content {
+            padding: 50px 40px;
+        }
+        .content h2 {
+            margin: 0 0 20px;
+            color: #1a1a1a;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .content p {
+            margin: 0 0 20px;
+            color: #4a5568;
+            font-size: 16px;
+        }
+        .code-container {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            border: 2px dashed #f59e0b;
+        }
+        .code {
+            font-size: 56px;
+            font-weight: 700;
+            color: #92400e;
+            letter-spacing: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            user-select: all;
+        }
+        .copy-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #92400e;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            border: 2px solid #f59e0b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .copy-button:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        .warning-box p {
+            margin: 0;
+            color: #991b1b;
+            font-size: 14px;
+        }
+        .warning-box strong {
+            color: #7f1d1d;
+        }
+        .info-text {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #0284c7;
+        }
+        .info-text p {
+            margin: 0;
+            color: #075985;
+            font-size: 14px;
+        }
+        .footer {
+            background: #f9fafb;
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 0 0 15px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #f59e0b;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 20px;
+            }
+            .header, .content, .footer {
+                padding: 35px 25px;
+            }
+            .code {
+                font-size: 42px;
+                letter-spacing: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 CloudStack</h1>
+            <p>Password Reset Request</p>
+        </div>
+        
+        <div class="content">
+            <h2>Reset Your Password</h2>
+            <p>We received a request to reset your password for your CloudStack account. Use the verification code below to proceed:</p>
+            
+            <div class="code-container">
+                <p class="code">${code}</p>
+                <button class="copy-button" onclick="navigator.clipboard.writeText('${code}')">
+                    📋 Copy Code
+                </button>
+            </div>
+            
+            <div class="warning-box">
+                <p><strong>⚠️ Security Notice:</strong></p>
+                <p>• This code expires in 10 minutes</p>
+                <p>• If you didn't request this, please ignore this email</p>
+                <p>• Never share this code with anyone</p>
+            </div>
+            
+            <div class="info-text">
+                <p><strong>💡 Didn't request this?</strong><br>
+                If you didn't request a password reset, your account is still secure. You can safely ignore this email.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Need help? <a href="mailto:support@cloudstack.io">Contact Support</a></p>
+            <p style="color: #9ca3af; font-size: 12px;">
+                © 2024 CloudStack. All rights reserved.<br>
+                Cloud Infrastructure Automation Platform
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+            `
+        });
+
+        if (error) {
+            console.error('Resend error:', error);
+            return { success: false, error: error.message };
+        }
+
+        console.log('Password reset email sent successfully:', data);
+        return { success: true, messageId: data.id };
+
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // Verify Resend configuration
 async function verifyEmailConfig() {
     try {
@@ -378,5 +592,6 @@ async function verifyEmailConfig() {
 
 module.exports = {
     sendVerificationEmail,
+    sendPasswordResetEmail,
     verifyEmailConfig
 };
