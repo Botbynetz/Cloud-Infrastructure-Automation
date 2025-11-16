@@ -4,9 +4,11 @@ const socketIO = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
 const { spawn } = require('child_process');
 const { sendVerificationEmail, sendPasswordResetEmail, verifyEmailConfig } = require('./emailService');
+const authService = require('./authService');
 require('dotenv').config();
 
 const app = express();
@@ -18,11 +20,29 @@ const io = socketIO(server, {
     }
 });
 
+// Rate limiting configuration
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit each IP to 10 auth requests per windowMs
+    message: 'Too many authentication attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(morgan('combined'));
+app.use('/api/', generalLimiter);
 
 // Pricing tier configuration
 const PRICING_TIERS = {
@@ -169,6 +189,277 @@ app.post('/api/send-password-reset-email', async (req, res) => {
             success: false, 
             error: 'Internal server error',
             details: error.message
+        });
+    }
+});
+
+// ========== NEW AUTH ENDPOINTS ==========
+
+// Register user
+app.post('/api/auth/register', authLimiter, async (req, res) => {
+    try {
+        const { email, password, company, phone, tier } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email and password are required' 
+            });
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid email format' 
+            });
+        }
+        
+        // Validate password strength
+        if (password.length < 8) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Password must be at least 8 characters' 
+            });
+        }
+        
+        const result = await authService.registerUser({
+            email,
+            password,
+            company,
+            phone,
+            tier: tier || 'free',
+            verified: false
+        });
+        
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(400).json(result);
+        }
+        
+    } catch (error) {
+        console.error('Error in register endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Registration failed' 
+        });
+    }
+});
+
+// Login user
+app.post('/api/auth/login', authLimiter, async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email and password are required' 
+            });
+        }
+        
+        const result = await authService.loginUser(email, password);
+        
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(401).json(result);
+        }
+        
+    } catch (error) {
+        console.error('Error in login endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Login failed' 
+        });
+    }
+});
+
+// Verify email
+app.post('/api/auth/verify-email', async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email is required' 
+            });
+        }
+        
+        const result = await authService.verifyUserEmail(email);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('Error in verify-email endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Verification failed' 
+        });
+    }
+});
+
+// Get user profile
+app.get('/api/auth/me', async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email is required' 
+            });
+        }
+        
+        const result = await authService.getUserByEmail(email);
+        
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(404).json(result);
+        }
+        
+    } catch (error) {
+        console.error('Error in get user endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to get user' 
+        });
+    }
+});
+
+// Update user profile
+app.put('/api/auth/update', async (req, res) => {
+    try {
+        const { email, ...updates } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email is required' 
+            });
+        }
+        
+        const result = await authService.updateUser(email, updates);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('Error in update user endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Update failed' 
+        });
+    }
+});
+
+// Change password
+app.post('/api/auth/change-password', async (req, res) => {
+    try {
+        const { email, oldPassword, newPassword } = req.body;
+        
+        if (!email || !oldPassword || !newPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email, old password, and new password are required' 
+            });
+        }
+        
+        if (newPassword.length < 8) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'New password must be at least 8 characters' 
+            });
+        }
+        
+        const result = await authService.changePassword(email, oldPassword, newPassword);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('Error in change password endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Password change failed' 
+        });
+    }
+});
+
+// Reset password (forgot password)
+app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+        
+        if (!email || !newPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email and new password are required' 
+            });
+        }
+        
+        if (newPassword.length < 8) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'New password must be at least 8 characters' 
+            });
+        }
+        
+        const result = await authService.resetPassword(email, newPassword);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('Error in reset password endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Password reset failed' 
+        });
+    }
+});
+
+// Add deployment
+app.post('/api/deployments', async (req, res) => {
+    try {
+        const { email, ...deploymentData } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email is required' 
+            });
+        }
+        
+        const result = await authService.addDeployment(email, deploymentData);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('Error in add deployment endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to save deployment' 
+        });
+    }
+});
+
+// Get user deployments
+app.get('/api/deployments', async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email is required' 
+            });
+        }
+        
+        const result = await authService.getUserDeployments(email);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('Error in get deployments endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to get deployments' 
         });
     }
 });

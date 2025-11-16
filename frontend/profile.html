@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - CloudStack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input:disabled {
+            background: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .tier-info {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tier-info .tier-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .tier-info .tier-desc {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-free {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .badge-professional {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-enterprise {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-ultimate {
+            background: #fce7f3;
+            color: #be185d;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .container {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Account Profile</h1>
+            <a href="dashboard.html" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+        <!-- Account Info -->
+        <div class="card">
+            <h2>Account Information</h2>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value" id="userEmail">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Account Created</span>
+                <span class="info-value" id="createdAt">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Last Updated</span>
+                <span class="info-value" id="updatedAt">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Verification Status</span>
+                <span class="info-value" id="verificationStatus">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Tier Info -->
+        <div class="card">
+            <h2>Current Plan</h2>
+            <div class="tier-info">
+                <div class="tier-name" id="tierName">
+                    Free
+                    <span class="badge badge-free" id="tierBadge">FREE TIER</span>
+                </div>
+                <div class="tier-desc" id="tierDesc">Basic features for getting started</div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Total Deployments</span>
+                <span class="info-value" id="deploymentCount">0</span>
+            </div>
+            <a href="pricing.html" class="btn btn-primary">Upgrade Plan</a>
+        </div>
+
+        <!-- Personal Info Form -->
+        <div class="card">
+            <h2>Personal Information</h2>
+            <div id="updateMessage"></div>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label>Email (cannot be changed)</label>
+                    <input type="email" id="profileEmail" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="company" placeholder="Your company name">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phone" placeholder="+1234567890">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card">
+            <h2>Change Password</h2>
+            <div id="passwordMessage"></div>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="oldPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" minlength="8" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" minlength="8" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Change Password</button>
+            </form>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card">
+            <h2>Danger Zone</h2>
+            <div class="alert alert-info">
+                Once you delete your account, there is no going back. Please be certain.
+            </div>
+            <button onclick="deleteAccount()" class="btn btn-danger">Delete Account</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://cloud-infrastructure-automation-production.up.railway.app';
+        let currentUser = null;
+
+        // Check authentication
+        function checkAuth() {
+            const user = sessionStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = 'auth.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Format tier
+        function formatTier(tier) {
+            return tier.charAt(0).toUpperCase() + tier.slice(1);
+        }
+
+        // Load user data
+        async function loadUserData() {
+            currentUser = checkAuth();
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/me?email=${encodeURIComponent(currentUser.email)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const user = data.user;
+                    currentUser = user;
+                    sessionStorage.setItem('currentUser', JSON.stringify(user));
+
+                    // Account info
+                    document.getElementById('userEmail').textContent = user.email;
+                    document.getElementById('createdAt').textContent = formatDate(user.createdAt);
+                    document.getElementById('updatedAt').textContent = formatDate(user.updatedAt);
+                    document.getElementById('verificationStatus').textContent = user.verified ? '✓ Verified' : '⚠ Unverified';
+
+                    // Tier info
+                    document.getElementById('tierName').innerHTML = `
+                        ${formatTier(user.tier)}
+                        <span class="badge badge-${user.tier}" id="tierBadge">${user.tier.toUpperCase()} TIER</span>
+                    `;
+                    document.getElementById('deploymentCount').textContent = user.deploymentCount || 0;
+
+                    // Form fields
+                    document.getElementById('profileEmail').value = user.email;
+                    document.getElementById('company').value = user.company || '';
+                    document.getElementById('phone').value = user.phone || '';
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showMessage('updateMessage', 'Failed to load user data', 'error');
+            }
+        }
+
+        // Show message
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 5000);
+        }
+
+        // Update profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const company = document.getElementById('company').value;
+            const phone = document.getElementById('phone').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        company,
+                        phone
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser = data.user;
+                    sessionStorage.setItem('currentUser', JSON.stringify(data.user));
+                    showMessage('updateMessage', 'Profile updated successfully!', 'success');
+                } else {
+                    showMessage('updateMessage', data.error || 'Update failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showMessage('updateMessage', 'Failed to update profile', 'error');
+            }
+        });
+
+        // Change password
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showMessage('passwordMessage', 'New passwords do not match', 'error');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showMessage('passwordMessage', 'Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        oldPassword,
+                        newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('passwordMessage', 'Password changed successfully!', 'success');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    showMessage('passwordMessage', data.error || 'Password change failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showMessage('passwordMessage', 'Failed to change password', 'error');
+            }
+        });
+
+        // Delete account
+        function deleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                if (confirm('This will permanently delete all your data. Are you absolutely sure?')) {
+                    alert('Account deletion feature will be available soon. Please contact support.');
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadUserData);
+    </script>
+</body>
+</html>

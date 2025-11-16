@@ -199,33 +199,47 @@ document.getElementById('login-form').addEventListener('submit', async function(
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     
-    // Get stored users from localStorage
-    const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
-    
-    // Find user
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-        // Store session
-        sessionStorage.setItem('cloudstack_user', JSON.stringify({
-            email: user.email,
-            company: user.company,
-            phone: user.phone,
-            tier: user.tier || 'free',
-            loginTime: Date.now()
-        }));
+    // Login via backend API (bcrypt password verification)
+    try {
+        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await response.json();
         
-        showAlert('Login successful! Redirecting...', 'success');
-        
-        // Get redirect URL (tier from pricing page)
-        const urlParams = new URLSearchParams(window.location.search);
-        const tier = urlParams.get('tier') || 'free';
-        
-        setTimeout(() => {
-            window.location.href = `deploy.html?tier=${tier}`;
-        }, 1000);
-    } else {
-        showAlert('Invalid email or password. Please try again.', 'error');
+        if (data.success && data.user) {
+            // Store user session
+            sessionStorage.setItem('currentUser', JSON.stringify(data.user));
+            sessionStorage.setItem('cloudstack_user', JSON.stringify({
+                email: data.user.email,
+                company: data.user.company,
+                phone: data.user.phone,
+                tier: data.user.tier || 'free',
+                loginTime: Date.now()
+            }));
+            
+            showAlert('Login successful! Redirecting...', 'success');
+            
+            // Get redirect URL (tier from pricing page)
+            const urlParams = new URLSearchParams(window.location.search);
+            const tier = urlParams.get('tier') || data.user.tier || 'free';
+            
+            setTimeout(() => {
+                window.location.href = `dashboard.html`;
+            }, 1000);
+        } else {
+            showAlert(data.error || 'Invalid email or password. Please try again.', 'error');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showAlert('Login failed. Please try again.', 'error');
     }
 });
 
@@ -260,28 +274,16 @@ document.getElementById('register-form').addEventListener('submit', async functi
         return;
     }
     
-    // Get stored users
-    const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
-    
-    // Check if user already exists
-    if (users.find(u => u.email === email)) {
-        showAlert('Email already registered. Please login instead.', 'error');
-        return;
-    }
-    
     // Generate 6-digit verification code
     verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Store pending user data (not yet saved to localStorage)
+    // Store pending user data temporarily
     pendingUser = {
         email: email,
         company: company,
         phone: phone,
         password: password,
         tier: 'free',
-        createdAt: Date.now(),
-        deployments: 0,
-        verified: false,
         verificationCode: verificationCode
     };
     
@@ -291,6 +293,34 @@ document.getElementById('register-form').addEventListener('submit', async functi
     setTimeout(() => {
         localStorage.removeItem(pendingKey);
     }, 10 * 60 * 1000); // 10 minutes
+    
+    // Register user in backend (password will be hashed)
+    try {
+        const registerResponse = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                company: company,
+                phone: phone,
+                tier: 'free'
+            })
+        });
+
+        const registerData = await registerResponse.json();
+        
+        if (!registerData.success) {
+            showAlert(registerData.error || 'Registration failed', 'error');
+            return;
+        }
+    } catch (error) {
+        console.error('Error registering user:', error);
+        showAlert('Failed to register. Please try again.', 'error');
+        return;
+    }
     
     // Send verification code via email
     try {
@@ -405,30 +435,45 @@ function verifyCode() {
     }
     
     if (enteredCode === verificationCode) {
-        // Code is correct - save user to localStorage
-        pendingUser.verified = true;
-        
-        const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
-        users.push(pendingUser);
-        localStorage.setItem('cloudstack_users', JSON.stringify(users));
-        
-        showAlert('Email verified successfully! You can now login.', 'success');
-        
-        // Close modal
-        document.getElementById('verificationModal').classList.remove('show');
-        
-        // Clear inputs
-        codeInputs.forEach(input => input.value = '');
-        
-        // Switch to login tab after 1.5 seconds
-        setTimeout(() => {
-            switchTab('login');
-            document.getElementById('login-email').value = pendingUser.email;
-        }, 1500);
-        
-        // Clear pending data
-        pendingUser = null;
-        verificationCode = null;
+        // Code is correct - verify user in backend
+        try {
+            const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/verify-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: pendingUser.email
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('Email verified successfully! You can now login.', 'success');
+                
+                // Close modal
+                document.getElementById('verificationModal').classList.remove('show');
+                
+                // Clear inputs
+                codeInputs.forEach(input => input.value = '');
+                
+                // Switch to login tab after 1.5 seconds
+                setTimeout(() => {
+                    switchTab('login');
+                    document.getElementById('login-email').value = pendingUser.email;
+                }, 1500);
+                
+                // Clear pending data
+                pendingUser = null;
+                verificationCode = null;
+            } else {
+                showAlert('Verification failed. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Error verifying email:', error);
+            showAlert('Failed to verify email. Please try again.', 'error');
+        }
     } else {
         showAlert('Invalid verification code. Please try again.', 'error');
         // Clear inputs
@@ -752,27 +797,39 @@ function resetPassword() {
         return;
     }
     
-    // Update user password
-    const users = JSON.parse(localStorage.getItem('cloudstack_users')) || [];
-    const userIndex = users.findIndex(u => u.email === forgotPasswordData.email);
-    
-    if (userIndex === -1) {
-        alert('User not found. Please try again.');
-        closeForgotPasswordModal();
-        return;
-    }
-    
-    // Update password
-    users[userIndex].password = newPassword;
-    localStorage.setItem('cloudstack_users', JSON.stringify(users));
-    
-    // Remove reset data
-    localStorage.removeItem(`password_reset_${forgotPasswordData.email}`);
-    
-    // Close modal and show success
-    closeForgotPasswordModal();
-    alert('✅ Password reset successfully! You can now login with your new password.');
-    
+    // Update password in backend
+    fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: forgotPasswordData.email,
+            newPassword: newPassword
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove reset data
+            localStorage.removeItem(`password_reset_${forgotPasswordData.email}`);
+            
+            // Close modal and show success
+            closeForgotPasswordModal();
+            alert('✅ Password reset successfully! You can now login with your new password.');
+            
+            // Switch to login tab
+            switchTab('login');
+            document.getElementById('login-email').value = forgotPasswordData.email;
+        } else {
+            alert(data.error || 'Failed to reset password. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Password reset error:', error);
+        alert('Failed to reset password. Please try again.');
+    });
+}
     // Pre-fill email in login form
     document.getElementById('login-email').value = forgotPasswordData.email;
     switchTab('login');
