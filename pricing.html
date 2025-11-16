@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - CloudStack Infrastructure Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .pricing-hero {
+            padding: 140px 0 80px;
+            text-align: center;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%);
+        }
+
+        .pricing-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .toggle-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .toggle-label.active {
+            color: var(--primary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: var(--border);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            left: 32px;
+        }
+
+        .save-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin: 64px 0;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 32px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .pricing-card.popular {
+            border: 3px solid var(--primary);
+            background: linear-gradient(180deg, rgba(0, 102, 255, 0.02), white);
+        }
+
+        .pricing-card.ultimate {
+            border: 3px solid #8B5CF6;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.05), white);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .ultimate-badge {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tier-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+
+        .pricing-card.ultimate .tier-icon {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+        }
+
+        .tier-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .tier-description {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+
+        .pricing-amount {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .currency {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .amount {
+            font-size: 56px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .pricing-card.ultimate .amount {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .period {
+            font-size: 18px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .pricing-note {
+            font-size: 13px;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            font-size: 15px;
+            color: var(--text);
+        }
+
+        .pricing-features i {
+            color: var(--success);
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .pricing-features .disabled {
+            opacity: 0.4;
+        }
+
+        .pricing-features .disabled i {
+            color: var(--text-light);
+        }
+
+        .feature-highlight {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .pricing-card.ultimate .feature-highlight {
+            color: #8B5CF6;
+        }
+
+        .btn-pricing {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-start-free {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-start-free:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-get-started {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-get-started:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+        }
+
+        .btn-contact {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-contact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .comparison-section {
+            background: var(--bg-light);
+            padding: 100px 0;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--dark);
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-light);
+        }
+
+        .feature-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .check-icon {
+            color: var(--success);
+            font-size: 20px;
+        }
+
+        .cross-icon {
+            color: var(--text-light);
+            font-size: 20px;
+            opacity: 0.3;
+        }
+
+        .value-text {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .faq-section {
+            padding: 100px 0;
+        }
+
+        .faq-grid {
+            display: grid;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .faq-answer {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">
+                <div class="logo-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                CloudStack
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#value">Value</a></li>
+                <li><a href="index.html#modules">Modules</a></li>
+                <li><a href="pricing.html" style="color: var(--primary);">Pricing</a></li>
+                <li><a href="deploy.html" class="btn-nav">Start Deploy</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Pricing Hero -->
+    <section class="pricing-hero">
+        <div class="container">
+            <span class="section-label">Flexible Pricing</span>
+            <h1 class="section-title">Choose Your Plan</h1>
+            <p class="section-description">Start free, upgrade as you grow. No hidden fees.</p>
+
+            <div class="pricing-toggle">
+                <span class="toggle-label active" id="monthly-label">Monthly</span>
+                <div class="toggle-switch" id="billing-toggle">
+                </div>
+                <span class="toggle-label" id="annual-label">Annual <span class="save-badge">SAVE 20%</span></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Cards -->
+    <section style="padding: 0 0 100px;">
+        <div class="container">
+            <div class="pricing-grid">
+                <!-- Free Tier -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <div class="tier-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="tier-name">Free Trial</h3>
+                        <p class="tier-description">Perfect for testing & proof of concept</p>
+                        <div class="pricing-amount">
+                            <span class="currency">$</span>
+                            <span class="amount">0</span>
+                        </div>
+                        <p class="pricing-note">One-time deployment</p>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check-circle"></i> <strong>1 module:</strong> Self-Service Portal</li>
+                        <li><i class="fas fa-check-circle"></i> 1 deployment (one-time)</li>
+                        <li><i class="fas fa-check-circle"></i> 1 AWS account</li>
+                        <li><i class="fas fa-check-circle"></i> Manual deployment</li>
+                        <li><i class="fas fa-check-circle"></i> Basic monitoring</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> No automation</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> No support</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> No disaster recovery</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> Powered by CloudStack watermark</li>
+                    </ul>
+
+                    <button class="btn-pricing btn-start-free" onclick="location.href='deploy.html?tier=free'">
+                        <i class="fas fa-play"></i> Start Free Trial
+                    </button>
+                </div>
+
+                <!-- Professional Tier -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="pricing-header">
+                        <div class="tier-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3 class="tier-name">Professional</h3>
+                        <p class="tier-description">For growing teams & production workloads</p>
+                        <div class="pricing-amount">
+                            <span class="currency">$</span>
+                            <span class="amount monthly-price">299</span>
+                            <span class="amount annual-price" style="display: none;">239</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <p class="pricing-note annual-note" style="display: none;">Billed annually ($2,868/year)</p>
+                        <p class="pricing-note monthly-note">Billed monthly</p>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check-circle"></i> <span class="feature-highlight">Choose 3 modules</span> from 10 available</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>10 deployments/month</strong></li>
+                        <li><i class="fas fa-check-circle"></i> 1 AWS account</li>
+                        <li><i class="fas fa-check-circle"></i> Automated deployment</li>
+                        <li><i class="fas fa-check-circle"></i> Basic monitoring (CloudWatch)</li>
+                        <li><i class="fas fa-check-circle"></i> Email support (24h response)</li>
+                        <li><i class="fas fa-check-circle"></i> Manual rollback</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> No disaster recovery</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> No compliance automation</li>
+                    </ul>
+
+                    <button class="btn-pricing btn-get-started" onclick="location.href='deploy.html?tier=professional'">
+                        <i class="fas fa-arrow-right"></i> Get Started
+                    </button>
+                </div>
+
+                <!-- Enterprise Tier -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <div class="tier-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3 class="tier-name">Enterprise</h3>
+                        <p class="tier-description">For large-scale production environments</p>
+                        <div class="pricing-amount">
+                            <span class="currency">$</span>
+                            <span class="amount monthly-price">999</span>
+                            <span class="amount annual-price" style="display: none;">799</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <p class="pricing-note annual-note" style="display: none;">Billed annually ($9,588/year)</p>
+                        <p class="pricing-note monthly-note">Billed monthly</p>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check-circle"></i> <span class="feature-highlight">7 modules included</span></li>
+                        <li><i class="fas fa-check-circle"></i> <strong>50 deployments/month</strong></li>
+                        <li><i class="fas fa-check-circle"></i> Up to 3 AWS accounts</li>
+                        <li><i class="fas fa-check-circle"></i> Advanced monitoring + alerting</li>
+                        <li><i class="fas fa-check-circle"></i> Priority support (4h response)</li>
+                        <li><i class="fas fa-check-circle"></i> Automated rollback</li>
+                        <li><i class="fas fa-check-circle"></i> Basic disaster recovery (single region)</li>
+                        <li><i class="fas fa-check-circle"></i> Compliance templates</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> No multi-cloud support</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> No AI-powered operations</li>
+                    </ul>
+
+                    <button class="btn-pricing btn-get-started" onclick="location.href='deploy.html?tier=enterprise'">
+                        <i class="fas fa-arrow-right"></i> Get Started
+                    </button>
+                </div>
+
+                <!-- Ultimate Tier -->
+                <div class="pricing-card ultimate">
+                    <div class="popular-badge ultimate-badge">UNLIMITED POWER</div>
+                    <div class="pricing-header">
+                        <div class="tier-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h3 class="tier-name">Ultimate</h3>
+                        <p class="tier-description">Maximum capabilities, zero compromises</p>
+                        <div class="pricing-amount">
+                            <span class="currency">$</span>
+                            <span class="amount monthly-price">2,499</span>
+                            <span class="amount annual-price" style="display: none;">1,999</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <p class="pricing-note annual-note" style="display: none;">Billed annually ($23,988/year)</p>
+                        <p class="pricing-note monthly-note">Billed monthly</p>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check-circle"></i> <span class="feature-highlight">ALL 10 modules included</span></li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Unlimited deployments</strong></li>
+                        <li><i class="fas fa-check-circle"></i> Unlimited AWS accounts</li>
+                        <li><i class="fas fa-check-circle"></i> Full observability (metrics, logs, traces, APM)</li>
+                        <li><i class="fas fa-check-circle"></i> 24/7 dedicated support (30min response)</li>
+                        <li><i class="fas fa-check-circle"></i> AI-powered auto-healing</li>
+                        <li><i class="fas fa-check-circle"></i> Multi-region disaster recovery (RPO <1min)</li>
+                        <li><i class="fas fa-check-circle"></i> Multi-cloud (AWS + Azure + GCP)</li>
+                        <li><i class="fas fa-check-circle"></i> Custom integrations</li>
+                        <li><i class="fas fa-check-circle"></i> White-label option</li>
+                        <li><i class="fas fa-check-circle"></i> 99.99% SLA guarantee</li>
+                    </ul>
+
+                    <button class="btn-pricing btn-contact" onclick="location.href='#contact'">
+                        <i class="fas fa-comments"></i> Contact Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="comparison-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Detailed Comparison</span>
+                <h2 class="section-title">Compare All Features</h2>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th style="text-align: center;">Free</th>
+                            <th style="text-align: center;">Professional</th>
+                            <th style="text-align: center;">Enterprise</th>
+                            <th style="text-align: center;">Ultimate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="feature-name">Available Modules</td>
+                            <td style="text-align: center;"><span class="value-text">1</span></td>
+                            <td style="text-align: center;"><span class="value-text">Choose 3</span></td>
+                            <td style="text-align: center;"><span class="value-text">7</span></td>
+                            <td style="text-align: center;"><span class="value-text">All 10</span></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Deployments per Month</td>
+                            <td style="text-align: center;">1 (once)</td>
+                            <td style="text-align: center;">10</td>
+                            <td style="text-align: center;">50</td>
+                            <td style="text-align: center;">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">AWS Accounts</td>
+                            <td style="text-align: center;">1</td>
+                            <td style="text-align: center;">1</td>
+                            <td style="text-align: center;">3</td>
+                            <td style="text-align: center;">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Self-Service Portal</td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Observability 2.0</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">GitOps & CI/CD</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Zero Trust Security</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Disaster Recovery</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;">Basic</td>
+                            <td style="text-align: center;"><span class="value-text">Advanced</span></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Advanced Compliance</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">FinOps Optimization</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Service Mesh</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">AIOps (AI-Powered Operations)</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Multi-Cloud Support</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Automated Deployment</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Automated Rollback</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;">Manual</td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Support Response Time</td>
+                            <td style="text-align: center;">-</td>
+                            <td style="text-align: center;">24 hours</td>
+                            <td style="text-align: center;">4 hours</td>
+                            <td style="text-align: center;"><span class="value-text">30 minutes</span></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">SLA Guarantee</td>
+                            <td style="text-align: center;">-</td>
+                            <td style="text-align: center;">-</td>
+                            <td style="text-align: center;">99.9%</td>
+                            <td style="text-align: center;"><span class="value-text">99.99%</span></td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">White-Label Option</td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-times cross-icon"></i></td>
+                            <td style="text-align: center;"><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Got Questions?</span>
+                <h2 class="section-title">Frequently Asked Questions</h2>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>Can I upgrade or downgrade my plan?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! You can upgrade anytime to unlock more features. Downgrades take effect at the end of your current billing cycle. Any unused deployments don't roll over.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>What happens after I use all my deployments?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        You'll need to upgrade to a higher tier or wait until next month. We recommend the Enterprise plan if you deploy frequently. Ultimate tier has unlimited deployments.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>Do I need my own AWS account?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, you need to provide your AWS credentials. We deploy resources to YOUR AWS account, so you maintain full ownership and control. We never store your credentials.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>What's included in the Free trial?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        The Free trial includes 1 deployment of the Self-Service Portal module only. It's perfect for testing our platform before committing. No credit card required. Limited to one-time use.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>Can I choose which modules in Professional tier?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! Professional tier lets you choose any 3 modules from our 10 available modules. You can swap modules once per billing cycle.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>What's the difference between Enterprise and Ultimate?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Ultimate includes ALL 10 modules (Enterprise has 7), unlimited deployments (vs 50), multi-cloud support (AWS+Azure+GCP), AI-powered auto-healing, 30-minute support response (vs 4 hours), and white-label option. Perfect for mission-critical production environments.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>Is there a setup fee?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        No setup fees for any tier! You only pay the monthly/annual subscription. AWS infrastructure costs are separate and billed directly by AWS to your account.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>Do you offer custom enterprise pricing?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! For organizations with unique requirements (100+ deployments/month, custom modules, dedicated infrastructure), contact our sales team for custom pricing.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="contact" style="background: linear-gradient(135deg, var(--dark), var(--dark-light)); padding: 100px 0; text-align: center; color: white;">
+        <div class="container">
+            <h2 style="font-size: 48px; font-weight: 800; margin-bottom: 24px;">Ready to Transform Your Infrastructure?</h2>
+            <p style="font-size: 20px; margin-bottom: 40px; opacity: 0.9;">Start with free trial. No credit card required.</p>
+            <div style="display: flex; gap: 16px; justify-content: center;">
+                <a href="deploy.html?tier=free" class="btn btn-primary" style="background: white; color: var(--primary);">
+                    <i class="fas fa-rocket"></i> Start Free Trial
+                </a>
+                <a href="#" class="btn btn-secondary" style="background: transparent; border: 2px solid white; color: white;">
+                    <i class="fas fa-calendar"></i> Schedule Demo
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>CloudStack</h4>
+                    <p>Enterprise-grade cloud infrastructure automation platform with $216K-407K in business value.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="index.html#modules">Modules</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="deploy.html">Deploy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://github.com/Botbynetz/Cloud-Infrastructure-Automation" target="_blank">GitHub</a></li>
+                        <li><a href="index.html#tech">Technology</a></li>
+                        <li><a href="index.html#roi">ROI Calculator</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <p><i class="fab fa-github"></i> github.com/Botbynetz</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CloudStack Infrastructure Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Billing toggle
+        const toggle = document.getElementById('billing-toggle');
+        const monthlyLabel = document.getElementById('monthly-label');
+        const annualLabel = document.getElementById('annual-label');
+        const monthlyPrices = document.querySelectorAll('.monthly-price');
+        const annualPrices = document.querySelectorAll('.annual-price');
+        const monthlyNotes = document.querySelectorAll('.monthly-note');
+        const annualNotes = document.querySelectorAll('.annual-note');
+
+        toggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+            monthlyLabel.classList.toggle('active');
+            annualLabel.classList.toggle('active');
+
+            if (this.classList.contains('active')) {
+                // Show annual prices
+                monthlyPrices.forEach(p => p.style.display = 'none');
+                annualPrices.forEach(p => p.style.display = 'inline');
+                monthlyNotes.forEach(n => n.style.display = 'none');
+                annualNotes.forEach(n => n.style.display = 'block');
+            } else {
+                // Show monthly prices
+                monthlyPrices.forEach(p => p.style.display = 'inline');
+                annualPrices.forEach(p => p.style.display = 'none');
+                monthlyNotes.forEach(n => n.style.display = 'block');
+                annualNotes.forEach(n => n.style.display = 'none');
+            }
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

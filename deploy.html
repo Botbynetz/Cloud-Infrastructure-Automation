@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Infrastructure - CloudStack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .deploy-container {
+            padding: 140px 0 80px;
+            min-height: 100vh;
+            background: var(--bg-light);
+        }
+
+        .deploy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .config-panel, .console-panel {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 32px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .tier-badge {
+            margin-left: auto;
+            padding: 6px 16px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .tier-badge.enterprise {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .tier-badge.ultimate {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section h3 i {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            color: var(--text-light);
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .module-selector {
+            display: grid;
+            gap: 12px;
+        }
+
+        .module-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .module-option:hover {
+            border-color: var(--primary);
+            background: rgba(0, 102, 255, 0.02);
+        }
+
+        .module-option.selected {
+            border-color: var(--primary);
+            background: rgba(0, 102, 255, 0.05);
+        }
+
+        .module-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .module-option.disabled:hover {
+            border-color: var(--border);
+            background: white;
+        }
+
+        .module-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .module-info {
+            flex: 1;
+        }
+
+        .module-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .module-desc {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .module-price {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .upgrade-notice {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+            border: 2px solid var(--warning);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .upgrade-notice i {
+            color: var(--warning);
+            font-size: 24px;
+        }
+
+        .upgrade-notice p {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .upgrade-notice a {
+            background: var(--warning);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-deploy {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-deploy:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 102, 255, 0.4);
+        }
+
+        .btn-deploy:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-deploy.deploying {
+            background: var(--text-light);
+        }
+
+        .console {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #00ff00;
+            height: 600px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .console-line {
+            margin-bottom: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .console-line.info { color: #00bfff; }
+        .console-line.success { color: #00ff00; }
+        .console-line.warning { color: #ffa500; }
+        .console-line.error { color: #ff4444; }
+        .console-line.timestamp {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .progress-section {
+            margin-bottom: 24px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 50px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .module-progress {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .module-status {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .module-status.pending {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        .module-status.running {
+            background: rgba(0, 191, 255, 0.1);
+            color: #00bfff;
+        }
+
+        .module-status.success {
+            background: rgba(0, 255, 0, 0.1);
+            color: var(--success);
+        }
+
+        .module-status.error {
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .deployment-summary {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+            border: 2px solid var(--success);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+            display: none;
+        }
+
+        .deployment-summary.show {
+            display: block;
+        }
+
+        .deployment-summary h3 {
+            color: var(--success);
+            font-size: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-stat {
+            text-align: center;
+        }
+
+        .summary-stat .value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        .summary-stat .label {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 1024px) {
+            .deploy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">
+                <div class="logo-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                CloudStack
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="deploy.html" style="color: var(--primary);">Deploy</a></li>
+                <li><a href="index.html#contact" class="btn-nav">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Deploy Container -->
+    <section class="deploy-container">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Start Deployment</span>
+                <h1 class="section-title">Deploy Your Infrastructure</h1>
+                <p class="section-description">Configure and deploy in minutes with real-time progress tracking</p>
+            </div>
+
+            <div class="deploy-grid">
+                <!-- Configuration Panel -->
+                <div class="config-panel">
+                    <div class="panel-header">
+                        <div class="panel-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h2 class="panel-title">Configuration</h2>
+                        <span class="tier-badge" id="tier-badge">Free</span>
+                    </div>
+
+                    <form id="deploy-form">
+                        <!-- AWS Credentials -->
+                        <div class="form-section">
+                            <h3><i class="fab fa-aws"></i> AWS Credentials</h3>
+                            <div class="form-group">
+                                <label>AWS Access Key ID *</label>
+                                <input type="text" id="aws-access-key" placeholder="AKIAIOSFODNN7EXAMPLE" required>
+                                <small>Your AWS access key (never stored, used only for deployment)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>AWS Secret Access Key *</label>
+                                <input type="password" id="aws-secret-key" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" required>
+                                <small>Your AWS secret key (transmitted securely via HTTPS)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>AWS Region *</label>
+                                <select id="aws-region" required>
+                                    <option value="us-east-1">US East (N. Virginia) - us-east-1</option>
+                                    <option value="us-west-2">US West (Oregon) - us-west-2</option>
+                                    <option value="eu-west-1">EU (Ireland) - eu-west-1</option>
+                                    <option value="ap-southeast-1">Asia Pacific (Singapore) - ap-southeast-1</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Project Configuration -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-project-diagram"></i> Project Configuration</h3>
+                            <div class="form-group">
+                                <label>Project Name *</label>
+                                <input type="text" id="project-name" placeholder="my-cloud-infrastructure" required>
+                                <small>Lowercase, hyphens only (used for resource naming)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Environment *</label>
+                                <select id="environment" required>
+                                    <option value="dev">Development</option>
+                                    <option value="staging">Staging</option>
+                                    <option value="production">Production</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Module Selection -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-cubes"></i> Select Modules</h3>
+                            <div class="module-selector" id="module-selector">
+                                <!-- Modules will be populated by JavaScript -->
+                            </div>
+                            <div id="upgrade-notice" style="display: none;"></div>
+                        </div>
+
+                        <button type="submit" class="btn-deploy" id="deploy-btn">
+                            <i class="fas fa-rocket"></i>
+                            <span>Start Deployment</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Console Panel -->
+                <div class="console-panel">
+                    <div class="panel-header">
+                        <div class="panel-icon">
+                            <i class="fas fa-terminal"></i>
+                        </div>
+                        <h2 class="panel-title">Deployment Console</h2>
+                    </div>
+
+                    <!-- Progress Section -->
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progress-status">Waiting to start...</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                        <div class="module-progress" id="module-progress">
+                            <!-- Module statuses will appear here -->
+                        </div>
+                    </div>
+
+                    <!-- Console Output -->
+                    <div class="console" id="console">
+                        <div class="console-line info">
+                            <i class="fas fa-info-circle"></i> CloudStack Deployment Console v2.0
+                        </div>
+                        <div class="console-line">
+                            <i class="fas fa-check"></i> Connected to deployment server
+                        </div>
+                        <div class="console-line timestamp">
+                            Ready to deploy. Configure your settings and click "Start Deployment"
+                        </div>
+                    </div>
+
+                    <!-- Deployment Summary -->
+                    <div class="deployment-summary" id="deployment-summary">
+                        <h3>
+                            <i class="fas fa-check-circle"></i>
+                            Deployment Successful!
+                        </h3>
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <div class="value" id="summary-time">-</div>
+                                <div class="label">Duration</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="value" id="summary-resources">-</div>
+                                <div class="label">Resources Created</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="value" id="summary-modules">-</div>
+                                <div class="label">Modules Deployed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>CloudStack</h4>
+                    <p>Enterprise-grade cloud infrastructure automation platform.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="index.html#modules">Modules</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://github.com/Botbynetz/Cloud-Infrastructure-Automation" target="_blank">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <p><i class="fab fa-github"></i> github.com/Botbynetz</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CloudStack Infrastructure Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="deploy.js"></script>
+</body>
+</html>
