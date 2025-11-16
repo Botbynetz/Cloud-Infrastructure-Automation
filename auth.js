@@ -291,11 +291,6 @@ document.getElementById('register-form').addEventListener('submit', async functi
     setTimeout(() => {
         localStorage.removeItem(pendingKey);
     }, 10 * 60 * 1000); // 10 minutes
-        tier: 'free',
-        createdAt: Date.now(),
-        deployments: 0,
-        verified: false
-    };
     
     // Send verification code via email
     try {
