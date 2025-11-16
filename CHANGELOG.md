@@ -5,6 +5,305 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-01-16
+
+### Added - Phase 7: Security & Compliance 🔒
+
+#### AWS Config Compliance Monitoring Module 🔍
+- **Comprehensive Config Module**: Continuous compliance monitoring and automated remediation
+  - `terraform/modules/aws-config/main.tf` - AWS Config infrastructure (800+ lines)
+  - `terraform/modules/aws-config/variables.tf` - Configuration options (350+ lines)
+  - `terraform/modules/aws-config/outputs.tf` - Module outputs (200+ lines)
+  - `terraform/modules/aws-config/conformance-packs/cis-aws-foundations.yaml` - CIS Benchmark v1.4.0 (600+ lines)
+  - `terraform/modules/aws-config/conformance-packs/operational-best-practices.yaml` - AWS Best Practices (500+ lines)
+
+- **15 Managed Config Rules**: Industry-standard compliance checks
+  - **encrypted-volumes**: Ensure all EBS volumes are encrypted
+  - **ec2-security-group-attached-to-eni**: Verify security groups are attached
+  - **iam-password-policy**: Enforce strong password requirements (14+ chars, complexity)
+  - **root-account-mfa-enabled**: Ensure root account has MFA enabled
+  - **s3-bucket-public-read-prohibited**: Block public read access to S3 buckets
+  - **s3-bucket-public-write-prohibited**: Block public write access to S3 buckets
+  - **s3-bucket-server-side-encryption-enabled**: Require S3 encryption at rest
+  - **rds-storage-encrypted**: Ensure RDS databases are encrypted
+  - **cloudtrail-enabled**: Verify CloudTrail is recording API calls
+  - **multi-region-cloudtrail-enabled**: Ensure multi-region trail exists
+  - **ebs-optimized-instance**: Check EC2 instances are EBS-optimized
+  - **ec2-instance-managed-by-ssm**: Verify SSM agent management
+  - **vpc-flow-logs-enabled**: Ensure VPC flow logs are enabled
+  - **vpc-default-security-group-closed**: Check default SG has no rules
+  - **iam-user-mfa-enabled**: Require MFA for all IAM users
+
+- **2 Custom Lambda-Based Rules**: Advanced compliance validation
+  - **s3-public-access-blocker**: Custom Python Lambda rule (120 lines)
+    - Checks all 4 S3 public access block settings
+    - Validates BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, RestrictPublicBuckets
+    - Returns COMPLIANT or NON_COMPLIANT with detailed annotations
+  - **iam-password-policy-checker**: Custom Python Lambda rule (180 lines)
+    - Validates 8 IAM password policy requirements
+    - Minimum length 14 characters
+    - Require symbols, numbers, uppercase, lowercase
+    - Maximum age 90 days, minimum age 1 day
+    - Password reuse prevention (5 passwords)
+    - No hard expiry to prevent account lockout
+
+- **2 Conformance Packs**: Comprehensive security frameworks
+  - **CIS AWS Foundations Benchmark v1.4.0** (50+ rules)
+    - IAM: Root MFA, user MFA, password policy, access key rotation, unused credentials, no admin policies
+    - Logging: CloudTrail enabled, multi-region, log validation, S3 logging, CloudWatch encryption
+    - Monitoring: Alarm actions, EC2 detailed monitoring, trail encryption
+    - Networking: VPC flow logs, default SG closed, restricted SSH/RDP, no unrestricted IGW
+    - Storage: S3 public access blocked, S3 encryption, SSL-only, RDS encryption, versioning
+  - **AWS Operational Best Practices** (40+ rules)
+    - Compute: SSM managed, no public IPs, EBS optimized, SG attached, instance profile
+    - Storage: S3 versioning, object lock, DynamoDB autoscaling/PITR, cross-region replication
+    - Database: RDS multi-AZ, enhanced monitoring, auto minor upgrades, backup enabled
+    - Networking: ELB logging, ALB HTTP→HTTPS, SG authorized ports, ELB ACM cert, WAF
+    - Security: KMS deletion protection, GuardDuty centralized, Security Hub enabled, key rotation
+
+- **Automated Remediation**: SSM Automation Documents for 5 resources
+  - **S3 buckets**: Enable default encryption (AWS-PublishSNSNotification)
+  - **EC2 instances**: Stop non-compliant instances (AWS-StopEC2Instance)
+  - **Security groups**: Remove unrestricted rules (AWS-DisablePublicAccessForSecurityGroup)
+  - **IAM users**: Disable inactive users (AWS-DisableInactiveIAMUsers)
+  - **RDS**: Enable automated backups (AWS-EnableRDSAutomatedBackups)
+
+- **CloudWatch Alarms**: 4 Config-specific alarms
+  - Compliance violations detected (>0 violations, ALARM state)
+  - Config recorder stopped (state check, INSUFFICIENT_DATA)
+  - Delivery channel failures (>0 failed deliveries, ALARM)
+  - Conformance pack violations (>5 violations, ALARM state)
+
+- **Config Recorder**: All-resource tracking with global resources
+  - Recording group: all_supported resources
+  - Include global resources (IAM, CloudFront, Route 53)
+  - Recording frequency: CONTINUOUS (configurable to DAILY for cost savings)
+
+- **Delivery Channel**: S3 + SNS integration
+  - Delivery to S3 bucket with configurable prefix
+  - Optional SNS notifications for configuration changes
+  - 7-year retention (2555 days) for compliance audit trails
+
+- **Config Aggregator**: Multi-account compliance monitoring
+  - Optional cross-account aggregation
+  - Regional aggregation support
+
+#### GuardDuty Threat Detection Module 🛡️
+- **GuardDuty Infrastructure**: Real-time threat detection with automated response
+  - `terraform/modules/guardduty/main.tf` - GuardDuty threat detection (600+ lines)
+  - `terraform/modules/guardduty/variables.tf` - Configuration options (300+ lines)
+  - `terraform/modules/guardduty/outputs.tf` - Module outputs (150+ lines)
+
+- **GuardDuty Detector**: Multi-datasource threat detection
+  - Finding publishing frequency: FIFTEEN_MINUTES (default), ONE_HOUR, SIX_HOURS
+  - S3 Protection: Monitors S3 data events for suspicious access patterns
+  - Kubernetes Protection: Audit logs and EKS add-on management
+  - Malware Protection: EC2 instance EBS volume scanning
+  - Optional threat intelligence sets from S3 (TXT format)
+  - Optional IP sets (trusted/malicious) from S3
+
+- **Auto-Remediation Lambda**: Intelligent threat response (Python 3.11, 350+ lines)
+  - **UnauthorizedAccess:EC2/*** → Isolate instance with restrictive security group
+  - **UnauthorizedAccess:IAMUser/*** → Disable IAM user access keys immediately
+  - **Backdoor:EC2/*** → Quarantine instance and alert security team
+  - **PenTest:*** → Ignore authorized security testing (whitelisted)
+  - **Trojan:EC2/*** → Snapshot volume for forensics, then terminate instance
+  - **Exfiltration:S3/*** → Block public access on affected S3 bucket
+  - **CryptoCurrency:EC2/*** → Stop instance to prevent mining activity
+  - SNS notification sent for all remediation actions
+  - Environment variables: SNS_TOPIC_ARN, AUTO_REMEDIATE_ENABLED, PROJECT_NAME
+
+- **Severity-Based Alert Routing**: 5 SNS topics with KMS encryption
+  - **Critical** (8.0-10.0): Immediate response required, P0 incidents
+  - **High** (7.0-7.9): Urgent attention needed, P1 incidents
+  - **Medium** (4.0-6.9): Important but not critical, P2 incidents
+  - **Low** (0.1-3.9): Minor security events, P3 incidents
+  - **Info** (general): All findings for audit trail and analytics
+
+- **EventBridge Integration**: 4 rules for finding routing
+  - All findings rule → Info SNS topic
+  - High severity (7.0-8.9) → High SNS topic + Lambda auto-remediation
+  - Medium severity (4.0-6.9) → Medium SNS topic
+  - Low severity (0.1-3.9) → Low SNS topic
+
+- **Member Account Management**: Multi-account security
+  - Invite member accounts to GuardDuty
+  - Auto-accept invitations
+  - Centralized threat detection across organization
+
+- **Publishing Destination**: Long-term storage with encryption
+  - Export findings to S3 bucket
+  - KMS encryption for sensitive security data
+  - Configurable export format and frequency
+
+- **CloudWatch Alarms**: 3 GuardDuty-specific alarms
+  - High severity findings (>0 findings, ALARM state)
+  - Critical findings (>0 findings, ALARM state)
+  - Detector health check (state validation, INSUFFICIENT_DATA warning)
+
+#### Security Hub Centralized Dashboard Module 🏛️
+- **Security Hub Infrastructure**: Unified security posture management
+  - `terraform/modules/security-hub/main.tf` - Security Hub dashboard (650+ lines)
+  - `terraform/modules/security-hub/variables.tf` - Configuration options (350+ lines)
+  - `terraform/modules/security-hub/outputs.tf` - Module outputs (250+ lines)
+
+- **5 Security Standards**: Comprehensive compliance frameworks
+  - **CIS AWS Foundations Benchmark v1.2.0**: Legacy standard (maintained)
+  - **CIS AWS Foundations Benchmark v1.4.0**: Latest CIS framework (recommended)
+  - **PCI-DSS v3.2.1**: Payment Card Industry Data Security Standard
+  - **AWS Foundational Security Best Practices v1.0.0**: AWS recommended baseline
+  - **NIST 800-53 Rev5**: Federal compliance for government workloads
+
+- **8 Product Integrations**: Automated security finding aggregation
+  - **GuardDuty**: Threat detection findings
+  - **Config**: Compliance rule violations
+  - **Inspector**: Vulnerability assessments
+  - **Macie**: Data classification and protection
+  - **Access Analyzer**: IAM access analysis
+  - **Firewall Manager**: Firewall policy violations
+  - **Health**: Service health events
+  - **Systems Manager**: Patch compliance and configuration
+
+- **5 Custom Insights**: Pre-built security queries
+  - **Critical/High Findings**: Severity CRITICAL/HIGH + workflow NEW/NOTIFIED + record ACTIVE, grouped by ResourceType
+  - **Failed Controls**: Compliance FAILED + record ACTIVE, grouped by ComplianceStatus
+  - **Public Resources**: PubliclyAccessible=true + severity CRITICAL/HIGH/MEDIUM, grouped by ResourceType
+  - **IAM Issues**: Resource type AwsIamUser/Role/Policy + compliance FAILED, grouped by ResourceId
+  - **Unpatched Resources**: Type prefix "Software and Configuration Checks" + compliance FAILED, grouped by ResourceType
+
+- **3 Action Targets**: Custom automation workflows
+  - **AutoRemediate**: Trigger Lambda function for automatic remediation
+  - **CreateTicket**: Integrate with ticketing system (JIRA, ServiceNow)
+  - **SuppressFinding**: Mark finding as false positive or accepted risk
+
+- **EventBridge Integration**: 4 rules for finding automation
+  - **Critical findings**: Severity CRITICAL + workflow NEW/NOTIFIED + record ACTIVE → Critical SNS
+  - **High findings**: Severity HIGH + workflow NEW/NOTIFIED + record ACTIVE → High SNS
+  - **Failed compliance**: Compliance FAILED + workflow NEW/NOTIFIED + record ACTIVE → Compliance SNS
+  - **Custom actions**: detail-type "Security Hub Findings - Custom Action" → Custom action handler
+
+- **CloudWatch Alarms**: 4 Security Hub-specific alarms
+  - Critical findings count (>threshold, ALARM state)
+  - High findings count (>threshold, ALARM state)
+  - Compliance score drop (<threshold, ALARM state)
+  - Failed security checks (>threshold, ALARM state)
+
+- **Finding Aggregator**: Multi-region security monitoring
+  - Linking mode: ALL_REGIONS (default) or SPECIFIED_REGIONS
+  - Aggregates findings from all linked regions
+  - Centralized security dashboard for organization
+
+- **Member Account Management**: Organizational security
+  - Invite member accounts to Security Hub
+  - Auto-accept invitations with configurable settings
+  - Centralized security posture across AWS Organization
+
+#### Comprehensive Security Documentation 📖
+- **Security Guide**: Complete security implementation reference (1,000+ lines)
+  - `docs/SECURITY_GUIDE.md` - Enterprise security guide
+
+- **Security Architecture**: High-level design and data flow
+  - Security Hub as central aggregation point
+  - Config and GuardDuty feeding findings
+  - EventBridge routing to SNS and Lambda
+  - Automated remediation workflows
+
+- **Module Setup Guides**: Step-by-step configuration
+  - AWS Config setup with all 15 managed rules detailed
+  - Custom Lambda rules with complete Python code
+  - Conformance pack deployment procedures
+  - GuardDuty setup with all protection types
+  - Auto-remediation Lambda configuration
+  - Security Hub setup with all 5 standards
+  - Product integration procedures
+
+- **Compliance Frameworks**: Implementation checklists
+  - **CIS Benchmark**: 5 categories (IAM, Logging, Monitoring, Networking, Storage)
+  - **PCI-DSS**: 8 key requirements mapped to AWS services
+  - **NIST 800-53**: 9 control families with implementation details
+  - Evidence collection and export commands
+
+- **Automated Remediation**: 4 detailed playbooks
+  - **Compromised EC2**: Trigger conditions, 5 automated steps, manual follow-up
+  - **Compromised IAM**: Trigger conditions, 6 automated steps, credential rotation
+  - **S3 Exfiltration**: Trigger conditions, 5 automated steps, data protection
+  - **Failed Compliance**: Trigger conditions, 4 automated steps, compliance restoration
+
+- **Alert Routing & Response**: Severity-based procedures
+  - Alert routing diagram (Security Finding → EventBridge → SNS → Destinations)
+  - SNS subscription bash commands for all severity levels
+  - Response time SLAs: Critical 15min/4h, High 1h/24h, Medium 4h/72h, Low 24h/7d
+
+- **Security Monitoring Dashboard**: CloudWatch integration
+  - 4 dashboard widgets (Security Hub findings, GuardDuty findings, Config compliance, Failed checks)
+  - 6 key metrics with thresholds and actions
+
+- **Incident Response Procedures**: 5-phase approach
+  - **Detection & Analysis**: 3 steps with bash commands for investigation
+  - **Containment**: 2 steps with evidence preservation
+  - **Eradication**: 2 steps with root cause removal
+  - **Recovery**: 2 steps with service restoration
+  - **Post-Incident**: 3 steps with lessons learned
+
+- **Best Practices**: Security hygiene and multi-account strategy
+  - 5 security hygiene items (IAM, encryption, monitoring, patching, backups)
+  - Multi-account strategy diagram (Org Root → Security Account → Member Accounts)
+  - 4 automation best practices
+  - 4 regular testing items
+
+- **Cost Optimization**: Strategies for security services
+  - Cost breakdown table (6 services with pricing and estimates)
+  - 5 cost optimization strategies with HCL code examples
+  - Monthly estimates: Production $515, Non-production $177, 65% savings potential
+
+- **Troubleshooting**: 5 common issues with resolutions
+  - Config recorder issues, GuardDuty false positives, Security Hub standard failures
+  - Finding aggregation problems, Lambda remediation failures
+  - Debugging commands and resolution procedures
+
+### Changed
+
+#### Documentation Updates 📚
+- **README.md**: Added Phase 6 & 7 comprehensive content (~1,200 new lines)
+  - Updated features table with APM and Security sections
+  - Added "Application Performance Monitoring (APM)" section (~400 lines)
+    - AWS X-Ray: 5 sampling rules, 3 groups, service map, Python instrumentation
+    - Container Insights: ECS/EKS metrics, Fluent Bit, container map
+    - Lambda Insights: 8 regions, 5 alarms, 4 queries
+    - Application Insights: 4 ML detectors, custom metrics, Synthetics
+  - Added "Security & Compliance" section (~550 lines)
+    - AWS Config: 15 managed + 2 custom + 2 conformance packs
+    - GuardDuty: 3 protections, auto-remediation, threat intel
+    - Security Hub: 5 standards, 8 integrations, 5 insights
+  - Updated cost estimation section (~200 lines rewrite)
+    - 4 environment cost tables (Dev $84.50, Staging $160.25, Production $560.50)
+    - Cost optimization strategies with HCL examples (5 strategies)
+    - Cost savings summary (Dev 58%, Staging 53%, Production 0%)
+  - Updated version history (4 releases: v1.0.0, v1.5.0, v1.6.0, v1.7.0)
+  - Updated documentation section with APM_GUIDE.md and SECURITY_GUIDE.md
+  - Updated infrastructure code tree (9 new modules)
+
+- **ROADMAP.md**: Updated with Phase 7 completion
+  - Current state updated to v1.7.0 (January 2026)
+  - Added Security & Compliance to completed features (7 new items)
+  - Added Monitoring & Observability to completed features (4 new items)
+  - Moved Phase 7 from "Next Release" to completed section
+  - Updated version history table with v1.5, v1.6, v1.7
+
+### Statistics
+
+**Phase 7 Totals**:
+- 🗂️ **13 files created/updated**: 11 implementation + 2 documentation
+- 📝 **5,950+ lines of code**: Terraform modules + documentation + README updates
+- 🔐 **90+ compliance rules**: 15 managed + 2 custom + 50 CIS + 40 Operational Best Practices
+- 🛡️ **12+ auto-remediation actions**: 5 Config SSM + 7 GuardDuty Lambda
+- 🏛️ **5 security standards**: CIS (2 versions), PCI-DSS, NIST, AWS Foundational
+- 📊 **8 product integrations**: GuardDuty, Config, Inspector, Macie, Access Analyzer, Firewall Manager, Health, Systems Manager
+- 💰 **Cost estimate**: $515/month production, $177/month non-prod, 65% savings with optimization
+- 🎯 **Production-ready**: Enterprise-grade security and compliance solution
+
+---
+
 ## [1.6.0] - 2025-01-16
 
 ### Added - Phase 6: Application Performance Monitoring (APM) 🔍

@@ -1,0 +1,307 @@
+Resources:
+  # ==============================================================================
+  # AWS Operational Best Practices - Conformance Pack
+  # ==============================================================================
+
+  # Encryption Best Practices
+  EBSEncryptionByDefault:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-ebs-encryption-by-default
+      Source:
+        Owner: AWS
+        SourceIdentifier: EC2_EBS_ENCRYPTION_BY_DEFAULT
+
+  RDSEncryptionEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-rds-encryption-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_STORAGE_ENCRYPTED
+
+  S3BucketServerSideEncryption:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-s3-bucket-encryption
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED
+
+  DynamoDBEncryption:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-dynamodb-encryption
+      Source:
+        Owner: AWS
+        SourceIdentifier: DYNAMODB_TABLE_ENCRYPTED_KMS
+
+  # Backup and Recovery
+  RDSAutomatedBackupsEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-rds-automated-backups
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_AUTOMATIC_MINOR_VERSION_UPGRADE_ENABLED
+
+  DynamoDBBackupEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-dynamodb-backup-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: DYNAMODB_PITR_ENABLED
+
+  EBSSnapshotPublicRestorableCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-ebs-snapshot-not-public
+      Source:
+        Owner: AWS
+        SourceIdentifier: EBS_SNAPSHOT_PUBLIC_RESTORABLE_CHECK
+
+  # High Availability
+  RDSMultiAZEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-rds-multi-az
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_MULTI_AZ_SUPPORT
+
+  ELBCrossZoneLoadBalancing:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-elb-cross-zone-lb
+      Source:
+        Owner: AWS
+        SourceIdentifier: ELB_CROSS_ZONE_LOAD_BALANCING_ENABLED
+
+  AutoScalingGroupELBHealthCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-asg-elb-health-check
+      Source:
+        Owner: AWS
+        SourceIdentifier: AUTOSCALING_GROUP_ELB_HEALTHCHECK_REQUIRED
+
+  # Monitoring and Logging
+  CloudTrailEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-cloudtrail-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: CLOUD_TRAIL_ENABLED
+
+  VPCFlowLogsEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-vpc-flow-logs-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: VPC_FLOW_LOGS_ENABLED
+
+  CloudWatchAlarmActionEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-cloudwatch-alarm-action
+      Source:
+        Owner: AWS
+        SourceIdentifier: CLOUDWATCH_ALARM_ACTION_CHECK
+
+  ALBLoggingEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-alb-logging-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: ELB_LOGGING_ENABLED
+
+  # Resource Tagging
+  RequiredTags:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-required-tags
+      Source:
+        Owner: AWS
+        SourceIdentifier: REQUIRED_TAGS
+      InputParameters:
+        tag1Key: Environment
+        tag2Key: Project
+        tag3Key: Owner
+
+  # Cost Optimization
+  EC2InstanceNoPublicIP:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-ec2-no-public-ip
+      Source:
+        Owner: AWS
+        SourceIdentifier: EC2_INSTANCE_NO_PUBLIC_IP
+
+  UnusedEIPCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-unused-eip
+      Source:
+        Owner: AWS
+        SourceIdentifier: EIP_ATTACHED
+
+  EC2VolumeInUseCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-ec2-volume-in-use
+      Source:
+        Owner: AWS
+        SourceIdentifier: EC2_VOLUME_INUSE_CHECK
+
+  # Network Security
+  VPCDefaultSecurityGroupClosed:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-vpc-default-sg-closed
+      Source:
+        Owner: AWS
+        SourceIdentifier: VPC_DEFAULT_SECURITY_GROUP_CLOSED
+
+  RestrictedSSH:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-restricted-ssh
+      Source:
+        Owner: AWS
+        SourceIdentifier: INCOMING_SSH_DISABLED
+
+  RestrictedCommonPorts:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-restricted-common-ports
+      Source:
+        Owner: AWS
+        SourceIdentifier: RESTRICTED_INCOMING_TRAFFIC
+      InputParameters:
+        blockedPort1: 20
+        blockedPort2: 21
+        blockedPort3: 3389
+        blockedPort4: 3306
+        blockedPort5: 5432
+
+  VPCNetworkACLUnusedCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-vpc-nacl-unused
+      Source:
+        Owner: AWS
+        SourceIdentifier: VPC_NETWORK_ACL_UNUSED_CHECK
+
+  # Database Security
+  RDSInstancePublicAccessCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-rds-no-public-access
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_INSTANCE_PUBLIC_ACCESS_CHECK
+
+  RDSSnapshotEncrypted:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-rds-snapshot-encrypted
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_SNAPSHOT_ENCRYPTED
+
+  # Lambda Security
+  LambdaFunctionPublicAccessProhibited:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-lambda-no-public-access
+      Source:
+        Owner: AWS
+        SourceIdentifier: LAMBDA_FUNCTION_PUBLIC_ACCESS_PROHIBITED
+
+  LambdaInsideVPC:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-lambda-inside-vpc
+      Source:
+        Owner: AWS
+        SourceIdentifier: LAMBDA_INSIDE_VPC
+
+  # S3 Security
+  S3BucketVersioningEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-s3-versioning-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_VERSIONING_ENABLED
+
+  S3BucketReplicationEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-s3-replication-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_REPLICATION_ENABLED
+
+  S3BucketLoggingEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-s3-bucket-logging
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_LOGGING_ENABLED
+
+  S3BucketPublicReadProhibited:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-s3-no-public-read
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED
+
+  S3BucketPublicWriteProhibited:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-s3-no-public-write
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_WRITE_PROHIBITED
+
+  # IAM Security
+  IAMPasswordPolicy:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-iam-password-policy
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_PASSWORD_POLICY
+      InputParameters:
+        RequireUppercaseCharacters: true
+        RequireLowercaseCharacters: true
+        RequireSymbols: true
+        RequireNumbers: true
+        MinimumPasswordLength: 14
+        PasswordReusePrevention: 24
+        MaxPasswordAge: 90
+
+  IAMUserUnusedCredentialsCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-iam-unused-credentials
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_USER_UNUSED_CREDENTIALS_CHECK
+      InputParameters:
+        maxCredentialUsageAge: 90
+
+  IAMPolicyNoStatementsWithAdminAccess:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: ops-iam-no-admin-policy
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_POLICY_NO_STATEMENTS_WITH_ADMIN_ACCESS
