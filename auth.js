@@ -52,9 +52,144 @@ function hideAlert() {
     alert.classList.remove('show');
 }
 
-// Login with Google (placeholder)
+// Google Sign-In Configuration
+const GOOGLE_CLIENT_ID = typeof GOOGLE_CONFIG !== 'undefined' ? GOOGLE_CONFIG.CLIENT_ID : '';
+
+// Initialize Google Sign-In
+function initGoogleSignIn() {
+    if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+        console.warn('Google Client ID not configured. Please set it in google-config.js');
+        return;
+    }
+    
+    if (typeof google !== 'undefined' && google.accounts) {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleSignIn,
+            auto_select: false
+        });
+    }
+}
+
+// Handle Google Sign-In Response
+function handleGoogleSignIn(response) {
+    try {
+        // Decode JWT token
+        const payload = parseJwt(response.credential);
+        
+        const email = payload.email;
+        const name = payload.name;
+        const picture = payload.picture;
+        
+        // Check if user exists in localStorage
+        const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
+        let user = users.find(u => u.email === email);
+        
+        if (!user) {
+            // Auto-register new Google user
+            user = {
+                email: email,
+                company: name,
+                phone: 'Google Auth',
+                password: 'google_oauth_' + Date.now(), // Random password for Google users
+                tier: 'free',
+                createdAt: Date.now(),
+                deployments: 0,
+                authMethod: 'google',
+                picture: picture
+            };
+            
+            users.push(user);
+            localStorage.setItem('cloudstack_users', JSON.stringify(users));
+            
+            showAlert('Account created with Google! Logging in...', 'success');
+        } else {
+            showAlert('Welcome back! Logging in with Google...', 'success');
+        }
+        
+        // Store session
+        sessionStorage.setItem('cloudstack_user', JSON.stringify({
+            email: user.email,
+            company: user.company,
+            phone: user.phone,
+            tier: user.tier,
+            picture: picture,
+            authMethod: 'google',
+            loginTime: Date.now()
+        }));
+        
+        // Get redirect URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tier = urlParams.get('tier') || user.tier;
+        
+        setTimeout(() => {
+            window.location.href = `deploy.html?tier=${tier}`;
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Google Sign-In Error:', error);
+        showAlert('Google Sign-In failed. Please try again.', 'error');
+    }
+}
+
+// Parse JWT token
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error('JWT Parse Error:', e);
+        return null;
+    }
+}
+
+// Login with Google - trigger Google Sign-In prompt
 function loginWithGoogle() {
-    showAlert('Google OAuth integration coming soon! Please use email/password for now.', 'error');
+    if (typeof google !== 'undefined' && google.accounts) {
+        google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                // Fallback: render button
+                renderGoogleButton();
+            }
+        });
+    } else {
+        // Google Sign-In not loaded yet, show info
+        showAlert('Loading Google Sign-In... Please wait and try again.', 'error');
+        setTimeout(() => {
+            if (typeof google !== 'undefined') {
+                initGoogleSignIn();
+                loginWithGoogle();
+            }
+        }, 1000);
+    }
+}
+
+// Render Google Sign-In button (alternative method)
+function renderGoogleButton() {
+    const buttonDiv = document.createElement('div');
+    buttonDiv.id = 'google-signin-button';
+    buttonDiv.style.display = 'flex';
+    buttonDiv.style.justifyContent = 'center';
+    buttonDiv.style.margin = '20px 0';
+    
+    document.querySelector('.auth-form.active').appendChild(buttonDiv);
+    
+    if (typeof google !== 'undefined' && google.accounts) {
+        google.accounts.id.renderButton(
+            buttonDiv,
+            { 
+                theme: "outline", 
+                size: "large",
+                width: 400,
+                text: "continue_with",
+                shape: "rectangular"
+            }
+        );
+    }
 }
 
 // Login Form Handler
@@ -163,4 +298,9 @@ window.addEventListener('load', function() {
     if (from === 'pricing' && tier) {
         showAlert(`Please login or register to access ${tier.toUpperCase()} tier`, 'error');
     }
+    
+    // Initialize Google Sign-In
+    setTimeout(() => {
+        initGoogleSignIn();
+    }, 500);
 });
