@@ -2175,7 +2175,7 @@ Special thanks to:
 
 If you find this project helpful, please consider giving it a star ⭐
 
-**Made with ❤️ for Cloud Automation**
+**Made from UnivAI Generation for Cloud Automation**
 
 [⬆ Back to Top](#cloud-infrastructure-project-)
 
