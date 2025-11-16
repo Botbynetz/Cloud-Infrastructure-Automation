@@ -16,8 +16,8 @@
 // 8. Copy the Client ID and paste below
 
 const GOOGLE_CONFIG = {
-    // Replace this with your actual Google Client ID
-    CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+    // Google OAuth Client ID
+    CLIENT_ID: '1080531524270-1o4h5dg2iloeapla3729i5bm843q8mbu.apps.googleusercontent.com',
     
     // Authorized domains (for security)
     AUTHORIZED_DOMAINS: [
