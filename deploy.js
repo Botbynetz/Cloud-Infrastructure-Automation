@@ -359,14 +359,15 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         updateModuleStatus(moduleId, 'pending');
     });
     
-    // Start deployment simulation
-    await simulateDeployment(config);
+    // Connect to Railway backend via WebSocket
+    const socket = io('https://cloud-infrastructure-automation-production.up.railway.app');
     
-    // In production, replace simulation with:
-    /*
-    const socket = io('https://your-heroku-backend.herokuapp.com');
-    
-    socket.emit('deploy', config);
+    socket.on('connect', () => {
+        addConsoleLog('✅ Connected to CloudStack backend', 'success');
+        
+        // Emit deployment request
+        socket.emit('deploy', config);
+    });
     
     socket.on('log', (data) => {
         addConsoleLog(data.message, data.type);
@@ -381,9 +382,33 @@ document.getElementById('deploy-form').addEventListener('submit', async function
     });
     
     socket.on('complete', (data) => {
-        // Handle completion
+        const minutes = Math.floor(data.duration / 60);
+        const seconds = data.duration % 60;
+        
+        const summary = document.getElementById('deployment-summary');
+        summary.classList.add('show');
+        document.getElementById('summary-time').textContent = `${minutes}m ${seconds}s`;
+        document.getElementById('summary-resources').textContent = data.totalResources;
+        document.getElementById('summary-modules').textContent = data.modulesDeployed;
+        
+        const deployBtn = document.getElementById('deploy-btn');
+        deployBtn.disabled = false;
+        deployBtn.classList.remove('deploying');
+        deployBtn.innerHTML = '<i class="fas fa-redo"></i> <span>Deploy Again</span>';
     });
-    */
+    
+    socket.on('error', (data) => {
+        addConsoleLog(`❌ Error: ${data.message}`, 'error');
+        
+        const deployBtn = document.getElementById('deploy-btn');
+        deployBtn.disabled = false;
+        deployBtn.classList.remove('deploying');
+        deployBtn.innerHTML = '<i class="fas fa-rocket"></i> <span>Start Deployment</span>';
+    });
+    
+    socket.on('disconnect', () => {
+        addConsoleLog('⚠️  Disconnected from backend', 'warning');
+    });
 });
 
 // Initialize

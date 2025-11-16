@@ -1,13 +1,11 @@
 // Configuration for CloudStack deployment platform
 const CONFIG = {
-    // Backend URL (update after Heroku deployment)
-    BACKEND_URL: process.env.NODE_ENV === 'production' 
-        ? 'https://cloudstack-deploy-api.herokuapp.com'  // Update this after creating Heroku app
-        : 'http://localhost:3000',
+    // Backend URL (Railway deployment)
+    BACKEND_URL: 'https://cloud-infrastructure-automation-production.up.railway.app',
     
     // Feature flags
-    USE_WEBSOCKET: false,  // Set to true after backend deployed
-    USE_SIMULATION: true,  // Set to false when using real backend
+    USE_WEBSOCKET: true,  // WebSocket enabled for Railway backend
+    USE_SIMULATION: false,  // Using real Railway backend
     
     // Pricing tiers
     TIERS: {
