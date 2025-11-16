@@ -230,6 +230,9 @@ document.getElementById('login-form').addEventListener('submit', async function(
 });
 
 // Register Form Handler
+let pendingUser = null; // Store pending user data for verification
+let verificationCode = null; // Store generated verification code
+
 document.getElementById('register-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -260,34 +263,155 @@ document.getElementById('register-form').addEventListener('submit', async functi
     // Get stored users
     const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
     
-    // Check if email already exists
-    if (users.some(u => u.email === email)) {
+    // Check if user already exists
+    if (users.find(u => u.email === email)) {
         showAlert('Email already registered. Please login instead.', 'error');
         return;
     }
     
-    // Create new user
-    const newUser = {
-        email,
-        company,
-        phone,
-        password,
+    // Generate 6-digit verification code
+    verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Store pending user data (not yet saved to localStorage)
+    pendingUser = {
+        email: email,
+        company: company,
+        phone: phone,
+        password: password,
         tier: 'free',
         createdAt: Date.now(),
-        deployments: 0
+        deployments: 0,
+        verified: false
     };
     
-    users.push(newUser);
-    localStorage.setItem('cloudstack_users', JSON.stringify(users));
+    // TODO: Send verification code via email to bynetzg@gmail.com
+    // For now, display code in alert (will be replaced with backend email service)
+    console.log('Verification Code:', verificationCode);
+    alert(`🔐 VERIFICATION CODE (akan dikirim via email): ${verificationCode}\n\nMasukkan kode ini di form verifikasi.`);
     
-    showAlert('Account created successfully! Please login.', 'success');
+    // Show verification modal
+    document.getElementById('verificationEmail').textContent = email;
+    document.getElementById('verificationModal').classList.add('show');
     
-    // Switch to login tab after 1.5 seconds
+    // Setup code inputs after modal is shown
+    setupCodeInputs();
+    
+    // Focus first input after a short delay
     setTimeout(() => {
-        switchTab('login');
-        document.getElementById('login-email').value = email;
-    }, 1500);
+        document.getElementById('code1').focus();
+    }, 100);
+    
+    showAlert('Please check your email for the verification code', 'success');
 });
+
+// Setup Verification Code Input Handling
+function setupCodeInputs() {
+    const codeInputs = document.querySelectorAll('.code-input');
+    
+    codeInputs.forEach((input, index) => {
+        // Remove old listeners by cloning
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+    });
+    
+    // Re-query after cloning
+    const inputs = document.querySelectorAll('.code-input');
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', function(e) {
+            if (this.value.length === 1) {
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            }
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && this.value === '') {
+                if (index > 0) {
+                    inputs[index - 1].focus();
+                }
+            }
+        });
+        
+        // Only allow numbers
+        input.addEventListener('keypress', function(e) {
+            if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+    });
+}
+
+// Verify Code Function
+function verifyCode() {
+    const code1 = document.getElementById('code1').value;
+    const code2 = document.getElementById('code2').value;
+    const code3 = document.getElementById('code3').value;
+    const code4 = document.getElementById('code4').value;
+    const code5 = document.getElementById('code5').value;
+    const code6 = document.getElementById('code6').value;
+    
+    const enteredCode = code1 + code2 + code3 + code4 + code5 + code6;
+    
+    if (enteredCode.length !== 6) {
+        showAlert('Please enter the complete 6-digit code', 'error');
+        return;
+    }
+    
+    if (enteredCode === verificationCode) {
+        // Code is correct - save user to localStorage
+        pendingUser.verified = true;
+        
+        const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
+        users.push(pendingUser);
+        localStorage.setItem('cloudstack_users', JSON.stringify(users));
+        
+        showAlert('Email verified successfully! You can now login.', 'success');
+        
+        // Close modal
+        document.getElementById('verificationModal').classList.remove('show');
+        
+        // Clear inputs
+        codeInputs.forEach(input => input.value = '');
+        
+        // Switch to login tab after 1.5 seconds
+        setTimeout(() => {
+            switchTab('login');
+            document.getElementById('login-email').value = pendingUser.email;
+        }, 1500);
+        
+        // Clear pending data
+        pendingUser = null;
+        verificationCode = null;
+    } else {
+        showAlert('Invalid verification code. Please try again.', 'error');
+        // Clear inputs
+        codeInputs.forEach(input => input.value = '');
+        document.getElementById('code1').focus();
+    }
+}
+
+// Resend Code Function
+function resendCode() {
+    if (!pendingUser) {
+        showAlert('Please register first', 'error');
+        return;
+    }
+    
+    // Generate new code
+    verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // TODO: Send via email
+    console.log('New Verification Code:', verificationCode);
+    alert(`🔐 NEW VERIFICATION CODE: ${verificationCode}\n\nKode baru telah dikirim!`);
+    
+    showAlert('A new code has been sent to your email', 'success');
+    
+    // Clear inputs
+    codeInputs.forEach(input => input.value = '');
+    document.getElementById('code1').focus();
+}
 
 // Check if redirected from pricing page
 window.addEventListener('load', function() {
