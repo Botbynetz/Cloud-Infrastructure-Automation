@@ -391,7 +391,7 @@ async function sendPasswordResetEmail(email, code) {
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
         }
         .header {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 50px 40px;
             text-align: center;
         }
@@ -422,17 +422,17 @@ async function sendPasswordResetEmail(email, code) {
             font-size: 16px;
         }
         .code-container {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
             border-radius: 12px;
             padding: 30px;
             text-align: center;
             margin: 30px 0;
-            border: 2px dashed #f59e0b;
+            border: 2px dashed #667eea;
         }
         .code {
             font-size: 56px;
             font-weight: 700;
-            color: #92400e;
+            color: #5b21b6;
             letter-spacing: 12px;
             font-family: 'Courier New', monospace;
             margin: 0;
@@ -443,19 +443,19 @@ async function sendPasswordResetEmail(email, code) {
             margin-top: 15px;
             padding: 12px 30px;
             background: rgba(255, 255, 255, 0.9);
-            color: #92400e;
+            color: #5b21b6;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
             font-size: 14px;
-            border: 2px solid #f59e0b;
+            border: 2px solid #667eea;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         .copy-button:hover {
             background: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         .warning-box {
             background: #fef2f2;
@@ -520,8 +520,8 @@ async function sendPasswordResetEmail(email, code) {
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔐 CloudStack</h1>
-            <p>Password Reset Request</p>
+            <h1>🚀 CloudStack</h1>
+            <p>Enterprise Infrastructure Automation</p>
         </div>
         
         <div class="content">
