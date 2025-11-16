@@ -284,24 +284,61 @@ document.getElementById('register-form').addEventListener('submit', async functi
         verified: false
     };
     
-    // TODO: Send verification code via email to bynetzg@gmail.com
-    // For now, display code in alert (will be replaced with backend email service)
-    console.log('Verification Code:', verificationCode);
-    alert(`🔐 VERIFICATION CODE (akan dikirim via email): ${verificationCode}\n\nMasukkan kode ini di form verifikasi.`);
-    
-    // Show verification modal
-    document.getElementById('verificationEmail').textContent = email;
-    document.getElementById('verificationModal').classList.add('show');
-    
-    // Setup code inputs after modal is shown
-    setupCodeInputs();
-    
-    // Focus first input after a short delay
-    setTimeout(() => {
-        document.getElementById('code1').focus();
-    }, 100);
-    
-    showAlert('Please check your email for the verification code', 'success');
+    // Send verification code via email
+    try {
+        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-verification-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                code: verificationCode
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+            throw new Error(result.error || 'Failed to send email');
+        }
+        
+        console.log('✓ Verification email sent:', result.messageId);
+        
+        // Show verification modal
+        document.getElementById('verificationEmail').textContent = email;
+        document.getElementById('verificationModal').classList.add('show');
+        
+        // Setup code inputs after modal is shown
+        setupCodeInputs();
+        
+        // Focus first input after a short delay
+        setTimeout(() => {
+            document.getElementById('code1').focus();
+        }, 100);
+        
+        showAlert('Verification code sent to your email!', 'success');
+        
+    } catch (error) {
+        console.error('Failed to send verification email:', error);
+        
+        // Fallback: show code in alert for testing
+        alert(`⚠️ Email service unavailable. Use this code for testing:\n\n${verificationCode}\n\n(In production, this will be sent via email)`);
+        
+        // Show verification modal anyway
+        document.getElementById('verificationEmail').textContent = email;
+        document.getElementById('verificationModal').classList.add('show');
+        
+        // Setup code inputs after modal is shown
+        setupCodeInputs();
+        
+        // Focus first input after a short delay
+        setTimeout(() => {
+            document.getElementById('code1').focus();
+        }, 100);
+        
+        showAlert('Please enter the verification code', 'info');
+    }
 });
 
 // Setup Verification Code Input Handling
@@ -393,7 +430,7 @@ function verifyCode() {
 }
 
 // Resend Code Function
-function resendCode() {
+async function resendCode() {
     if (!pendingUser) {
         showAlert('Please register first', 'error');
         return;
@@ -402,14 +439,39 @@ function resendCode() {
     // Generate new code
     verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // TODO: Send via email
-    console.log('New Verification Code:', verificationCode);
-    alert(`🔐 NEW VERIFICATION CODE: ${verificationCode}\n\nKode baru telah dikirim!`);
-    
-    showAlert('A new code has been sent to your email', 'success');
+    // Send verification code via email
+    try {
+        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-verification-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: pendingUser.email,
+                code: verificationCode
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+            throw new Error(result.error || 'Failed to send email');
+        }
+        
+        console.log('✓ New verification email sent:', result.messageId);
+        showAlert('New verification code sent to your email!', 'success');
+        
+    } catch (error) {
+        console.error('Failed to resend verification email:', error);
+        
+        // Fallback: show code in alert
+        alert(`⚠️ Email service unavailable. New code for testing:\n\n${verificationCode}`);
+        showAlert('New code generated (check console for testing)', 'info');
+    }
     
     // Clear inputs
-    codeInputs.forEach(input => input.value = '');
+    const inputs = document.querySelectorAll('.code-input');
+    inputs.forEach(input => input.value = '');
     document.getElementById('code1').focus();
 }
 

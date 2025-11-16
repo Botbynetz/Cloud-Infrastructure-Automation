@@ -302,6 +302,139 @@
             opacity: 1;
             text-decoration: underline;
         }
+
+        /* Verification Modal */
+        .verification-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .verification-modal.show {
+            display: flex;
+        }
+
+        .verification-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideUp 0.3s ease-out;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .verification-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+            color: white;
+        }
+
+        .verification-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .verification-subtitle {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .verification-email {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .code-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .code-input {
+            width: 55px;
+            height: 55px;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .resend-link {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .resend-link a {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .resend-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -415,6 +548,37 @@
             
             <div class="back-home">
                 <a href="index.html"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div id="verificationModal" class="verification-modal">
+        <div class="verification-content">
+            <div class="verification-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h2 class="verification-title">Verify Your Email</h2>
+            <p class="verification-subtitle">
+                We've sent a 6-digit code to<br>
+                <span class="verification-email" id="verificationEmail"></span>
+            </p>
+            
+            <div class="code-inputs">
+                <input type="text" class="code-input" maxlength="1" id="code1" autocomplete="off">
+                <input type="text" class="code-input" maxlength="1" id="code2" autocomplete="off">
+                <input type="text" class="code-input" maxlength="1" id="code3" autocomplete="off">
+                <input type="text" class="code-input" maxlength="1" id="code4" autocomplete="off">
+                <input type="text" class="code-input" maxlength="1" id="code5" autocomplete="off">
+                <input type="text" class="code-input" maxlength="1" id="code6" autocomplete="off">
+            </div>
+            
+            <button class="verify-btn" onclick="verifyCode()">
+                <i class="fas fa-check-circle"></i> Verify Email
+            </button>
+            
+            <div class="resend-link">
+                Didn't receive the code? <a onclick="resendCode()">Resend Code</a>
             </div>
         </div>
     </div>
