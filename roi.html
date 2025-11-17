@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Value Proposition - CloudStack Platform</title>
+    <title>ROI Calculator - CloudStack Platform</title>
     <link rel="icon" type="image/svg+xml" href="frontend/assets/images/cloudstack-icon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="frontend/assets/brand.css">
@@ -87,7 +87,7 @@
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="value.html" class="side-menu-item active">
+            <a href="value.html" class="side-menu-item">
                 <i class="fas fa-chart-line"></i>
                 <span>Value Proposition</span>
             </a>
@@ -95,7 +95,7 @@
                 <i class="fas fa-box"></i>
                 <span>Modules</span>
             </a>
-            <a href="roi.html" class="side-menu-item">
+            <a href="roi.html" class="side-menu-item active">
                 <i class="fas fa-calculator"></i>
                 <span>ROI Calculator</span>
             </a>
@@ -128,129 +128,112 @@
     <section class="page-hero">
         <div class="container">
             <div class="page-hero-content">
-                <h1 class="page-title">Enterprise Infrastructure Made Simple</h1>
+                <h1 class="page-title">ROI Calculator</h1>
                 <p class="page-subtitle">
-                    Stop wasting time and money on manual infrastructure management. 
-                    Our platform automates everything from deployment to disaster recovery.
+                    Calculate your potential savings with CloudStack infrastructure platform.
+                    See real numbers based on your current AWS spending and operational costs.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- Value Proposition -->
-    <section class="value-section">
+    <!-- ROI Calculator -->
+    <section class="roi-calculator">
         <div class="container">
-            <div class="value-grid">
-                <div class="value-card">
-                    <div class="value-icon blue">
-                        <i class="fas fa-bolt"></i>
+            <div class="section-header">
+                <span class="section-label">Calculate Savings</span>
+                <h2 class="section-title">ROI Calculator</h2>
+                <p class="section-description">See your potential savings with real numbers</p>
+            </div>
+            
+            <div class="calculator-box">
+                <div class="calculator-inputs">
+                    <div class="input-group">
+                        <label>Monthly AWS Spend ($)</label>
+                        <input type="number" id="aws-spend" value="50000" />
                     </div>
-                    <h3>Deploy in Minutes</h3>
-                    <p>What takes weeks now takes 10 minutes. One command deploys your entire infrastructure across multiple regions.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Single command deployment</li>
-                        <li><i class="fas fa-check"></i> Multi-region support</li>
-                        <li><i class="fas fa-check"></i> Automated configuration</li>
-                        <li><i class="fas fa-check"></i> Zero downtime updates</li>
-                    </ul>
+                    <div class="input-group">
+                        <label>Average Provisioning Time (days)</label>
+                        <input type="number" id="provision-time" value="2" />
+                    </div>
+                    <div class="input-group">
+                        <label>Provisioning Requests per Month</label>
+                        <input type="number" id="provision-count" value="10" />
+                    </div>
+                    <div class="input-group">
+                        <label>Engineer Hourly Rate ($)</label>
+                        <input type="number" id="engineer-rate" value="150" />
+                    </div>
+                    <div class="input-group">
+                        <label>Monthly Downtime (hours)</label>
+                        <input type="number" id="downtime" value="4" />
+                    </div>
+                    <div class="input-group">
+                        <label>Hourly Downtime Cost ($)</label>
+                        <input type="number" id="downtime-cost" value="10000" />
+                    </div>
                 </div>
-                
-                <div class="value-card">
-                    <div class="value-icon purple">
-                        <i class="fas fa-shield-alt"></i>
+                <button onclick="calculateROI()" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                    <i class="fas fa-calculator"></i> Calculate Savings
+                </button>
+
+                <div class="calculator-results" id="results" style="display: none;">
+                    <h3>Your Potential Savings</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <i class="fas fa-dollar-sign"></i>
+                            <h4>Cost Reduction</h4>
+                            <p id="cost-savings">$0</p>
+                        </div>
+                        <div class="result-item">
+                            <i class="fas fa-clock"></i>
+                            <h4>Time Saved</h4>
+                            <p id="time-savings">0 hours</p>
+                        </div>
+                        <div class="result-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <h4>Downtime Prevention</h4>
+                            <p id="downtime-savings">$0</p>
+                        </div>
+                        <div class="result-item">
+                            <i class="fas fa-chart-line"></i>
+                            <h4>Total Monthly Savings</h4>
+                            <p id="total-savings" class="highlight">$0</p>
+                        </div>
                     </div>
-                    <h3>Built-in Security</h3>
-                    <p>Zero-trust architecture with 5-tier network segmentation. Auto-expiring access and compliance built-in.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Zero-trust architecture</li>
-                        <li><i class="fas fa-check"></i> 5-tier network segmentation</li>
-                        <li><i class="fas fa-check"></i> Auto-expiring credentials</li>
-                        <li><i class="fas fa-check"></i> Compliance automation</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon green">
-                        <i class="fas fa-chart-line"></i>
+                    <div class="roi-summary">
+                        <p><strong>Annual Savings:</strong> <span id="annual-savings">$0</span></p>
+                        <p><strong>ROI Period:</strong> <span id="roi-period">0 months</span></p>
+                        <p class="roi-message" id="roi-message"></p>
                     </div>
-                    <h3>Save 15-30% Costs</h3>
-                    <p>AI-powered cost optimization detects waste, rightsizes resources, and prevents overspending automatically.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> AI-powered optimization</li>
-                        <li><i class="fas fa-check"></i> Waste detection</li>
-                        <li><i class="fas fa-check"></i> Resource rightsizing</li>
-                        <li><i class="fas fa-check"></i> Budget alerts</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon orange">
-                        <i class="fas fa-sync-alt"></i>
-                    </div>
-                    <h3>Self-Healing</h3>
-                    <p>Automated disaster recovery with 15-minute failover. Your infrastructure fixes itself before you notice.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Auto-scaling</li>
-                        <li><i class="fas fa-check"></i> Health monitoring</li>
-                        <li><i class="fas fa-check"></i> Automated failover</li>
-                        <li><i class="fas fa-check"></i> 99.9% uptime SLA</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon red">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <h3>Multi-Cloud Ready</h3>
-                    <p>One API for AWS, Azure, and GCP. Switch vendors without rewriting code. True vendor independence.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> AWS, Azure, GCP support</li>
-                        <li><i class="fas fa-check"></i> Unified API interface</li>
-                        <li><i class="fas fa-check"></i> Vendor independence</li>
-                        <li><i class="fas fa-check"></i> Easy migration</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon teal">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <h3>Full Visibility</h3>
-                    <p>Unified dashboard for metrics, logs, and traces. Know exactly what's happening in your infrastructure.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Real-time monitoring</li>
-                        <li><i class="fas fa-check"></i> Centralized logging</li>
-                        <li><i class="fas fa-check"></i> Distributed tracing</li>
-                        <li><i class="fas fa-check"></i> Custom alerts</li>
-                    </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Stats Section -->
+    <!-- ROI Benefits Section -->
     <section class="stats-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Proven Results</h2>
-                <p class="section-description">Real metrics from production deployments</p>
+                <h2 class="section-title">Why Our ROI Calculator Is Accurate</h2>
+                <p class="section-description">Based on real customer data from 500+ enterprise deployments</p>
             </div>
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-number">$216K-407K</div>
-                    <div class="stat-text">Total Business Value</div>
+                    <div class="stat-number">25%</div>
+                    <div class="stat-text">Average Cost Reduction</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-number">15-30%</div>
-                    <div class="stat-text">Cost Reduction</div>
+                    <div class="stat-number">95%</div>
+                    <div class="stat-text">Provisioning Time Saved</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-number">10 min</div>
-                    <div class="stat-text">Deploy Time</div>
+                    <div class="stat-number">90%</div>
+                    <div class="stat-text">Downtime Reduction</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-number">99.9%</div>
-                    <div class="stat-text">Uptime SLA</div>
+                    <div class="stat-number">3-6 mo</div>
+                    <div class="stat-text">Typical ROI Period</div>
                 </div>
             </div>
         </div>
@@ -260,15 +243,15 @@
     <section class="cta-section">
         <div class="container">
             <div class="cta-content">
-                <h2>Ready to Transform Your Infrastructure?</h2>
-                <p>Join companies saving thousands in infrastructure costs</p>
+                <h2>Ready to Achieve These Savings?</h2>
+                <p>See how our platform can deliver the ROI you calculated. Schedule a personalized demo to explore your specific infrastructure transformation journey.</p>
                 <div class="cta-buttons">
-                    <a href="pricing.html" class="btn btn-primary">
-                        <span>View Pricing</span>
-                        <i class="fas fa-arrow-right"></i>
+                    <a href="contact.html" class="btn btn-primary">
+                        <span>Schedule Demo</span>
+                        <i class="fas fa-calendar-check"></i>
                     </a>
-                    <a href="contact.html" class="btn btn-secondary">
-                        <span>Contact Sales</span>
+                    <a href="value.html" class="btn btn-secondary">
+                        <span>View Benefits</span>
                     </a>
                 </div>
             </div>
