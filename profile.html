@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - CloudStack Platform</title>
-    <link rel="icon" type="image/svg+xml" href="frontend/assets/images/cloudstack-icon.svg">
+    <title>My Profile - UnivAI Cloud Platform</title>
+    <link rel="icon" type="image/png" href="frontend/assets/images/univai-logo.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="frontend/assets/brand.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,8 +25,8 @@
             
             <!-- Logo (Center) -->
             <a href="index.html" class="header-logo">
-                <img src="frontend/assets/images/cloudstack-icon.svg" alt="CloudStack">
-                <span>CloudStack</span>
+                <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 40px;">
+                <span>UnivAI Cloud</span>
             </a>
             
             <!-- Menu Button (Right) -->
@@ -45,7 +45,7 @@
                  alt="Profile" id="profileMenuAvatar">
             <div class="profile-menu-info">
                 <h4 id="userName">Guest User</h4>
-                <p id="userEmail">guest@cloudstack.com</p>
+                <p id="userEmail">guest@univaicloud.com</p>
             </div>
         </div>
         <div class="profile-menu-divider"></div>
@@ -76,8 +76,8 @@
     <div class="side-menu-overlay" id="sideMenuOverlay"></div>
     <nav class="side-menu" id="sideMenu">
         <div class="side-menu-header">
-            <img src="frontend/assets/images/cloudstack-icon.svg" alt="CloudStack">
-            <span>CloudStack</span>
+            <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 35px;">
+            <span>UnivAI Cloud</span>
             <button class="side-menu-close" id="sideMenuClose">
                 <i class="fas fa-times"></i>
             </button>
@@ -130,7 +130,7 @@
             <div class="page-hero-content">
                 <h1 class="page-title">My Profile</h1>
                 <p class="page-subtitle">
-                    Manage your account settings, preferences, and CloudStack platform access.
+                    Manage your account settings, preferences, and UnivAI Cloud platform access.
                 </p>
             </div>
         </div>
@@ -154,11 +154,11 @@
                              style="width: 128px; height: 128px; border-radius: 50%; margin-bottom: 16px;"
                              id="profileAvatar">
                         <h4 id="profileName" style="margin: 8px 0; font-size: 20px; font-weight: 600;">Guest User</h4>
-                        <p id="profileEmail" style="color: #6B7280; font-size: 14px;">guest@cloudstack.com</p>
+                        <p id="profileEmail" style="color: #6B7280; font-size: 14px;">guest@univaicloud.com</p>
                     </div>
                     
                     <ul class="benefit-list">
-                        <li><i class="fas fa-check-circle"></i> Full access to all CloudStack modules</li>
+                        <li><i class="fas fa-check-circle"></i> Full access to all UnivAI Cloud modules</li>
                         <li><i class="fas fa-check-circle"></i> Priority 24/7 technical support</li>
                         <li><i class="fas fa-check-circle"></i> Real-time deployment monitoring</li>
                         <li><i class="fas fa-check-circle"></i> Custom infrastructure templates</li>
@@ -211,7 +211,7 @@
                         <button class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;" onclick="alert('Password change functionality coming soon!')">
                             <i class="fas fa-key"></i> Change Password
                         </button>
-                        <button class="btn btn-secondary" style="width: 100%;" onclick="if(confirm('Are you sure you want to sign out?')) { localStorage.removeItem('cloudstack_user'); localStorage.removeItem('cloudstack_token'); window.location.href='auth.html'; }">
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="if(confirm('Are you sure you want to sign out?')) { localStorage.removeItem('univai_user'); localStorage.removeItem('univai_token'); window.location.href='auth.html'; }">
                             <i class="fas fa-sign-out-alt"></i> Sign Out
                         </button>
                     </div>
@@ -272,15 +272,15 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>CloudStack Platform</h4>
-                    <p>Enterprise infrastructure automation platform delivering production-ready cloud solutions.</p>
+                    <h4>UnivAI Cloud Platform</h4>
+                    <p>Enterprise infrastructure automation platform by UnivAI Generation, delivering production-ready cloud solutions.</p>
                 </div>
                 <div class="footer-section">
                     <h4>Platform</h4>
                     <ul>
                         <li><a href="modules.html">Modules</a></li>
                         <li><a href="roi.html">ROI Calculator</a></li>
-                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="frontend/dashboard.html">Dashboard</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -293,13 +293,13 @@
                 </div>
                 <div class="footer-section">
                     <h4>Connect</h4>
-                    <p><i class="fas fa-envelope"></i> info@cloudstack.com</p>
-                    <p><i class="fas fa-headset"></i> 24/7 Support Available</p>
-                    <p><i class="fas fa-shield-alt"></i> Enterprise Security</p>
+                    <p><i class="fas fa-envelope"></i> univaispprt@gmail.com</p>
+                    <p><i class="fab fa-telegram"></i> @Liaaarina</p>
+                    <p><i class="fab fa-whatsapp"></i> +62 822-3120-4883</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 CloudStack Infrastructure Platform. All rights reserved.</p>
+                <p>&copy; 2025 UnivAI Cloud Platform by UnivAI Generation. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -307,7 +307,7 @@
     <script>
         // Load user profile data on page load
         document.addEventListener('DOMContentLoaded', function() {
-            const userStr = localStorage.getItem('cloudstack_user');
+            const userStr = localStorage.getItem('univai_user');
             if (userStr) {
                 try {
                     const user = JSON.parse(userStr);
@@ -346,7 +346,7 @@
                 };
                 
                 // Save to localStorage
-                localStorage.setItem('cloudstack_user', JSON.stringify(userData));
+                localStorage.setItem('univai_user', JSON.stringify(userData));
                 
                 // Update profile display
                 const displayName = userData.name || userData.email.split('@')[0];
