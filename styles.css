@@ -77,12 +77,54 @@ img {
     position: relative;
 }
 
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+/* Profile Container - Left Side (order: 1) */
+.profile-container {
+    position: relative;
+    order: 1;
 }
 
+.profile-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.profile-button:hover {
+    transform: scale(1.05);
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary);
+}
+
+/* Logo - Center (order: 2) */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 18px;
+    transition: opacity 0.2s ease;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    order: 2;
+}
+
+.nav-brand:hover {
+    opacity: 0.8;
+}
+
+/* Menu Button - Right Side (order: 3) */
 .menu-button {
     display: flex;
     flex-direction: column;
@@ -93,6 +135,7 @@ img {
     border: none;
     border-radius: 8px;
     transition: all 0.2s ease;
+    order: 3;
 }
 
 .menu-button:hover {
@@ -119,15 +162,19 @@ img {
     transform: rotate(-45deg) translate(6px, -6px);
 }
 
-.nav-brand {
+.cloudstack-logo {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--dark);
 }
 
+.cloudstack-logo-text {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+}
+
+/* Legacy styles - kept for compatibility */
 .logo-icon {
     width: 40px;
     height: 40px;
@@ -140,37 +187,7 @@ img {
     font-size: 20px;
 }
 
-.nav-menu {
-    display: flex;
-    list-style: none;
-    gap: 8px;
-    align-items: center;
-}
-
-.nav-menu a {
-    color: var(--text);
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 15px;
-    transition: all 0.2s ease;
-}
-
-.nav-menu a:hover {
-    background: var(--bg-light);
-    color: var(--primary);
-}
-
-.btn-nav {
-    background: var(--primary) !important;
-    color: white !important;
-}
-
-.btn-nav:hover {
-    background: var(--primary-dark) !important;
-    transform: translateY(-1px);
-}
+/* Remove old nav-menu styles as we now use side drawer */
 
 /* Hero Section */
 .hero {
@@ -1441,43 +1458,11 @@ section {
     transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* Profile Menu */
-.profile-container {
-    position: relative;
-}
-
-.profile-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-}
-
-.profile-button:hover {
-    transform: scale(1.05);
-}
-
-.profile-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--border);
-    transition: all 0.2s ease;
-}
-
-.profile-button:hover .profile-avatar {
-    border-color: var(--primary);
-}
-
+/* Profile Dropdown Menu */
 .profile-dropdown {
     position: absolute;
     top: calc(100% + 12px);
-    right: 0;
+    left: 0;
     background: white;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -1510,7 +1495,6 @@ section {
     object-fit: cover;
     border: 2px solid var(--primary);
 }
-
 .profile-info {
     flex: 1;
     min-width: 0;
@@ -2071,10 +2055,6 @@ button:disabled {
         gap: 10px;
     }
     
-    .nav-left {
-        gap: 10px;
-    }
-    
     .nav-brand {
         font-size: 15px;
         gap: 6px;
@@ -2206,10 +2186,6 @@ button:disabled {
     
     .navbar .container {
         padding: 5px 10px;
-        gap: 8px;
-    }
-    
-    .nav-left {
         gap: 8px;
     }
     
