@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Value Proposition - CloudStack Platform</title>
+    <title>My Profile - CloudStack Platform</title>
     <link rel="icon" type="image/svg+xml" href="frontend/assets/images/cloudstack-icon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="frontend/assets/brand.css">
@@ -87,7 +87,7 @@
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="value.html" class="side-menu-item active">
+            <a href="value.html" class="side-menu-item">
                 <i class="fas fa-chart-line"></i>
                 <span>Value Proposition</span>
             </a>
@@ -128,101 +128,93 @@
     <section class="page-hero">
         <div class="container">
             <div class="page-hero-content">
-                <h1 class="page-title">Enterprise Infrastructure Made Simple</h1>
+                <h1 class="page-title">My Profile</h1>
                 <p class="page-subtitle">
-                    Stop wasting time and money on manual infrastructure management. 
-                    Our platform automates everything from deployment to disaster recovery.
+                    Manage your account settings, preferences, and CloudStack platform access.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- Value Proposition -->
-    <section class="value-section">
+    <!-- Profile Management -->
+    <section class="contact">
         <div class="container">
-            <div class="value-grid">
-                <div class="value-card">
-                    <div class="value-icon blue">
-                        <i class="fas fa-bolt"></i>
+            <div class="section-header">
+                <span class="section-label">Account Settings</span>
+                <h2 class="section-title">Manage Your Profile</h2>
+                <p class="section-description">Update your personal information and preferences</p>
+            </div>
+            
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Profile Information</h3>
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                             alt="Profile" 
+                             style="width: 128px; height: 128px; border-radius: 50%; margin-bottom: 16px;"
+                             id="profileAvatar">
+                        <h4 id="profileName" style="margin: 8px 0; font-size: 20px; font-weight: 600;">Guest User</h4>
+                        <p id="profileEmail" style="color: #6B7280; font-size: 14px;">guest@cloudstack.com</p>
                     </div>
-                    <h3>Deploy in Minutes</h3>
-                    <p>What takes weeks now takes 10 minutes. One command deploys your entire infrastructure across multiple regions.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Single command deployment</li>
-                        <li><i class="fas fa-check"></i> Multi-region support</li>
-                        <li><i class="fas fa-check"></i> Automated configuration</li>
-                        <li><i class="fas fa-check"></i> Zero downtime updates</li>
+                    
+                    <ul class="benefit-list">
+                        <li><i class="fas fa-check-circle"></i> Full access to all CloudStack modules</li>
+                        <li><i class="fas fa-check-circle"></i> Priority 24/7 technical support</li>
+                        <li><i class="fas fa-check-circle"></i> Real-time deployment monitoring</li>
+                        <li><i class="fas fa-check-circle"></i> Custom infrastructure templates</li>
+                        <li><i class="fas fa-check-circle"></i> Advanced security features</li>
+                        <li><i class="fas fa-check-circle"></i> Multi-cloud management</li>
                     </ul>
+                    
+                    <div class="github-link">
+                        <a href="dashboard.html" class="btn btn-primary" style="margin-bottom: 10px; display: block;">
+                            <i class="fas fa-tachometer-alt"></i> View Dashboard
+                        </a>
+                        <a href="pricing.html" class="btn btn-secondary" style="display: block;">
+                            <i class="fas fa-tag"></i> Upgrade Plan
+                        </a>
+                    </div>
                 </div>
-                
-                <div class="value-card">
-                    <div class="value-icon purple">
-                        <i class="fas fa-shield-alt"></i>
+
+                <div class="contact-form">
+                    <h3>Edit Profile</h3>
+                    <form id="profileForm">
+                        <input type="text" id="fullName" placeholder="Full Name" required />
+                        <input type="email" id="email" placeholder="Email Address" required />
+                        <input type="text" id="company" placeholder="Company Name" />
+                        <input type="tel" id="phone" placeholder="Phone Number" />
+                        <select id="role">
+                            <option>Your Role</option>
+                            <option>DevOps Engineer</option>
+                            <option>Cloud Architect</option>
+                            <option>Platform Engineer</option>
+                            <option>Software Developer</option>
+                            <option>IT Manager</option>
+                            <option>CTO / VP Engineering</option>
+                            <option>Other</option>
+                        </select>
+                        <select id="teamSize">
+                            <option>Team Size</option>
+                            <option>1-10 engineers</option>
+                            <option>11-50 engineers</option>
+                            <option>51-200 engineers</option>
+                            <option>201-1000 engineers</option>
+                            <option>1000+ engineers</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                    
+                    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #E5E7EB;">
+                        <h4 style="margin-bottom: 16px; font-size: 16px; font-weight: 600;">Account Actions</h4>
+                        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;" onclick="alert('Password change functionality coming soon!')">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="if(confirm('Are you sure you want to sign out?')) { localStorage.removeItem('cloudstack_user'); localStorage.removeItem('cloudstack_token'); window.location.href='auth.html'; }">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </button>
                     </div>
-                    <h3>Built-in Security</h3>
-                    <p>Zero-trust architecture with 5-tier network segmentation. Auto-expiring access and compliance built-in.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Zero-trust architecture</li>
-                        <li><i class="fas fa-check"></i> 5-tier network segmentation</li>
-                        <li><i class="fas fa-check"></i> Auto-expiring credentials</li>
-                        <li><i class="fas fa-check"></i> Compliance automation</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon green">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Save 15-30% Costs</h3>
-                    <p>AI-powered cost optimization detects waste, rightsizes resources, and prevents overspending automatically.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> AI-powered optimization</li>
-                        <li><i class="fas fa-check"></i> Waste detection</li>
-                        <li><i class="fas fa-check"></i> Resource rightsizing</li>
-                        <li><i class="fas fa-check"></i> Budget alerts</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon orange">
-                        <i class="fas fa-sync-alt"></i>
-                    </div>
-                    <h3>Self-Healing</h3>
-                    <p>Automated disaster recovery with 15-minute failover. Your infrastructure fixes itself before you notice.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Auto-scaling</li>
-                        <li><i class="fas fa-check"></i> Health monitoring</li>
-                        <li><i class="fas fa-check"></i> Automated failover</li>
-                        <li><i class="fas fa-check"></i> 99.9% uptime SLA</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon red">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <h3>Multi-Cloud Ready</h3>
-                    <p>One API for AWS, Azure, and GCP. Switch vendors without rewriting code. True vendor independence.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> AWS, Azure, GCP support</li>
-                        <li><i class="fas fa-check"></i> Unified API interface</li>
-                        <li><i class="fas fa-check"></i> Vendor independence</li>
-                        <li><i class="fas fa-check"></i> Easy migration</li>
-                    </ul>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon teal">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <h3>Full Visibility</h3>
-                    <p>Unified dashboard for metrics, logs, and traces. Know exactly what's happening in your infrastructure.</p>
-                    <ul class="value-features">
-                        <li><i class="fas fa-check"></i> Real-time monitoring</li>
-                        <li><i class="fas fa-check"></i> Centralized logging</li>
-                        <li><i class="fas fa-check"></i> Distributed tracing</li>
-                        <li><i class="fas fa-check"></i> Custom alerts</li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -232,21 +224,21 @@
     <section class="stats-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Proven Results</h2>
-                <p class="section-description">Real metrics from production deployments</p>
+                <h2 class="section-title">Your Account Benefits</h2>
+                <p class="section-description">Enterprise features at your fingertips</p>
             </div>
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-number">$216K-407K</div>
-                    <div class="stat-text">Total Business Value</div>
+                    <div class="stat-number">10+</div>
+                    <div class="stat-text">Enterprise Modules</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-number">15-30%</div>
-                    <div class="stat-text">Cost Reduction</div>
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-text">Expert Support</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-number">10 min</div>
-                    <div class="stat-text">Deploy Time</div>
+                    <div class="stat-number">Unlimited</div>
+                    <div class="stat-text">Deployments</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-number">99.9%</div>
@@ -260,15 +252,15 @@
     <section class="cta-section">
         <div class="container">
             <div class="cta-content">
-                <h2>Ready to Transform Your Infrastructure?</h2>
-                <p>Join companies saving thousands in infrastructure costs</p>
+                <h2>Need Help Getting Started?</h2>
+                <p>Our expert team is ready to assist with your infrastructure transformation</p>
                 <div class="cta-buttons">
-                    <a href="pricing.html" class="btn btn-primary">
-                        <span>View Pricing</span>
-                        <i class="fas fa-arrow-right"></i>
+                    <a href="contact.html" class="btn btn-primary">
+                        <span>Contact Support</span>
+                        <i class="fas fa-headset"></i>
                     </a>
-                    <a href="contact.html" class="btn btn-secondary">
-                        <span>Contact Sales</span>
+                    <a href="modules.html" class="btn btn-secondary">
+                        <span>Explore Modules</span>
                     </a>
                 </div>
             </div>
@@ -312,6 +304,63 @@
         </div>
     </footer>
 
+    <script>
+        // Load user profile data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const userStr = localStorage.getItem('cloudstack_user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    
+                    // Update profile display
+                    const displayName = user.name || user.email.split('@')[0];
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0066FF&color=fff&size=128`;
+                    
+                    document.getElementById('profileAvatar').src = avatarUrl;
+                    document.getElementById('profileName').textContent = user.name || displayName;
+                    document.getElementById('profileEmail').textContent = user.email || '';
+                    
+                    // Pre-fill form
+                    document.getElementById('fullName').value = user.name || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('company').value = user.company || '';
+                    document.getElementById('phone').value = user.phone || '';
+                    if (user.role) document.getElementById('role').value = user.role;
+                    if (user.teamSize) document.getElementById('teamSize').value = user.teamSize;
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                }
+            }
+            
+            // Handle profile form submission
+            document.getElementById('profileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const userData = {
+                    name: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    company: document.getElementById('company').value,
+                    phone: document.getElementById('phone').value,
+                    role: document.getElementById('role').value,
+                    teamSize: document.getElementById('teamSize').value
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('cloudstack_user', JSON.stringify(userData));
+                
+                // Update profile display
+                const displayName = userData.name || userData.email.split('@')[0];
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0066FF&color=fff&size=128`;
+                
+                document.getElementById('profileAvatar').src = avatarUrl;
+                document.getElementById('profileName').textContent = userData.name || displayName;
+                document.getElementById('profileEmail').textContent = userData.email;
+                
+                // Show success message
+                alert('Profile updated successfully!');
+            });
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
