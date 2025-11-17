@@ -1369,7 +1369,7 @@ section {
 
 /* Mobile Hamburger Menu */
 .hamburger {
-    display: none;
+    display: none !important;
     flex-direction: column;
     gap: 4px;
     cursor: pointer;
@@ -1397,6 +1397,146 @@ section {
 
 .hamburger.active span:nth-child(3) {
     transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Profile Menu */
+.profile-container {
+    position: relative;
+}
+
+.profile-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.profile-button:hover {
+    transform: scale(1.05);
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.profile-button:hover .profile-avatar {
+    border-color: var(--primary);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    border: 1px solid var(--border);
+}
+
+.profile-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.profile-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary);
+}
+
+.profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-email {
+    font-size: 13px;
+    color: var(--text-light);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+}
+
+.profile-menu {
+    list-style: none;
+    padding: 8px 0;
+    margin: 0;
+}
+
+.profile-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.profile-menu li a:hover {
+    background: var(--bg-light);
+    color: var(--primary);
+}
+
+.profile-menu li a i {
+    width: 16px;
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+.profile-menu li a:hover i {
+    color: var(--primary);
+}
+
+.profile-login {
+    color: var(--primary) !important;
+}
+
+.profile-login:hover {
+    background: rgba(0, 102, 255, 0.05) !important;
 }
 
 /* Loading Spinner */
@@ -1561,15 +1701,24 @@ button:disabled {
         font-size: 14px;
     }
     
-    .hamburger {
-        display: flex;
-        padding: 4px;
+    /* Hide main navigation on mobile */
+    .nav-menu {
+        display: none;
+    }
+    
+    /* Profile menu visible on mobile */
+    .profile-container {
         margin-left: auto;
     }
     
-    .hamburger span {
-        width: 20px;
-        height: 2px;
+    .profile-avatar {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .profile-dropdown {
+        width: 260px;
+        top: calc(100% + 8px);
     }
     
     .hamburger {
@@ -1746,9 +1895,25 @@ button:disabled {
     }
     
     .nav-menu {
-        top: 48px;
-        max-height: calc(100vh - 48px);
-        padding: 16px 12px;
+        display: none;
+    }
+    
+    .profile-avatar {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .profile-dropdown {
+        width: 250px;
+    }
+    
+    .profile-header {
+        padding: 16px;
+    }
+    
+    .profile-avatar-large {
+        width: 44px;
+        height: 44px;
     }
     
     .hero {
@@ -1869,9 +2034,38 @@ button:disabled {
     }
     
     .nav-menu {
-        top: 44px;
-        max-height: calc(100vh - 44px);
-        padding: 14px 10px;
+        display: none;
+    }
+    
+    .profile-avatar {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .profile-dropdown {
+        width: 240px;
+    }
+    
+    .profile-header {
+        padding: 14px;
+    }
+    
+    .profile-avatar-large {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .profile-name {
+        font-size: 14px;
+    }
+    
+    .profile-email {
+        font-size: 12px;
+    }
+    
+    .profile-menu li a {
+        padding: 10px 16px;
+        font-size: 13px;
     }
     
     .hero {

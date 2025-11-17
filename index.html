@@ -21,19 +21,40 @@
                 <img src="frontend/assets/images/cloudstack-icon.svg" alt="CloudStack" width="40" height="40">
                 <span class="cloudstack-logo-text">CloudStack</span>
             </a>
-            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#value">Value</a></li>
                 <li><a href="#modules">Modules</a></li>
                 <li><a href="#roi">ROI</a></li>
                 <li><a href="pricing.html">Pricing</a></li>
-                <li><a href="pricing.html" class="btn-nav">Get Started</a></li>
             </ul>
+            <!-- Profile Menu -->
+            <div class="profile-container">
+                <button class="profile-button" id="profileButton" aria-label="Account menu">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" alt="Profile" class="profile-avatar" id="profileAvatar">
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-header">
+                        <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" alt="Profile" class="profile-avatar-large">
+                        <div class="profile-info">
+                            <div class="profile-name" id="profileName">Guest User</div>
+                            <div class="profile-email" id="profileEmail">guest@cloudstack.com</div>
+                        </div>
+                    </div>
+                    <div class="profile-divider"></div>
+                    <ul class="profile-menu">
+                        <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="profile.html"><i class="fas fa-user"></i> My Profile</a></li>
+                        <li><a href="pricing.html"><i class="fas fa-crown"></i> Pricing</a></li>
+                        <li><a href="#modules"><i class="fas fa-cube"></i> Modules</a></li>
+                        <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    </ul>
+                    <div class="profile-divider"></div>
+                    <ul class="profile-menu">
+                        <li><a href="auth.html" class="profile-login" id="profileAction"><i class="fas fa-sign-in-alt"></i> Sign In</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </nav>
 

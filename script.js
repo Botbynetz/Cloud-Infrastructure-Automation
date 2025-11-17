@@ -38,6 +38,66 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Profile Dropdown Menu
+    const profileButton = document.getElementById('profileButton');
+    const profileDropdown = document.getElementById('profileDropdown');
+    
+    if (profileButton && profileDropdown) {
+        profileButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!profileButton.contains(event.target) && !profileDropdown.contains(event.target)) {
+                profileDropdown.classList.remove('show');
+            }
+        });
+        
+        // Close dropdown when clicking a link
+        profileDropdown.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                profileDropdown.classList.remove('show');
+            });
+        });
+    }
+    
+    // Check if user is logged in and update profile
+    const userData = localStorage.getItem('cloudstack_user');
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            const profileName = document.getElementById('profileName');
+            const profileEmail = document.getElementById('profileEmail');
+            const profileAction = document.getElementById('profileAction');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const profileAvatarLarge = profileDropdown.querySelector('.profile-avatar-large');
+            
+            if (profileName) profileName.textContent = user.company || user.email.split('@')[0];
+            if (profileEmail) profileEmail.textContent = user.email;
+            
+            // Update avatar with user initials
+            const initials = (user.company || user.email.split('@')[0]).substring(0, 2).toUpperCase();
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0066FF&color=fff&size=128`;
+            if (profileAvatar) profileAvatar.src = avatarUrl;
+            if (profileAvatarLarge) profileAvatarLarge.src = avatarUrl;
+            
+            // Change action to logout
+            if (profileAction) {
+                profileAction.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
+                profileAction.href = '#';
+                profileAction.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('cloudstack_user');
+                    window.location.reload();
+                });
+            }
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+        }
+    }
 });
 
 // ROI Calculator
