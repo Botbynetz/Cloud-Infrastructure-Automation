@@ -1,33 +1,33 @@
-/* CloudStack Brand Guidelines - Official Colors from Logo */
+/* UnivAI Cloud Brand Guidelines - Official Colors from Logo */
 
 :root {
-    /* Primary Colors from Logo */
-    --cloudstack-primary: #0099FF;        /* Cyan Blue - Main cloud color */
-    --cloudstack-secondary: #2E5090;      /* Deep Blue - Background color */
-    --cloudstack-accent: #00D4FF;         /* Light Cyan - Accent cloud */
-    --cloudstack-dark-blue: #1A3A5C;      /* Dark Blue - Text/Contrast */
+    /* Primary Colors from UnivAI Logo */
+    --cloudstack-primary: #5BA4CF;        /* Sky Blue - Main brand color */
+    --cloudstack-secondary: #1B2A4E;      /* Navy Blue - Primary color */
+    --cloudstack-accent: #7BC4E8;         /* Light Sky Blue - Accent */
+    --cloudstack-dark-blue: #14203A;      /* Dark Navy - Text/Contrast */
     
     /* Gradient - Logo Style */
-    --cloudstack-gradient: linear-gradient(135deg, #0099FF 0%, #667eea 50%, #00D4FF 100%);
-    --cloudstack-gradient-dark: linear-gradient(135deg, #2E5090 0%, #1A3A5C 100%);
+    --cloudstack-gradient: linear-gradient(135deg, #5BA4CF 0%, #1B2A4E 100%);
+    --cloudstack-gradient-dark: linear-gradient(135deg, #1B2A4E 0%, #14203A 100%);
     
     /* Neutral Colors */
     --cloudstack-white: #FFFFFF;
     --cloudstack-light-bg: #F8FAFB;
     --cloudstack-border: #E5E7EB;
-    --cloudstack-text-primary: #1A3A5C;
+    --cloudstack-text-primary: #1B2A4E;
     --cloudstack-text-secondary: #666666;
     
     /* Status Colors */
     --cloudstack-success: #10B981;
     --cloudstack-warning: #F59E0B;
     --cloudstack-error: #EF4444;
-    --cloudstack-info: #0099FF;
+    --cloudstack-info: #5BA4CF;
     
     /* Shadows - Subtle like logo */
-    --cloudstack-shadow-sm: 0 2px 4px rgba(0, 153, 255, 0.1);
-    --cloudstack-shadow-md: 0 4px 12px rgba(0, 153, 255, 0.15);
-    --cloudstack-shadow-lg: 0 8px 24px rgba(0, 153, 255, 0.2);
+    --cloudstack-shadow-sm: 0 2px 4px rgba(91, 164, 207, 0.1);
+    --cloudstack-shadow-md: 0 4px 12px rgba(91, 164, 207, 0.15);
+    --cloudstack-shadow-lg: 0 8px 24px rgba(91, 164, 207, 0.2);
     
     /* Border Radius - Rounded like logo cloud */
     --cloudstack-radius-sm: 8px;

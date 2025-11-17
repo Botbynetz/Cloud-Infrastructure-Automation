@@ -35,6 +35,9 @@
     <script src="auth-guard.js"></script>
 </head>
 <body>
+    <!-- Skip to Main Content (Accessibility) -->
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+    
     <!-- Clean Navigation Header -->
     <header class="main-header">
         <div class="header-container">
@@ -70,21 +73,21 @@
             </div>
         </div>
         <div class="profile-menu-divider"></div>
-        <a href="profile.html" class="profile-menu-item">
+        <a href="profile.html" class="profile-menu-item" aria-label="My Account">
             <i class="fas fa-user"></i>
             <span>My Account</span>
         </a>
-        <a href="frontend/dashboard.html" class="profile-menu-item">
+        <a href="frontend/dashboard.html" class="profile-menu-item" aria-label="View History">
             <i class="fas fa-history"></i>
             <span>History</span>
         </a>
-        <a href="#" class="profile-menu-item">
+        <a href="profile.html" class="profile-menu-item" aria-label="Settings">
             <i class="fas fa-cog"></i>
             <span>Settings</span>
         </a>
-        <a href="#" class="profile-menu-item">
+        <a href="contact.html" class="profile-menu-item" aria-label="Notifications">
             <i class="fas fa-bell"></i>
-            <span>Notifications</span>
+            <span>Contact & Support</span>
         </a>
         <div class="profile-menu-divider"></div>
         <a href="auth.html" class="profile-menu-item" id="authAction">
@@ -104,37 +107,37 @@
             </button>
         </div>
         <div class="side-menu-content">
-            <a href="index.html" class="side-menu-item">
+            <a href="index.html" class="side-menu-item" aria-label="Home">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="value.html" class="side-menu-item">
+            <a href="value.html" class="side-menu-item" aria-label="Value Proposition">
                 <i class="fas fa-chart-line"></i>
                 <span>Value Proposition</span>
             </a>
-            <a href="modules.html" class="side-menu-item">
+            <a href="modules.html" class="side-menu-item" aria-label="Modules">
                 <i class="fas fa-box"></i>
                 <span>Modules</span>
             </a>
-            <a href="roi.html" class="side-menu-item">
+            <a href="roi.html" class="side-menu-item" aria-label="ROI Calculator">
                 <i class="fas fa-calculator"></i>
                 <span>ROI Calculator</span>
             </a>
-            <a href="pricing.html" class="side-menu-item">
+            <a href="pricing.html" class="side-menu-item" aria-label="Pricing">
                 <i class="fas fa-tag"></i>
                 <span>Pricing</span>
             </a>
-            <a href="frontend/dashboard.html" class="side-menu-item">
+            <a href="frontend/dashboard.html" class="side-menu-item" aria-label="Dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="contact.html" class="side-menu-item">
+            <a href="contact.html" class="side-menu-item" aria-label="Contact">
                 <i class="fas fa-envelope"></i>
                 <span>Contact</span>
             </a>
-            <a href="#" class="side-menu-item">
+            <a href="contact.html" class="side-menu-item" aria-label="Help and Support">
                 <i class="fas fa-question-circle"></i>
-                <span>Help</span>
+                <span>Help & Support</span>
             </a>
         </div>
         <div class="side-menu-footer">
@@ -146,6 +149,7 @@
     </nav>
 
     <!-- Hero Section -->
+    <main id="main-content">
     <section id="home" class="hero">
         <div class="hero-bg"></div>
         <div class="container">
@@ -1168,6 +1172,7 @@
             </div>
         </div>
     </footer>
+    </main>
 
     <script src="script.js"></script>
 </body>
