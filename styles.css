@@ -73,8 +73,9 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
+    padding: 12px 24px;
     position: relative;
+    max-width: 100%;
 }
 
 /* Profile Container - Left Side (order: 1) */
@@ -97,8 +98,8 @@ img {
 }
 
 .profile-avatar {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--primary);
@@ -108,16 +109,17 @@ img {
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     text-decoration: none;
     color: var(--text);
     font-weight: 700;
-    font-size: 18px;
+    font-size: 16px;
     transition: opacity 0.2s ease;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     order: 2;
+    white-space: nowrap;
 }
 
 .nav-brand:hover {
@@ -130,12 +132,13 @@ img {
     flex-direction: column;
     gap: 4px;
     cursor: pointer;
-    padding: 8px;
+    padding: 6px;
     background: none;
     border: none;
     border-radius: 8px;
     transition: all 0.2s ease;
     order: 3;
+    flex-shrink: 0;
 }
 
 .menu-button:hover {
@@ -165,12 +168,17 @@ img {
 .cloudstack-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+}
+
+.cloudstack-logo img {
+    width: 32px !important;
+    height: 32px !important;
 }
 
 .cloudstack-logo-text {
     font-weight: 700;
-    font-size: 18px;
+    font-size: 16px;
     color: var(--text);
 }
 
@@ -1835,27 +1843,24 @@ button:disabled {
     }
     
     /* Mobile Navigation */
-    .navbar {\n        padding: 8px 0;
+    .navbar {
+        padding: 8px 0;
     }
     
     .navbar .container {
         padding: 8px 16px;
-        gap: 12px;
-    }
-    
-    .nav-left {
-        gap: 12px;
+        gap: 8px;
     }
     
     .nav-brand {
-        font-size: 16px;
-        gap: 8px;
-        flex: 0 0 auto;
+        font-size: 14px;
+        gap: 6px;
     }
     
-    .nav-brand img {
-        width: 28px;
-        height: 28px;
+    .nav-brand img,
+    .cloudstack-logo img {
+        width: 28px !important;
+        height: 28px !important;
     }
     
     .logo-icon {
@@ -1865,7 +1870,7 @@ button:disabled {
     }
     
     .menu-button {
-        padding: 6px;
+        padding: 5px;
     }
     
     .menu-button span {
@@ -1875,17 +1880,18 @@ button:disabled {
     
     /* Profile menu visible on all devices */
     .profile-container {
-        margin-left: auto;
+        order: 1;
     }
     
     .profile-avatar {
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
     }
     
     .profile-dropdown {
         width: 260px;
         top: calc(100% + 8px);
+        left: 0;
     }
     
     /* Menu drawer responsive */
@@ -2052,22 +2058,31 @@ button:disabled {
     
     .navbar .container {
         padding: 6px 12px;
-        gap: 10px;
-    }
-    
-    .nav-brand {
-        font-size: 15px;
         gap: 6px;
     }
     
+    .nav-brand {
+        font-size: 13px;
+        gap: 5px;
+    }
+    
     .nav-brand img,
+    .cloudstack-logo img {
+        width: 24px !important;
+        height: 24px !important;
+    }
+    
+    .cloudstack-logo-text {
+        font-size: 13px;
+    }
+    
     .logo-icon {
-        width: 26px;
-        height: 26px;
+        width: 24px;
+        height: 24px;
     }
     
     .menu-button {
-        padding: 5px;
+        padding: 4px;
     }
     
     .menu-button span {
@@ -2076,8 +2091,8 @@ button:disabled {
     }
     
     .profile-avatar {
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
     }
     
     .profile-dropdown {
@@ -2186,23 +2201,32 @@ button:disabled {
     
     .navbar .container {
         padding: 5px 10px;
-        gap: 8px;
+        gap: 5px;
     }
     
     .nav-brand {
-        font-size: 14px;
-        gap: 6px;
+        font-size: 12px;
+        gap: 4px;
     }
     
     .nav-brand img,
-    .logo-icon {
-        width: 24px;
-        height: 24px;
+    .cloudstack-logo img {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    
+    .cloudstack-logo-text {
         font-size: 12px;
     }
     
+    .logo-icon {
+        width: 22px;
+        height: 22px;
+        font-size: 11px;
+    }
+    
     .menu-button {
-        padding: 4px;
+        padding: 3px;
     }
     
     .menu-button span {
@@ -2211,8 +2235,8 @@ button:disabled {
     }
     
     .profile-avatar {
-        width: 28px;
-        height: 28px;
+        width: 26px;
+        height: 26px;
     }
     
     .profile-dropdown {
