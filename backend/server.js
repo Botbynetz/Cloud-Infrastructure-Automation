@@ -11,6 +11,9 @@ const { sendVerificationEmail, sendPasswordResetEmail, verifyEmailConfig } = req
 const authService = require('./authService');
 require('dotenv').config();
 
+// reCAPTCHA Secret Key
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || '6LcM7Q4sAAAAALNztAyQDvSPdCQy-5-1RKAweOm2';
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
@@ -195,10 +198,37 @@ app.post('/api/send-password-reset-email', async (req, res) => {
 
 // ========== NEW AUTH ENDPOINTS ==========
 
+// Verify reCAPTCHA token
+async function verifyRecaptcha(token) {
+    try {
+        const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `secret=${RECAPTCHA_SECRET_KEY}&response=${token}`
+        });
+        const data = await response.json();
+        return data.success && data.score >= 0.5;
+    } catch (error) {
+        console.error('reCAPTCHA verification error:', error);
+        return false;
+    }
+}
+
 // Register user
 app.post('/api/auth/register', authLimiter, async (req, res) => {
     try {
-        const { email, password, company, phone, tier } = req.body;
+        const { email, password, company, phone, tier, recaptchaToken } = req.body;
+        
+        // Verify reCAPTCHA (skip in development)
+        if (recaptchaToken && process.env.NODE_ENV === 'production') {
+            const isValidRecaptcha = await verifyRecaptcha(recaptchaToken);
+            if (!isValidRecaptcha) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'reCAPTCHA verification failed' 
+                });
+            }
+        }
         
         if (!email || !password) {
             return res.status(400).json({ 

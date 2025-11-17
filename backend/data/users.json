@@ -1,0 +1,19 @@
+[
+  {
+    "id": "1763337378109",
+    "email": "test@example.com",
+    "password": "$2b$10$tw2izwHkOueda/.d/.0k8O9Bghm.Urwc1Vf0.HfAWy5wW259Wz0C6",
+    "company": "Test Corp",
+    "phone": "",
+    "tier": "free",
+    "verified": false,
+    "createdAt": "2025-11-16T23:56:18.110Z",
+    "updatedAt": "2025-11-16T23:56:18.120Z",
+    "lastLogin": null,
+    "deploymentCount": 0,
+    "settings": {
+      "notifications": true,
+      "twoFactorEnabled": false
+    }
+  }
+]

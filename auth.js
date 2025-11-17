@@ -277,6 +277,16 @@ document.getElementById('register-form').addEventListener('submit', async functi
     // Generate 6-digit verification code
     verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     
+    // Get reCAPTCHA token
+    let recaptchaToken = null;
+    try {
+        if (typeof grecaptcha !== 'undefined') {
+            recaptchaToken = await grecaptcha.execute('6LcM7Q4sAAAAALl0ky_lqzQYtsaKcOZSnAROggpN', {action: 'register'});
+        }
+    } catch (error) {
+        console.log('reCAPTCHA not available, continuing without it');
+    }
+    
     // Store pending user data temporarily
     pendingUser = {
         email: email,
@@ -306,7 +316,8 @@ document.getElementById('register-form').addEventListener('submit', async functi
                 password: password,
                 company: company,
                 phone: phone,
-                tier: 'free'
+                tier: 'free',
+                recaptchaToken: recaptchaToken
             })
         });
 
