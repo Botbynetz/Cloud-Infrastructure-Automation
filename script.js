@@ -9,114 +9,138 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 block: 'start'
             });
         }
-        // Close mobile menu after click
-        const navMenu = document.getElementById('navMenu');
-        const hamburger = document.getElementById('hamburger');
-        if (navMenu && navMenu.classList.contains('active')) {
-            navMenu.classList.remove('active');
-            hamburger.classList.remove('active');
-        }
     });
 });
 
-// Mobile Hamburger Menu Toggle
+// ========================================
+// CLEAN HEADER JAVASCRIPT - X/TWITTER STYLE
+// ========================================
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Side Menu Drawer
-    const menuButton = document.getElementById('menuButton');
-    const menuDrawer = document.getElementById('menuDrawer');
-    const menuOverlay = document.getElementById('menuOverlay');
-    const menuClose = document.getElementById('menuClose');
+    // Get elements
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    const menuBtn = document.getElementById('menuBtn');
+    const sideMenu = document.getElementById('sideMenu');
+    const sideMenuOverlay = document.getElementById('sideMenuOverlay');
+    const sideMenuClose = document.getElementById('sideMenuClose');
     
-    if (menuButton && menuDrawer && menuOverlay) {
-        // Open menu
-        menuButton.addEventListener('click', function() {
-            menuDrawer.classList.add('show');
-            menuOverlay.classList.add('show');
-            menuButton.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-        
-        // Close menu
-        const closeMenu = function() {
-            menuDrawer.classList.remove('show');
-            menuOverlay.classList.remove('show');
-            menuButton.classList.remove('active');
-            document.body.style.overflow = '';
-        };
-        
-        if (menuClose) {
-            menuClose.addEventListener('click', closeMenu);
-        }
-        
-        menuOverlay.addEventListener('click', closeMenu);
-        
-        // Close menu when clicking a link
-        menuDrawer.querySelectorAll('.menu-item').forEach(link => {
-            link.addEventListener('click', function() {
-                closeMenu();
-            });
-        });
-    }
-    
-    // Profile Dropdown Menu
-    const profileButton = document.getElementById('profileButton');
-    const profileDropdown = document.getElementById('profileDropdown');
-    
-    if (profileButton && profileDropdown) {
-        profileButton.addEventListener('click', function(e) {
+    // Profile Menu Toggle
+    if (profileBtn && profileMenu) {
+        profileBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            profileDropdown.classList.toggle('show');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!profileButton.contains(event.target) && !profileDropdown.contains(event.target)) {
-                profileDropdown.classList.remove('show');
+            profileMenu.classList.toggle('show');
+            // Close side menu if open
+            if (sideMenu && sideMenu.classList.contains('show')) {
+                closeSideMenu();
             }
         });
         
-        // Close dropdown when clicking a link
-        profileDropdown.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function() {
-                profileDropdown.classList.remove('show');
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!profileMenu.contains(e.target) && e.target !== profileBtn) {
+                profileMenu.classList.remove('show');
+            }
+        });
+    }
+    
+    // Side Menu Functions
+    function openSideMenu() {
+        if (sideMenu && sideMenuOverlay && menuBtn) {
+            sideMenu.classList.add('show');
+            sideMenuOverlay.classList.add('show');
+            menuBtn.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closeSideMenu() {
+        if (sideMenu && sideMenuOverlay && menuBtn) {
+            sideMenu.classList.remove('show');
+            sideMenuOverlay.classList.remove('show');
+            menuBtn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Menu Button Click
+    if (menuBtn) {
+        menuBtn.addEventListener('click', function() {
+            if (sideMenu && sideMenu.classList.contains('show')) {
+                closeSideMenu();
+            } else {
+                openSideMenu();
+                // Close profile menu if open
+                if (profileMenu && profileMenu.classList.contains('show')) {
+                    profileMenu.classList.remove('show');
+                }
+            }
+        });
+    }
+    
+    // Close Button Click
+    if (sideMenuClose) {
+        sideMenuClose.addEventListener('click', closeSideMenu);
+    }
+    
+    // Overlay Click
+    if (sideMenuOverlay) {
+        sideMenuOverlay.addEventListener('click', closeSideMenu);
+    }
+    
+    // Close menu when clicking a link
+    if (sideMenu) {
+        const menuItems = sideMenu.querySelectorAll('.side-menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                closeSideMenu();
             });
         });
     }
     
-    // Check if user is logged in and update profile
-    const userData = localStorage.getItem('cloudstack_user');
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            const profileName = document.getElementById('profileName');
-            const profileEmail = document.getElementById('profileEmail');
-            const profileAction = document.getElementById('profileAction');
-            const profileAvatar = document.getElementById('profileAvatar');
-            const profileAvatarLarge = profileDropdown.querySelector('.profile-avatar-large');
-            
-            if (profileName) profileName.textContent = user.company || user.email.split('@')[0];
-            if (profileEmail) profileEmail.textContent = user.email;
-            
-            // Update avatar with user initials
-            const initials = (user.company || user.email.split('@')[0]).substring(0, 2).toUpperCase();
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0066FF&color=fff&size=128`;
-            if (profileAvatar) profileAvatar.src = avatarUrl;
-            if (profileAvatarLarge) profileAvatarLarge.src = avatarUrl;
-            
-            // Change action to logout
-            if (profileAction) {
-                profileAction.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
-                profileAction.href = '#';
-                profileAction.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    localStorage.removeItem('cloudstack_user');
-                    window.location.reload();
-                });
+    // User Authentication
+    function updateUserProfile() {
+        const userStr = localStorage.getItem('cloudstack_user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                
+                // Update avatar
+                const userAvatar = document.getElementById('userAvatar');
+                const profileMenuAvatar = document.getElementById('profileMenuAvatar');
+                if (user.name || user.email) {
+                    const displayName = user.name || user.email.split('@')[0];
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0066FF&color=fff&size=128`;
+                    if (userAvatar) userAvatar.src = avatarUrl;
+                    if (profileMenuAvatar) profileMenuAvatar.src = avatarUrl;
+                }
+                
+                // Update name and email
+                const userName = document.getElementById('userName');
+                const userEmail = document.getElementById('userEmail');
+                if (userName) userName.textContent = user.name || user.email.split('@')[0];
+                if (userEmail) userEmail.textContent = user.email || '';
+                
+                // Update auth button
+                const authAction = document.getElementById('authAction');
+                if (authAction) {
+                    authAction.innerHTML = '<i class="fas fa-sign-out-alt"></i><span>Sign Out</span>';
+                    authAction.href = '#';
+                    authAction.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        localStorage.removeItem('cloudstack_user');
+                        localStorage.removeItem('cloudstack_token');
+                        window.location.href = 'auth.html';
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing user data:', error);
             }
-        } catch (error) {
-            console.error('Error parsing user data:', error);
         }
     }
+    
+    // Initialize user profile
+    updateUserProfile();
 });
 
 // ROI Calculator

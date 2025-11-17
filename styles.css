@@ -56,146 +56,342 @@ img {
     box-sizing: border-box;
 }
 
-/* Navigation */
-.navbar {
+/* ========================================
+   CLEAN HEADER STYLES - X/TWITTER STYLE
+   ======================================== */
+
+/* Main Header */
+.main-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
+    background: white;
+    border-bottom: 1px solid #E5E7EB;
     z-index: 1000;
-    transition: all 0.3s ease;
+    height: 60px;
 }
 
-.navbar .container {
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 100%;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    padding: 12px 24px;
     position: relative;
-    max-width: 100%;
 }
 
-/* Profile Container - Left Side (order: 1) */
-.profile-container {
-    position: relative;
-    order: 1;
-}
-
-.profile-button {
-    background: none;
+/* Profile Button (Left) */
+.profile-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     border: none;
-    cursor: pointer;
     padding: 0;
-    border-radius: 50%;
-    transition: transform 0.2s ease;
-}
-
-.profile-button:hover {
-    transform: scale(1.05);
-}
-
-.profile-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--primary);
-}
-
-/* Logo - Center (order: 2) */
-.nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: var(--text);
-    font-weight: 700;
-    font-size: 16px;
-    transition: opacity 0.2s ease;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    order: 2;
-    white-space: nowrap;
-}
-
-.nav-brand:hover {
-    opacity: 0.8;
-}
-
-/* Menu Button - Right Side (order: 3) */
-.menu-button {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
     cursor: pointer;
-    padding: 6px;
     background: none;
-    border: none;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    order: 3;
+    transition: transform 0.2s ease;
     flex-shrink: 0;
 }
 
-.menu-button:hover {
-    background: var(--bg-light);
+.profile-btn:hover {
+    transform: scale(1.05);
 }
 
-.menu-button span {
-    width: 22px;
+.profile-btn img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #0066FF;
+    object-fit: cover;
+}
+
+/* Logo (Center) */
+.header-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #1F2937;
+    font-weight: 700;
+    font-size: 18px;
+    transition: opacity 0.2s ease;
+}
+
+.header-logo:hover {
+    opacity: 0.8;
+}
+
+.header-logo img {
+    width: 34px;
+    height: 34px;
+}
+
+/* Menu Button (Right) */
+.menu-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.menu-btn:hover {
+    background: #F3F4F6;
+}
+
+.menu-btn span {
+    width: 24px;
     height: 2.5px;
-    background: var(--text);
+    background: #1F2937;
     border-radius: 2px;
     transition: all 0.3s ease;
 }
 
-.menu-button.active span:nth-child(1) {
-    transform: rotate(45deg) translate(6px, 6px);
+.menu-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px);
 }
 
-.menu-button.active span:nth-child(2) {
+.menu-btn.active span:nth-child(2) {
     opacity: 0;
 }
 
-.menu-button.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(6px, -6px);
+.menu-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
 }
 
-.cloudstack-logo {
+/* Profile Dropdown Menu */
+.profile-menu {
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border: 1px solid #E5E7EB;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.profile-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.profile-menu-header {
+    padding: 20px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
-.cloudstack-logo img {
-    width: 32px !important;
-    height: 32px !important;
+.profile-menu-header img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #0066FF;
+    object-fit: cover;
 }
 
-.cloudstack-logo-text {
-    font-weight: 700;
+.profile-menu-info h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.profile-menu-info p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.profile-menu-divider {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 0;
+}
+
+.profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: #1F2937;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.profile-menu-item:hover {
+    background: #F3F4F6;
+    color: #0066FF;
+}
+
+.profile-menu-item i {
+    width: 18px;
     font-size: 16px;
-    color: var(--text);
+    text-align: center;
 }
 
-/* Legacy styles - kept for compatibility */
-.logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 10px;
+/* Side Menu Overlay */
+.side-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
+}
+
+.side-menu-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Side Navigation Menu */
+.side-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    background: white;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+}
+
+.side-menu.show {
+    transform: translateX(0);
+}
+
+.side-menu-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    border-bottom: 1px solid #E5E7EB;
+    position: relative;
+}
+
+.side-menu-header img {
+    width: 32px;
+    height: 32px;
+}
+
+.side-menu-header span {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+.side-menu-close {
+    position: absolute;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 20px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
 }
 
-/* Remove old nav-menu styles as we now use side drawer */
+.side-menu-close:hover {
+    background: #F3F4F6;
+}
+
+.side-menu-close i {
+    font-size: 20px;
+    color: #6B7280;
+}
+
+.side-menu-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 0;
+}
+
+.side-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    color: #1F2937;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.side-menu-item:hover {
+    background: #F3F4F6;
+    color: #0066FF;
+}
+
+.side-menu-item i {
+    width: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.side-menu-footer {
+    padding: 20px;
+    border-top: 1px solid #E5E7EB;
+}
+
+.side-menu-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: #0066FF;
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.side-menu-cta:hover {
+    background: #0052CC;
+    transform: translateY(-1px);
+}
+
+/* Legacy navbar styles removed - using new clean header */
 
 /* Hero Section */
 .hero {
@@ -1467,246 +1663,6 @@ section {
 }
 
 /* Profile Dropdown Menu */
-.profile-dropdown {
-    position: absolute;
-    top: calc(100% + 12px);
-    left: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    width: 280px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    border: 1px solid var(--border);
-}
-
-.profile-dropdown.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.profile-header {
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.profile-avatar-large {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--primary);
-}
-.profile-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.profile-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--dark);
-    margin-bottom: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.profile-email {
-    font-size: 13px;
-    color: var(--text-light);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.profile-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 8px 0;
-}
-
-.profile-menu {
-    list-style: none;
-    padding: 8px 0;
-    margin: 0;
-}
-
-.profile-menu li a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    color: var(--text);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.profile-menu li a:hover {
-    background: var(--bg-light);
-    color: var(--primary);
-}
-
-.profile-menu li a i {
-    width: 16px;
-    font-size: 14px;
-    color: var(--text-light);
-}
-
-.profile-menu li a:hover i {
-    color: var(--primary);
-}
-
-.profile-login {
-    color: var(--primary) !important;
-}
-
-.profile-login:hover {
-    background: rgba(0, 102, 255, 0.05) !important;
-}
-
-/* Side Menu Drawer */
-.menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 999;
-}
-
-.menu-overlay.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.menu-drawer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 300px;
-    background: white;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-}
-
-.menu-drawer.show {
-    transform: translateX(0);
-}
-
-.menu-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-}
-
-.menu-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--dark);
-    flex: 1;
-}
-
-.menu-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    color: var(--text-light);
-    transition: all 0.2s ease;
-}
-
-.menu-close:hover {
-    background: var(--bg-light);
-    color: var(--text);
-}
-
-.menu-nav {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px 0;
-}
-
-.menu-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 24px;
-    color: var(--text);
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.menu-item:hover {
-    background: var(--bg-light);
-    color: var(--primary);
-}
-
-.menu-item i {
-    width: 20px;
-    font-size: 16px;
-    color: var(--text-light);
-}
-
-.menu-item:hover i {
-    color: var(--primary);
-}
-
-.menu-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 12px 24px;
-}
-
-.menu-footer {
-    padding: 20px 24px;
-    border-top: 1px solid var(--border);
-}
-
-.menu-cta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 14px 24px;
-    background: var(--primary);
-    color: white;
-    text-decoration: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.menu-cta:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
-}
-
 /* Loading Spinner */
 .spinner {
     display: inline-block;
@@ -1727,6 +1683,143 @@ button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* ========================================
+   RESPONSIVE HEADER STYLES
+   ======================================== */
+
+@media (max-width: 768px) {
+    .main-header {
+        height: 56px;
+    }
+    
+    .header-container {
+        padding: 0 16px;
+    }
+    
+    .profile-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .header-logo {
+        font-size: 16px;
+        gap: 8px;
+    }
+    
+    .header-logo img {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .menu-btn {
+        width: 36px;
+        height: 36px;
+        padding: 6px;
+    }
+    
+    .menu-btn span {
+        width: 22px;
+        height: 2px;
+    }
+    
+    .profile-menu {
+        top: 66px;
+        left: 16px;
+        width: 260px;
+    }
+    
+    .side-menu {
+        width: 280px;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-header {
+        height: 52px;
+    }
+    
+    .header-container {
+        padding: 0 12px;
+    }
+    
+    .profile-btn {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .header-logo {
+        font-size: 15px;
+        gap: 6px;
+    }
+    
+    .header-logo img {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .menu-btn {
+        width: 34px;
+        height: 34px;
+    }
+    
+    .menu-btn span {
+        width: 20px;
+    }
+    
+    .profile-menu {
+        top: 62px;
+        left: 12px;
+        width: calc(100vw - 24px);
+        max-width: 280px;
+    }
+    
+    .side-menu {
+        width: 260px;
+    }
+}
+
+@media (max-width: 400px) {
+    .main-header {
+        height: 50px;
+    }
+    
+    .header-container {
+        padding: 0 10px;
+    }
+    
+    .profile-btn {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .header-logo {
+        font-size: 14px;
+        gap: 5px;
+    }
+    
+    .header-logo img {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .menu-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .menu-btn span {
+        width: 18px;
+    }
+    
+    .side-menu {
+        width: 240px;
+    }
+}
+
+/* ========================================
+   OTHER RESPONSIVE STYLES
+   ======================================== */
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -1842,126 +1935,6 @@ button:disabled {
         font-size: 14px;
     }
     
-    /* Mobile Navigation */
-    .navbar {
-        padding: 8px 0;
-    }
-    
-    .navbar .container {
-        padding: 8px 16px;
-        gap: 8px;
-    }
-    
-    .nav-brand {
-        font-size: 14px;
-        gap: 6px;
-    }
-    
-    .nav-brand img,
-    .cloudstack-logo img {
-        width: 28px !important;
-        height: 28px !important;
-    }
-    
-    .logo-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
-    }
-    
-    .menu-button {
-        padding: 5px;
-    }
-    
-    .menu-button span {
-        width: 20px;
-        height: 2px;
-    }
-    
-    /* Profile menu visible on all devices */
-    .profile-container {
-        order: 1;
-    }
-    
-    .profile-avatar {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .profile-dropdown {
-        width: 260px;
-        top: calc(100% + 8px);
-        left: 0;
-    }
-    
-    /* Menu drawer responsive */
-    .menu-drawer {
-        width: 280px;
-    }
-    
-    .menu-header {
-        padding: 16px 20px;
-    }
-    
-    .menu-item {
-        padding: 12px 20px;
-        font-size: 14px;
-    }
-    
-    .hamburger {
-        display: flex;
-        z-index: 1001;
-    }
-    
-    .nav-menu {
-        position: fixed;
-        top: 52px;
-        left: 0;
-        right: 0;
-        background: white;
-        flex-direction: column;
-        padding: 20px 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        transform: translateY(-100%);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        max-height: calc(100vh - 52px);
-        overflow-y: auto;
-        z-index: 1000;
-    }
-    
-    .nav-menu.active {
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    .nav-menu li {
-        margin: 0;
-        padding: 10px 0;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .nav-menu li:last-child {
-        border-bottom: none;
-        padding-bottom: 4px;
-    }
-    
-    .nav-menu a {
-        display: block;
-        padding: 6px 0;
-        font-size: 15px;
-    }
-    
-    .btn-nav {
-        width: 100%;
-        text-align: center;
-        margin-top: 8px;
-        padding: 10px 20px !important;
-        font-size: 14px;
-    }
-    
     .contact-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -2052,62 +2025,6 @@ button:disabled {
 
 /* Extra Small Devices (phones in portrait, less than 576px) */
 @media (max-width: 576px) {
-    .navbar {
-        padding: 6px 0;
-    }
-    
-    .navbar .container {
-        padding: 6px 12px;
-        gap: 6px;
-    }
-    
-    .nav-brand {
-        font-size: 13px;
-        gap: 5px;
-    }
-    
-    .nav-brand img,
-    .cloudstack-logo img {
-        width: 24px !important;
-        height: 24px !important;
-    }
-    
-    .cloudstack-logo-text {
-        font-size: 13px;
-    }
-    
-    .logo-icon {
-        width: 24px;
-        height: 24px;
-    }
-    
-    .menu-button {
-        padding: 4px;
-    }
-    
-    .menu-button span {
-        width: 18px;
-        height: 2px;
-    }
-    
-    .profile-avatar {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .profile-dropdown {
-        width: 250px;
-    }
-    
-    .profile-header {
-        padding: 16px;
-    }
-    
-    .profile-avatar-large {
-        width: 44px;
-        height: 44px;
-    }
-    
     .hero {
         margin-top: 45px;
         padding: 60px 0 35px;
@@ -2195,76 +2112,6 @@ button:disabled {
 
 /* Very Small Devices (phones less than 400px) */
 @media (max-width: 400px) {
-    .navbar {
-        padding: 5px 0;
-    }
-    
-    .navbar .container {
-        padding: 5px 10px;
-        gap: 5px;
-    }
-    
-    .nav-brand {
-        font-size: 12px;
-        gap: 4px;
-    }
-    
-    .nav-brand img,
-    .cloudstack-logo img {
-        width: 22px !important;
-        height: 22px !important;
-    }
-    
-    .cloudstack-logo-text {
-        font-size: 12px;
-    }
-    
-    .logo-icon {
-        width: 22px;
-        height: 22px;
-        font-size: 11px;
-    }
-    
-    .menu-button {
-        padding: 3px;
-    }
-    
-    .menu-button span {
-        width: 16px;
-        height: 2px;
-    }
-    
-    .profile-avatar {
-        width: 26px;
-        height: 26px;
-    }
-    
-    .profile-dropdown {
-        width: 240px;
-    }
-    
-    .profile-header {
-        padding: 14px;
-    }
-    
-    .profile-avatar-large {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .profile-name {
-        font-size: 14px;
-    }
-    
-    .profile-email {
-        font-size: 12px;
-    }
-    
-    .profile-menu li a {
-        padding: 10px 16px;
-        font-size: 13px;
-    }
-    
     .hero {
         margin-top: 42px;
         padding: 50px 0 30px;
