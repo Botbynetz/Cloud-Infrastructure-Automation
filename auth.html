@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CloudStack Platform</title>
+    <link rel="icon" type="image/svg+xml" href="frontend/assets/images/cloudstack-icon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="frontend/assets/brand.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Google reCAPTCHA v3 -->
     <script src="https://www.google.com/recaptcha/api.js?render=6LcM7Q4sAAAAALl0ky_lqzQYtsaKcOZSnAROggpN"></script>
@@ -16,7 +18,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2E5090 0%, #1A3A5C 100%);
             padding: 20px;
         }
         
@@ -46,13 +48,18 @@
             margin-bottom: 30px;
         }
         
+        .auth-logo img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+        }
+        
         .auth-logo h1 {
             font-size: 32px;
             font-weight: 700;
-            background: linear-gradient(135deg, #0066FF, #00C9FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #0099FF;
             margin: 0;
+            font-family: 'Inter', sans-serif;
         }
         
         .auth-logo p {
@@ -154,15 +161,16 @@
         .btn-auth {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #0066FF, #00C9FF);
+            background: linear-gradient(135deg, #0099FF 0%, #00D4FF 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.15);
         }
         
         .btn-auth:hover {
@@ -398,22 +406,23 @@
 
         .code-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #0099FF;
+            box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
         }
 
         .verify-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0099FF 0%, #00D4FF 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 153, 255, 0.15);
         }
 
         .verify-btn:hover {
@@ -443,8 +452,9 @@
     <div class="auth-container">
         <div class="auth-box">
             <div class="auth-logo">
-                <h1>☁️ CloudStack</h1>
-                <p>Infrastructure Automation Platform</p>
+                <img src="frontend/assets/images/cloudstack-icon.svg" alt="CloudStack">
+                <h1>CloudStack</h1>
+                <p>Enterprise Infrastructure Platform</p>
             </div>
             
             <div class="alert" id="alert"></div>
