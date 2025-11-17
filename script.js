@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (userName) userName.textContent = user.name || user.email.split('@')[0];
                 if (userEmail) userEmail.textContent = user.email || '';
                 
+                // Update plan badge
+                updatePlanBadge(user.plan || 'free');
+                
                 // Update auth button
                 const authAction = document.getElementById('authAction');
                 if (authAction) {
@@ -136,6 +139,38 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error('Error parsing user data:', error);
             }
+        }
+    }
+    
+    // Function to update plan badge
+    function updatePlanBadge(plan) {
+        const planBadge = document.getElementById('planBadge');
+        if (!planBadge) return;
+        
+        // Normalize plan name
+        plan = plan.toLowerCase();
+        
+        // Set data attribute
+        planBadge.setAttribute('data-plan', plan);
+        
+        // Update badge content based on plan
+        switch(plan) {
+            case 'free':
+                planBadge.innerHTML = '<span class=\"badge-text\">Free</span>';
+                break;
+            case 'professional':
+            case 'pro':
+                planBadge.innerHTML = '<span class=\"badge-text\">Pro</span>';
+                break;
+            case 'enterprise':
+                planBadge.innerHTML = '<span class=\"badge-text\">Enterprise</span>';
+                break;
+            case 'ultimate':
+                planBadge.innerHTML = '<span class=\"badge-text\">Ultimate</span>';
+                break;
+            default:
+                planBadge.innerHTML = '<span class=\"badge-text\">Free</span>';
+                planBadge.setAttribute('data-plan', 'free');
         }
     }
     

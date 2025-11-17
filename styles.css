@@ -260,6 +260,126 @@ img {
     color: #1F2937;
 }
 
+/* Profile Name with Badge Container */
+.profile-name-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Plan Badge Base Styles */
+.plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+/* Free Plan Badge */
+.plan-badge[data-plan="free"] {
+    background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%);
+    color: #6B7280;
+    border: 1px solid #D1D5DB;
+}
+
+.plan-badge[data-plan="free"] .badge-text::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #9CA3AF;
+    margin-right: 4px;
+}
+
+/* Professional Plan Badge - Silver Check */
+.plan-badge[data-plan="professional"] {
+    background: linear-gradient(135deg, #E8E8E8 0%, #C0C0C0 100%);
+    color: #4B5563;
+    border: 1px solid #C0C0C0;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+}
+
+.plan-badge[data-plan="professional"]::before {
+    content: "\f058"; /* Font Awesome check-circle */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #C0C0C0;
+    font-size: 12px;
+}
+
+/* Enterprise Plan Badge - Gold Check */
+.plan-badge[data-plan="enterprise"] {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #78350F;
+    border: 1px solid #FFA500;
+    box-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);
+}
+
+.plan-badge[data-plan="enterprise"]::before {
+    content: "\f058"; /* Font Awesome check-circle */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #FFA500;
+    font-size: 12px;
+}
+
+/* Ultimate Plan Badge - Crown with Animation */
+.plan-badge[data-plan="ultimate"] {
+    background: linear-gradient(135deg, #9333EA 0%, #7C3AED 50%, #6B21A8 100%);
+    color: #FFFFFF;
+    border: 1px solid #7C3AED;
+    box-shadow: 0 2px 16px rgba(147, 51, 234, 0.5);
+    animation: ultimatePulse 2s ease-in-out infinite;
+}
+
+.plan-badge[data-plan="ultimate"]::before {
+    content: "\f521"; /* Font Awesome crown */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #FFD700;
+    font-size: 12px;
+    animation: crownFloat 2s ease-in-out infinite;
+    display: inline-block;
+}
+
+/* Crown Float Animation */
+@keyframes crownFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-2px) rotate(5deg);
+    }
+}
+
+/* Ultimate Badge Pulse Animation */
+@keyframes ultimatePulse {
+    0%, 100% {
+        box-shadow: 0 2px 16px rgba(147, 51, 234, 0.5);
+    }
+    50% {
+        box-shadow: 0 2px 20px rgba(147, 51, 234, 0.7), 0 0 30px rgba(147, 51, 234, 0.3);
+    }
+}
+
+/* Hover Effects */
+.plan-badge[data-plan="professional"]:hover,
+.plan-badge[data-plan="enterprise"]:hover {
+    transform: scale(1.05);
+}
+
+.plan-badge[data-plan="ultimate"]:hover {
+    animation: ultimatePulse 1s ease-in-out infinite;
+    transform: scale(1.05);
+}
+
 .profile-menu-info p {
     margin: 4px 0 0;
     font-size: 13px;
