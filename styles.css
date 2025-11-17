@@ -189,9 +189,11 @@ img {
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 999;
+    display: none !important;
 }
 
 .profile-menu.show {
+    display: block !important;
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -266,9 +268,11 @@ img {
     visibility: hidden;
     transition: all 0.3s ease;
     z-index: 998;
+    display: none !important;
 }
 
 .side-menu-overlay.show {
+    display: block !important;
     opacity: 1;
     visibility: visible;
 }
