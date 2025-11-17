@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // User Authentication
     function updateUserProfile() {
-        const userStr = localStorage.getItem('cloudstack_user');
+        const userStr = localStorage.getItem('univai_user');
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
@@ -131,8 +131,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     authAction.href = '#';
                     authAction.addEventListener('click', function(e) {
                         e.preventDefault();
-                        localStorage.removeItem('cloudstack_user');
-                        localStorage.removeItem('cloudstack_token');
+                        localStorage.removeItem('univai_user');
+                        localStorage.removeItem('univai_token');
+                        localStorage.removeItem('currentUser');
                         window.location.href = 'auth.html';
                     });
                 }

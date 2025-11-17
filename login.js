@@ -78,12 +78,14 @@ function handleGoogleSignIn(response) {
             localStorage.setItem('cloudstack_users', JSON.stringify(users));
         }
         
-        // Store session
-        sessionStorage.setItem('cloudstack_user', JSON.stringify({
+        // Store session in localStorage for persistence
+        localStorage.setItem('univai_user', JSON.stringify({
             email: user.email,
+            name: user.company || user.name || user.email.split('@')[0],
             company: user.company,
             phone: user.phone,
             tier: user.tier,
+            plan: user.tier, // For badge system compatibility
             picture: picture,
             authMethod: 'google',
             loginTime: Date.now()
@@ -147,12 +149,14 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const user = users.find(u => u.email === email && u.password === password);
     
     if (user) {
-        // Store session
-        sessionStorage.setItem('cloudstack_user', JSON.stringify({
+        // Store session in localStorage for persistence
+        localStorage.setItem('univai_user', JSON.stringify({
             email: user.email,
+            name: user.company || user.name || user.email.split('@')[0],
             company: user.company,
             phone: user.phone,
             tier: user.tier,
+            plan: user.tier, // For badge system compatibility
             authMethod: 'email',
             loginTime: Date.now()
         }));
@@ -170,7 +174,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 // Initialize Google Sign-In on page load
 window.addEventListener('load', function() {
     // Check if already logged in
-    const currentUser = sessionStorage.getItem('cloudstack_user');
+    const currentUser = localStorage.getItem('univai_user');
     if (currentUser) {
         window.location.href = 'index.html';
         return;

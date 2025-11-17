@@ -17,7 +17,7 @@
     }
     
     // Check if user is logged in
-    const currentUser = sessionStorage.getItem('cloudstack_user');
+    const currentUser = localStorage.getItem('univai_user');
     
     if (!currentUser) {
         // Not logged in - redirect to login page
@@ -33,7 +33,7 @@
             addUserInfoToPage(userData);
         } catch (e) {
             console.error('Invalid session data');
-            sessionStorage.removeItem('cloudstack_user');
+            localStorage.removeItem('univai_user');
             window.location.href = 'login.html';
         }
     }
@@ -98,7 +98,9 @@
     // Global logout function
     window.logout = function() {
         if (confirm('Are you sure you want to logout?')) {
-            sessionStorage.removeItem('cloudstack_user');
+            localStorage.removeItem('univai_user');
+            localStorage.removeItem('univai_token');
+            localStorage.removeItem('currentUser');
             window.location.href = 'login.html';
         }
     };

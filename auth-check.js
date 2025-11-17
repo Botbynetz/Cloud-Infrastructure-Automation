@@ -1,7 +1,7 @@
 // Auth check for deployment page
 (function() {
     // Check if user is logged in
-    const user = sessionStorage.getItem('cloudstack_user');
+    const user = localStorage.getItem('univai_user');
     
     if (!user) {
         // Get tier from URL
@@ -25,7 +25,9 @@
     // Add logout functionality
     window.logout = function() {
         if (confirm('Are you sure you want to logout?')) {
-            sessionStorage.removeItem('cloudstack_user');
+            localStorage.removeItem('univai_user');
+            localStorage.removeItem('univai_token');
+            localStorage.removeItem('currentUser');
             window.location.href = 'auth.html';
         }
     };

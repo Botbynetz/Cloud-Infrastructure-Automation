@@ -107,12 +107,14 @@ function handleGoogleSignIn(response) {
             showAlert('Welcome back! Logging in with Google...', 'success');
         }
         
-        // Store session
-        sessionStorage.setItem('cloudstack_user', JSON.stringify({
+        // Store session in localStorage for persistence
+        localStorage.setItem('univai_user', JSON.stringify({
             email: user.email,
+            name: user.company,
             company: user.company,
             phone: user.phone,
             tier: user.tier,
+            plan: user.tier, // For badge system compatibility
             picture: picture,
             authMethod: 'google',
             loginTime: Date.now()
@@ -215,13 +217,15 @@ document.getElementById('login-form').addEventListener('submit', async function(
         const data = await response.json();
         
         if (data.success && data.user) {
-            // Store user session
-            sessionStorage.setItem('currentUser', JSON.stringify(data.user));
-            sessionStorage.setItem('cloudstack_user', JSON.stringify({
+            // Store user session in localStorage for persistence
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            localStorage.setItem('univai_user', JSON.stringify({
                 email: data.user.email,
+                name: data.user.company || data.user.name || email.split('@')[0],
                 company: data.user.company,
                 phone: data.user.phone,
                 tier: data.user.tier || 'free',
+                plan: data.user.tier || 'free', // For badge system compatibility
                 loginTime: Date.now()
             }));
             
