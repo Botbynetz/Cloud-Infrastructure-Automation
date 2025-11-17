@@ -55,7 +55,7 @@ function hideAlert() {
 // Google Sign-In Configuration
 const GOOGLE_CLIENT_ID = typeof GOOGLE_CONFIG !== 'undefined' ? GOOGLE_CONFIG.CLIENT_ID : '';
 
-// Initialize Google Sign-In
+// Initialize Google Sign-In with new Identity Services (Fix FedCM warning)
 function initGoogleSignIn() {
     if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
         console.warn('Google Client ID not configured. Please set it in google-config.js');
@@ -66,7 +66,9 @@ function initGoogleSignIn() {
         google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleSignIn,
-            auto_select: false
+            auto_select: false,
+            cancel_on_tap_outside: false,
+            itp_support: true
         });
     }
 }
