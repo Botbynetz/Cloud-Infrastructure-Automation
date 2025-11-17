@@ -42,7 +42,33 @@ const authLimiter = rateLimit({
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+
+// CORS configuration - more secure for production
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'https://botbynetz.github.io',
+    process.env.FRONTEND_URL
+].filter(Boolean); // Remove undefined values
+
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        // Check if origin is in allowed list or if we're in development
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 app.use(morgan('combined'));
 app.use('/api/', generalLimiter);
@@ -663,6 +689,59 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id);
     });
+});
+
+// Contact form submission endpoint
+app.post('/api/contact', async (req, res) => {
+    try {
+        const { name, email, company, interest, message } = req.body;
+        
+        // Validation
+        if (!name || !email || !message) {
+            return res.status(400).json({
+                success: false,
+                error: 'Name, email, and message are required'
+            });
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid email format'
+            });
+        }
+        
+        // Log contact form submission (In production, save to database)
+        console.log('Contact Form Submission:', {
+            name,
+            email,
+            company: company || 'Not provided',
+            interest,
+            message,
+            timestamp: new Date().toISOString()
+        });
+        
+        // TODO: Send email notification when Resend API key is configured
+        // try {
+        //     await sendContactNotification({ name, email, company, interest, message });
+        // } catch (emailError) {
+        //     console.error('Email sending failed:', emailError);
+        // }
+        
+        res.json({
+            success: true,
+            message: 'Thank you for contacting us! We will respond shortly.'
+        });
+        
+    } catch (error) {
+        console.error('Contact form error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to process contact form'
+        });
+    }
 });
 
 // Error handling
