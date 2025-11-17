@@ -752,9 +752,12 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, async () => {
-    console.log(`🚀 CloudStack Backend running on port ${PORT}`);
+const HOST = '0.0.0.0'; // Listen on all network interfaces (required for Railway)
+
+server.listen(PORT, HOST, async () => {
+    console.log(`🚀 CloudStack Backend running on ${HOST}:${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Public URL: ${process.env.RAILWAY_PUBLIC_DOMAIN || 'localhost'}`);
     
     // Verify email service configuration
     const emailReady = await verifyEmailConfig();
