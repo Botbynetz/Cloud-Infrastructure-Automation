@@ -841,10 +841,6 @@ function resetPassword() {
         alert('Failed to reset password. Please try again.');
     });
 }
-    // Pre-fill email in login form
-    document.getElementById('login-email').value = forgotPasswordData.email;
-    switchTab('login');
-}
 
 async function resendPasswordResetCode() {
     // Generate new code
