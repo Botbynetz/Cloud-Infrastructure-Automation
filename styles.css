@@ -74,6 +74,7 @@ img {
     justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
+    position: relative;
 }
 
 .nav-brand {
@@ -1370,24 +1371,24 @@ section {
 .hamburger {
     display: none;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
     cursor: pointer;
-    padding: 8px;
+    padding: 6px;
     background: none;
     border: none;
     z-index: 1001;
 }
 
 .hamburger span {
-    width: 25px;
-    height: 3px;
+    width: 22px;
+    height: 2.5px;
     background: var(--text);
     border-radius: 2px;
     transition: all 0.3s ease;
 }
 
 .hamburger.active span:nth-child(1) {
-    transform: rotate(45deg) translate(7px, 7px);
+    transform: rotate(45deg) translate(6px, 6px);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -1395,7 +1396,7 @@ section {
 }
 
 .hamburger.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -7px);
+    transform: rotate(-45deg) translate(6px, -6px);
 }
 
 /* Loading Spinner */
@@ -1535,16 +1536,18 @@ button:disabled {
     
     /* Mobile Navigation */
     .navbar {
-        padding: 10px 0;
+        padding: 8px 0;
     }
     
     .navbar .container {
         padding: 8px 16px;
+        gap: 12px;
     }
     
     .nav-brand {
         font-size: 16px;
         gap: 8px;
+        flex: 0 0 auto;
     }
     
     .nav-brand img {
@@ -1560,23 +1563,34 @@ button:disabled {
     
     .hamburger {
         display: flex;
+        padding: 4px;
+        margin-left: auto;
+    }
+    
+    .hamburger span {
+        width: 20px;
+        height: 2px;
+    }
+    
+    .hamburger {
+        display: flex;
         z-index: 1001;
     }
     
     .nav-menu {
         position: fixed;
-        top: 64px;
+        top: 52px;
         left: 0;
         right: 0;
         background: white;
         flex-direction: column;
-        padding: 24px 20px;
+        padding: 20px 16px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transform: translateY(-100%);
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        max-height: calc(100vh - 64px);
+        max-height: calc(100vh - 52px);
         overflow-y: auto;
         z-index: 1000;
     }
@@ -1589,25 +1603,27 @@ button:disabled {
     
     .nav-menu li {
         margin: 0;
-        padding: 12px 0;
+        padding: 10px 0;
         border-bottom: 1px solid #f0f0f0;
     }
     
     .nav-menu li:last-child {
         border-bottom: none;
+        padding-bottom: 4px;
     }
     
     .nav-menu a {
         display: block;
-        padding: 8px 0;
-        font-size: 16px;
+        padding: 6px 0;
+        font-size: 15px;
     }
     
     .btn-nav {
         width: 100%;
         text-align: center;
         margin-top: 8px;
-        padding: 12px 24px !important;
+        padding: 10px 20px !important;
+        font-size: 14px;
     }
     
     .contact-grid {
@@ -1700,8 +1716,13 @@ button:disabled {
 
 /* Extra Small Devices (phones in portrait, less than 576px) */
 @media (max-width: 576px) {
+    .navbar {
+        padding: 6px 0;
+    }
+    
     .navbar .container {
         padding: 6px 12px;
+        gap: 10px;
     }
     
     .nav-brand {
@@ -1713,6 +1734,21 @@ button:disabled {
     .logo-icon {
         width: 26px;
         height: 26px;
+    }
+    
+    .hamburger {
+        padding: 3px;
+    }
+    
+    .hamburger span {
+        width: 18px;
+        height: 2px;
+    }
+    
+    .nav-menu {
+        top: 48px;
+        max-height: calc(100vh - 48px);
+        padding: 16px 12px;
     }
     
     .hero {
@@ -1802,8 +1838,13 @@ button:disabled {
 
 /* Very Small Devices (phones less than 400px) */
 @media (max-width: 400px) {
+    .navbar {
+        padding: 5px 0;
+    }
+    
     .navbar .container {
         padding: 5px 10px;
+        gap: 8px;
     }
     
     .nav-brand {
@@ -1816,6 +1857,21 @@ button:disabled {
         width: 24px;
         height: 24px;
         font-size: 12px;
+    }
+    
+    .hamburger {
+        padding: 2px;
+    }
+    
+    .hamburger span {
+        width: 16px;
+        height: 2px;
+    }
+    
+    .nav-menu {
+        top: 44px;
+        max-height: calc(100vh - 44px);
+        padding: 14px 10px;
     }
     
     .hero {
