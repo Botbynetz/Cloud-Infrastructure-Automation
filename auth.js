@@ -430,7 +430,7 @@ function setupCodeInputs() {
 }
 
 // Verify Code Function
-function verifyCode() {
+async function verifyCode() {
     const code1 = document.getElementById('code1').value;
     const code2 = document.getElementById('code2').value;
     const code3 = document.getElementById('code3').value;
