@@ -172,8 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             
             try {
-                // TODO: Replace with actual backend URL when deployed
-                const backendUrl = 'http://localhost:3000/api/contact';
+                // Production backend URL on Railway
+                const backendUrl = 'https://cloud-infrastructure-automation-production.up.railway.app/api/contact';
                 
                 const response = await fetch(backendUrl, {
                     method: 'POST',
