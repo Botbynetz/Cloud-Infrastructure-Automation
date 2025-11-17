@@ -21,21 +21,40 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // Mobile Hamburger Menu Toggle
 document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('navMenu');
+    // Side Menu Drawer
+    const menuButton = document.getElementById('menuButton');
+    const menuDrawer = document.getElementById('menuDrawer');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const menuClose = document.getElementById('menuClose');
     
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', function() {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
+    if (menuButton && menuDrawer && menuOverlay) {
+        // Open menu
+        menuButton.addEventListener('click', function() {
+            menuDrawer.classList.add('show');
+            menuOverlay.classList.add('show');
+            menuButton.classList.add('active');
+            document.body.style.overflow = 'hidden';
         });
         
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!hamburger.contains(event.target) && !navMenu.contains(event.target)) {
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
-            }
+        // Close menu
+        const closeMenu = function() {
+            menuDrawer.classList.remove('show');
+            menuOverlay.classList.remove('show');
+            menuButton.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+        
+        if (menuClose) {
+            menuClose.addEventListener('click', closeMenu);
+        }
+        
+        menuOverlay.addEventListener('click', closeMenu);
+        
+        // Close menu when clicking a link
+        menuDrawer.querySelectorAll('.menu-item').forEach(link => {
+            link.addEventListener('click', function() {
+                closeMenu();
+            });
         });
     }
     
