@@ -127,7 +127,7 @@ function handleGoogleSignIn(response) {
         const tier = urlParams.get('tier') || user.tier;
         
         setTimeout(() => {
-            window.location.href = `deploy.html?tier=${tier}`;
+            window.location.href = `index.html`;
         }, 1000);
         
     } catch (error) {
@@ -233,12 +233,9 @@ document.getElementById('login-form').addEventListener('submit', async function(
             
             showAlert('Login successful! Redirecting...', 'success');
             
-            // Get redirect URL (tier from pricing page)
-            const urlParams = new URLSearchParams(window.location.search);
-            const tier = urlParams.get('tier') || data.user.tier || 'free';
-            
+            // Redirect to homepage
             setTimeout(() => {
-                window.location.href = `dashboard.html`;
+                window.location.href = `index.html`;
             }, 1000);
         } else {
             showAlert(data.error || 'Invalid email or password. Please try again.', 'error');
