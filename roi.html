@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Value Proposition - CloudStack Platform</title>
+    <link rel="icon" type="image/svg+xml" href="frontend/assets/images/cloudstack-icon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="frontend/assets/brand.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="auth-guard.js"></script>
+</head>
+<body>
+    <!-- Clean Navigation Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Profile Button (Left) -->
+            <button class="profile-btn" id="profileBtn" aria-label="Profile">
+                <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                     alt="Profile" id="userAvatar">
+            </button>
+            
+            <!-- Logo (Center) -->
+            <a href="index.html" class="header-logo">
+                <img src="frontend/assets/images/cloudstack-icon.svg" alt="CloudStack">
+                <span>CloudStack</span>
+            </a>
+            
+            <!-- Menu Button (Right) -->
+            <button class="menu-btn" id="menuBtn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-menu" id="profileMenu">
+        <div class="profile-menu-header">
+            <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                 alt="Profile" id="profileMenuAvatar">
+            <div class="profile-menu-info">
+                <h4 id="userName">Guest User</h4>
+                <p id="userEmail">guest@cloudstack.com</p>
+            </div>
+        </div>
+        <div class="profile-menu-divider"></div>
+        <a href="profile.html" class="profile-menu-item">
+            <i class="fas fa-user"></i>
+            <span>My Account</span>
+        </a>
+        <a href="dashboard.html" class="profile-menu-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="#" class="profile-menu-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+        <a href="#" class="profile-menu-item">
+            <i class="fas fa-bell"></i>
+            <span>Notifications</span>
+        </a>
+        <div class="profile-menu-divider"></div>
+        <a href="auth.html" class="profile-menu-item" id="authAction">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Sign In</span>
+        </a>
+    </div>
+
+    <!-- Side Navigation Menu -->
+    <div class="side-menu-overlay" id="sideMenuOverlay"></div>
+    <nav class="side-menu" id="sideMenu">
+        <div class="side-menu-header">
+            <img src="frontend/assets/images/cloudstack-icon.svg" alt="CloudStack">
+            <span>CloudStack</span>
+            <button class="side-menu-close" id="sideMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="side-menu-content">
+            <a href="index.html" class="side-menu-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="value.html" class="side-menu-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Value Proposition</span>
+            </a>
+            <a href="modules.html" class="side-menu-item">
+                <i class="fas fa-box"></i>
+                <span>Modules</span>
+            </a>
+            <a href="roi.html" class="side-menu-item">
+                <i class="fas fa-calculator"></i>
+                <span>ROI Calculator</span>
+            </a>
+            <a href="pricing.html" class="side-menu-item">
+                <i class="fas fa-tag"></i>
+                <span>Pricing</span>
+            </a>
+            <a href="dashboard.html" class="side-menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="contact.html" class="side-menu-item">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+            <a href="#" class="side-menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Help</span>
+            </a>
+        </div>
+        <div class="side-menu-footer">
+            <a href="pricing.html" class="side-menu-cta">
+                <i class="fas fa-rocket"></i>
+                <span>Get Started</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <div class="page-hero-content">
+                <h1 class="page-title">Enterprise Infrastructure Made Simple</h1>
+                <p class="page-subtitle">
+                    Stop wasting time and money on manual infrastructure management. 
+                    Our platform automates everything from deployment to disaster recovery.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Proposition -->
+    <section class="value-section">
+        <div class="container">
+            <div class="value-grid">
+                <div class="value-card">
+                    <div class="value-icon blue">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Deploy in Minutes</h3>
+                    <p>What takes weeks now takes 10 minutes. One command deploys your entire infrastructure across multiple regions.</p>
+                    <ul class="value-features">
+                        <li><i class="fas fa-check"></i> Single command deployment</li>
+                        <li><i class="fas fa-check"></i> Multi-region support</li>
+                        <li><i class="fas fa-check"></i> Automated configuration</li>
+                        <li><i class="fas fa-check"></i> Zero downtime updates</li>
+                    </ul>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon purple">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Built-in Security</h3>
+                    <p>Zero-trust architecture with 5-tier network segmentation. Auto-expiring access and compliance built-in.</p>
+                    <ul class="value-features">
+                        <li><i class="fas fa-check"></i> Zero-trust architecture</li>
+                        <li><i class="fas fa-check"></i> 5-tier network segmentation</li>
+                        <li><i class="fas fa-check"></i> Auto-expiring credentials</li>
+                        <li><i class="fas fa-check"></i> Compliance automation</li>
+                    </ul>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon green">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Save 15-30% Costs</h3>
+                    <p>AI-powered cost optimization detects waste, rightsizes resources, and prevents overspending automatically.</p>
+                    <ul class="value-features">
+                        <li><i class="fas fa-check"></i> AI-powered optimization</li>
+                        <li><i class="fas fa-check"></i> Waste detection</li>
+                        <li><i class="fas fa-check"></i> Resource rightsizing</li>
+                        <li><i class="fas fa-check"></i> Budget alerts</li>
+                    </ul>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon orange">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3>Self-Healing</h3>
+                    <p>Automated disaster recovery with 15-minute failover. Your infrastructure fixes itself before you notice.</p>
+                    <ul class="value-features">
+                        <li><i class="fas fa-check"></i> Auto-scaling</li>
+                        <li><i class="fas fa-check"></i> Health monitoring</li>
+                        <li><i class="fas fa-check"></i> Automated failover</li>
+                        <li><i class="fas fa-check"></i> 99.9% uptime SLA</li>
+                    </ul>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon red">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Multi-Cloud Ready</h3>
+                    <p>One API for AWS, Azure, and GCP. Switch vendors without rewriting code. True vendor independence.</p>
+                    <ul class="value-features">
+                        <li><i class="fas fa-check"></i> AWS, Azure, GCP support</li>
+                        <li><i class="fas fa-check"></i> Unified API interface</li>
+                        <li><i class="fas fa-check"></i> Vendor independence</li>
+                        <li><i class="fas fa-check"></i> Easy migration</li>
+                    </ul>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon teal">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Full Visibility</h3>
+                    <p>Unified dashboard for metrics, logs, and traces. Know exactly what's happening in your infrastructure.</p>
+                    <ul class="value-features">
+                        <li><i class="fas fa-check"></i> Real-time monitoring</li>
+                        <li><i class="fas fa-check"></i> Centralized logging</li>
+                        <li><i class="fas fa-check"></i> Distributed tracing</li>
+                        <li><i class="fas fa-check"></i> Custom alerts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Proven Results</h2>
+                <p class="section-description">Real metrics from production deployments</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number">$216K-407K</div>
+                    <div class="stat-text">Total Business Value</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">15-30%</div>
+                    <div class="stat-text">Cost Reduction</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">10 min</div>
+                    <div class="stat-text">Deploy Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-text">Uptime SLA</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Transform Your Infrastructure?</h2>
+                <p>Join companies saving thousands in infrastructure costs</p>
+                <div class="cta-buttons">
+                    <a href="pricing.html" class="btn btn-primary">
+                        <span>View Pricing</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a href="contact.html" class="btn btn-secondary">
+                        <span>Contact Sales</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>CloudStack Platform</h4>
+                    <p>Enterprise infrastructure automation platform delivering production-ready cloud solutions.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="modules.html">Modules</a></li>
+                        <li><a href="roi.html">ROI Calculator</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="pricing.html">Pricing Plans</a></li>
+                        <li><a href="value.html">Value Proposition</a></li>
+                        <li><a href="contact.html">Get Started</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <p><i class="fas fa-envelope"></i> info@cloudstack.com</p>
+                    <p><i class="fas fa-headset"></i> 24/7 Support Available</p>
+                    <p><i class="fas fa-shield-alt"></i> Enterprise Security</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CloudStack Infrastructure Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
