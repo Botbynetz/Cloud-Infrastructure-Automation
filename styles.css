@@ -124,8 +124,8 @@ img {
 
 /* Profile Button (Left) */
 .profile-btn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     border: none;
     padding: 0;
@@ -133,6 +133,8 @@ img {
     background: none;
     transition: transform 0.2s ease;
     flex-shrink: 0;
+    position: relative;
+    z-index: 100;
 }
 
 .profile-btn:hover {
@@ -174,8 +176,8 @@ img {
 /* Menu Button (Right) */
 .menu-btn,
 .menu-toggle {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border: none;
     background: none;
     cursor: pointer;
@@ -184,10 +186,12 @@ img {
     align-items: center;
     justify-content: center;
     gap: 5px;
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
     transition: background 0.2s ease;
     flex-shrink: 0;
+    position: relative;
+    z-index: 100;
 }
 
 .menu-btn:hover,
