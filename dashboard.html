@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UnivAI Cloud Platform</title>
+    
+    <link rel="icon" type="image/png" href="frontend/assets/images/univai-logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="frontend/assets/brand.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="auth-guard.js"></script>
+    
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 32px;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        
+        .dashboard-header p {
+            font-size: 16px;
+            color: var(--text-light);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-card.primary .stat-icon {
+            background: linear-gradient(135deg, #0066FF 0%, #0052CC 100%);
+            color: white;
+        }
+        
+        .stat-card.success .stat-icon {
+            background: linear-gradient(135deg, #00D084 0%, #00A86B 100%);
+            color: white;
+        }
+        
+        .stat-card.warning .stat-icon {
+            background: linear-gradient(135deg, #FF9500 0%, #FF7A00 100%);
+            color: white;
+        }
+        
+        .stat-card.info .stat-icon {
+            background: linear-gradient(135deg, #5AC8FA 0%, #007AFF 100%);
+            color: white;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .dashboard-section {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid var(--border);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .section-header a {
+            font-size: 14px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .deployment-item {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .deployment-item:hover {
+            border-color: var(--primary);
+            background: var(--bg-light);
+        }
+        
+        .deployment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+        
+        .deployment-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .deployment-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .deployment-status.running {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .deployment-status.completed {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .deployment-status.failed {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .deployment-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        .deployment-meta i {
+            margin-right: 4px;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        
+        .activity-icon.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .activity-icon.warning {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+        
+        .activity-icon.info {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-content .activity-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .activity-content .activity-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .quick-action-btn {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            color: var(--dark);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Clean Navigation Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Profile Button (Left) -->
+            <button class="profile-btn" id="profileBtn" aria-label="Profile">
+                <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                     alt="Profile" id="userAvatar">
+            </button>
+            
+            <!-- Logo (Center) -->
+            <a href="index.html" class="header-logo">
+                <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 40px;">
+                <span>UnivAI Cloud</span>
+            </a>
+            
+            <!-- Hamburger Menu (Right) -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+        <!-- Profile Dropdown Menu -->
+        <div class="profile-menu" id="profileMenu">
+            <div class="profile-menu-header">
+                <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" alt="Profile">
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">User</div>
+                    <div class="profile-plan">
+                        <span class="plan-badge" id="planBadge">Free Plan</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-menu-items">
+                <a href="dashboard.html" class="profile-menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="profile-menu-item">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Profile Settings</span>
+                </a>
+                <a href="pricing.html" class="profile-menu-item">
+                    <i class="fas fa-crown"></i>
+                    <span>Upgrade Plan</span>
+                </a>
+                <div class="profile-menu-divider"></div>
+                <a href="#" class="profile-menu-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Side Navigation Menu -->
+        <nav class="side-menu" id="sideMenu">
+            <div class="side-menu-header">
+                <h3>Navigation</h3>
+                <button class="close-menu" id="closeSideMenu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="side-menu-items">
+                <a href="index.html" class="side-menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="modules.html" class="side-menu-item">
+                    <i class="fas fa-cube"></i>
+                    <span>Enterprise Modules</span>
+                </a>
+                <a href="pricing.html" class="side-menu-item">
+                    <i class="fas fa-tags"></i>
+                    <span>Pricing</span>
+                </a>
+                <a href="value.html" class="side-menu-item">
+                    <i class="fas fa-star"></i>
+                    <span>Value Proposition</span>
+                </a>
+                <a href="roi.html" class="side-menu-item">
+                    <i class="fas fa-calculator"></i>
+                    <span>ROI Calculator</span>
+                </a>
+                <div class="side-menu-divider"></div>
+                <a href="dashboard.html" class="side-menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="deploy.html" class="side-menu-item">
+                    <i class="fas fa-rocket"></i>
+                    <span>Deploy Now</span>
+                </a>
+                <a href="contact.html" class="side-menu-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Welcome back, <span id="dashboardUserName">User</span>!</h1>
+            <p>Here's an overview of your cloud infrastructure</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="stat-value" id="statDeployments">0</div>
+                <div class="stat-label">Active Deployments</div>
+            </div>
+
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-value" id="statSuccessRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="stat-value" id="statModules">0</div>
+                <div class="stat-label">Modules Deployed</div>
+            </div>
+
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fas fa-piggy-bank"></i>
+                </div>
+                <div class="stat-value" id="statSavings">$0</div>
+                <div class="stat-label">Cost Savings</div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Recent Deployments -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Recent Deployments</h2>
+                    <a href="deploy.html">View All</a>
+                </div>
+                <div id="deploymentsList">
+                    <!-- Will be populated by JavaScript -->
+                    <div class="empty-state">
+                        <i class="fas fa-cloud"></i>
+                        <h3>No Deployments Yet</h3>
+                        <p>Start by deploying your first infrastructure</p>
+                        <a href="deploy.html" class="btn btn-primary">Deploy Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Recent Activity</h2>
+                </div>
+                <div id="activityFeed">
+                    <!-- Will be populated by JavaScript -->
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Account Created</div>
+                            <div class="activity-time">Welcome to UnivAI Cloud!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="deploy.html" class="quick-action-btn">
+                        <i class="fas fa-rocket"></i>
+                        Deploy
+                    </a>
+                    <a href="modules.html" class="quick-action-btn">
+                        <i class="fas fa-cube"></i>
+                        Browse Modules
+                    </a>
+                    <a href="roi.html" class="quick-action-btn">
+                        <i class="fas fa-calculator"></i>
+                        Calculate ROI
+                    </a>
+                    <a href="pricing.html" class="quick-action-btn">
+                        <i class="fas fa-crown"></i>
+                        Upgrade Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p>&copy; 2025 UnivAI Cloud Platform by UnivAI Generation. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <!-- Dashboard Logic -->
+    <script>
+        // Load user data
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
+            const deployments = JSON.parse(localStorage.getItem('univai_deployments') || '[]');
+            
+            // Update user name
+            if (user.name) {
+                document.getElementById('dashboardUserName').textContent = user.name;
+            }
+            
+            // Update stats
+            const activeDeployments = deployments.filter(d => d.status === 'running').length;
+            const completedDeployments = deployments.filter(d => d.status === 'completed').length;
+            const totalDeployments = deployments.length;
+            const successRate = totalDeployments > 0 ? Math.round((completedDeployments / totalDeployments) * 100) : 0;
+            
+            document.getElementById('statDeployments').textContent = activeDeployments;
+            document.getElementById('statSuccessRate').textContent = successRate + '%';
+            document.getElementById('statModules').textContent = deployments.reduce((sum, d) => sum + (d.modules ? d.modules.length : 0), 0);
+            document.getElementById('statSavings').textContent = '$' + (deployments.length * 5000).toLocaleString();
+            
+            // Populate deployments list
+            if (deployments.length > 0) {
+                const deploymentsList = document.getElementById('deploymentsList');
+                deploymentsList.innerHTML = deployments.slice(0, 5).map(deployment => `
+                    <div class="deployment-item">
+                        <div class="deployment-header">
+                            <div class="deployment-name">${deployment.name || 'Infrastructure Deployment'}</div>
+                            <span class="deployment-status ${deployment.status}">${deployment.status}</span>
+                        </div>
+                        <div class="deployment-meta">
+                            <span><i class="fas fa-cube"></i>${deployment.modules ? deployment.modules.length : 0} modules</span>
+                            <span><i class="fas fa-server"></i>${deployment.region || 'us-east-1'}</span>
+                            <span><i class="fas fa-clock"></i>${deployment.time || 'Just now'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        });
+    </script>
+    
+    <!-- Chatbot Widget -->
+    <link rel="stylesheet" href="chatbot.css">
+    <script src="chatbot.js"></script>
+</body>
+</html>
