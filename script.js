@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get elements
     const profileBtn = document.getElementById('profileBtn');
     const profileMenu = document.getElementById('profileMenu');
-    const menuBtn = document.getElementById('menuBtn');
+    const menuBtn = document.getElementById('menuBtn') || document.getElementById('menuToggle');
     const sideMenu = document.getElementById('sideMenu');
-    const sideMenuOverlay = document.getElementById('sideMenuOverlay');
-    const sideMenuClose = document.getElementById('sideMenuClose');
+    const closeSideMenu = document.getElementById('closeSideMenu');
+    const logoutBtn = document.getElementById('logoutBtn');
     
     // Profile Menu Toggle
     if (profileBtn && profileMenu) {
@@ -46,18 +46,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Side Menu Functions
     function openSideMenu() {
-        if (sideMenu && sideMenuOverlay && menuBtn) {
+        if (sideMenu && menuBtn) {
             sideMenu.classList.add('show');
-            sideMenuOverlay.classList.add('show');
             menuBtn.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
     }
     
-    function closeSideMenu() {
-        if (sideMenu && sideMenuOverlay && menuBtn) {
+    function closeSideMenuFunc() {
+        if (sideMenu && menuBtn) {
             sideMenu.classList.remove('show');
-            sideMenuOverlay.classList.remove('show');
             menuBtn.classList.remove('active');
             document.body.style.overflow = '';
         }
@@ -67,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (menuBtn) {
         menuBtn.addEventListener('click', function() {
             if (sideMenu && sideMenu.classList.contains('show')) {
-                closeSideMenu();
+                closeSideMenuFunc();
             } else {
                 openSideMenu();
                 // Close profile menu if open
@@ -79,22 +77,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Close Button Click
-    if (sideMenuClose) {
-        sideMenuClose.addEventListener('click', closeSideMenu);
+    if (closeSideMenu) {
+        closeSideMenu.addEventListener('click', closeSideMenuFunc);
     }
     
-    // Overlay Click
-    if (sideMenuOverlay) {
-        sideMenuOverlay.addEventListener('click', closeSideMenu);
-    }
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (sideMenu && sideMenu.classList.contains('show')) {
+            if (!sideMenu.contains(e.target) && e.target !== menuBtn) {
+                closeSideMenuFunc();
+            }
+        }
+    });
     
     // Close menu when clicking a link
     if (sideMenu) {
         const menuItems = sideMenu.querySelectorAll('.side-menu-item');
         menuItems.forEach(item => {
             item.addEventListener('click', function() {
-                closeSideMenu();
+                closeSideMenuFunc();
             });
+        });
+    }
+    
+    // Logout Button
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('univai_user');
+            localStorage.removeItem('univai_token');
+            localStorage.removeItem('currentUser');
+            window.location.href = 'auth.html';
         });
     }
     
