@@ -84,7 +84,7 @@ function handleGoogleSignIn(response) {
         const picture = payload.picture;
         
         // Check if user exists in localStorage
-        const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
+        const users = JSON.parse(localStorage.getItem('univai_users') || '[]');
         let user = users.find(u => u.email === email);
         
         if (!user) {
@@ -102,7 +102,7 @@ function handleGoogleSignIn(response) {
             };
             
             users.push(user);
-            localStorage.setItem('cloudstack_users', JSON.stringify(users));
+            localStorage.setItem('univai_users', JSON.stringify(users));
             
             showAlert('Account created with Google! Logging in...', 'success');
         } else {
@@ -592,7 +592,7 @@ async function handleEmailVerification(code, email) {
         }
         
         // Check if already verified
-        const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
+        const users = JSON.parse(localStorage.getItem('univai_users') || '[]');
         if (users.find(u => u.email === decodedEmail)) {
             showAlert('Email already verified. Please login.', 'success');
             switchTab('login');
@@ -600,7 +600,7 @@ async function handleEmailVerification(code, email) {
             return;
         }
         
-        // Save user to cloudstack_users
+        // Save user to univai_users
         const newUser = {
             email: userData.email,
             company: userData.company,
@@ -613,7 +613,7 @@ async function handleEmailVerification(code, email) {
         };
         
         users.push(newUser);
-        localStorage.setItem('cloudstack_users', JSON.stringify(users));
+        localStorage.setItem('univai_users', JSON.stringify(users));
         
         // Remove pending verification
         localStorage.removeItem(pendingKey);
@@ -673,7 +673,7 @@ async function requestPasswordReset() {
     }
     
     // Check if email exists
-    const users = JSON.parse(localStorage.getItem('cloudstack_users')) || [];
+    const users = JSON.parse(localStorage.getItem('univai_users')) || [];
     const userExists = users.find(u => u.email === email);
     
     if (!userExists) {

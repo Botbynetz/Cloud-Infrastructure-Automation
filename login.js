@@ -57,7 +57,7 @@ function handleGoogleSignIn(response) {
         const picture = payload.picture;
         
         // Check if user exists in localStorage
-        const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
+        const users = JSON.parse(localStorage.getItem('univai_users') || '[]');
         let user = users.find(u => u.email === email);
         
         if (!user) {
@@ -75,7 +75,7 @@ function handleGoogleSignIn(response) {
             };
             
             users.push(user);
-            localStorage.setItem('cloudstack_users', JSON.stringify(users));
+            localStorage.setItem('univai_users', JSON.stringify(users));
         }
         
         // Store session in localStorage for persistence
@@ -145,7 +145,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const password = document.getElementById('password').value;
     
     // Get users from localStorage
-    const users = JSON.parse(localStorage.getItem('cloudstack_users') || '[]');
+    const users = JSON.parse(localStorage.getItem('univai_users') || '[]');
     const user = users.find(u => u.email === email && u.password === password);
     
     if (user) {
