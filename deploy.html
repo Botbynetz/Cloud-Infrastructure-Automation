@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deploy Infrastructure - UnivAI Cloud Platform</title>
+    
+    <link rel="icon" type="image/png" href="frontend/assets/images/univai-logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="frontend/assets/brand.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <script src="auth-guard.js"></script>
     <style>
         .deploy-container {
             padding: 140px 0 80px;
@@ -400,23 +406,106 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="nav-brand">
-                <div class="logo-icon">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                UnivAI Cloud
+    <!-- Clean Navigation Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Profile Button (Left) -->
+            <button class="profile-btn" id="profileBtn" aria-label="Profile">
+                <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                     alt="Profile" id="userAvatar">
+            </button>
+            
+            <!-- Logo (Center) -->
+            <a href="index.html" class="header-logo">
+                <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 40px;">
+                <span>UnivAI Cloud</span>
             </a>
-            <ul class="nav-menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="pricing.html">Pricing</a></li>
-                <li><a href="deploy.html" style="color: var(--primary);">Deploy</a></li>
-                <li><div id="user-info"></div></li>
-            </ul>
+            
+            <!-- Hamburger Menu (Right) -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
-    </nav>
+
+        <!-- Profile Dropdown Menu -->
+        <div class="profile-menu" id="profileMenu">
+            <div class="profile-menu-header">
+                <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" alt="Profile">
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">User</div>
+                    <div class="profile-plan">
+                        <span class="plan-badge" id="planBadge">Free Plan</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-menu-items">
+                <a href="dashboard.html" class="profile-menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="profile-menu-item">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Profile Settings</span>
+                </a>
+                <a href="pricing.html" class="profile-menu-item">
+                    <i class="fas fa-crown"></i>
+                    <span>Upgrade Plan</span>
+                </a>
+                <div class="profile-menu-divider"></div>
+                <a href="#" class="profile-menu-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Side Navigation Menu -->
+        <nav class="side-menu" id="sideMenu">
+            <div class="side-menu-header">
+                <h3>Navigation</h3>
+                <button class="close-menu" id="closeSideMenu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="side-menu-items">
+                <a href="index.html" class="side-menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="modules.html" class="side-menu-item">
+                    <i class="fas fa-cube"></i>
+                    <span>Enterprise Modules</span>
+                </a>
+                <a href="pricing.html" class="side-menu-item">
+                    <i class="fas fa-tags"></i>
+                    <span>Pricing</span>
+                </a>
+                <a href="value.html" class="side-menu-item">
+                    <i class="fas fa-star"></i>
+                    <span>Value Proposition</span>
+                </a>
+                <a href="roi.html" class="side-menu-item">
+                    <i class="fas fa-calculator"></i>
+                    <span>ROI Calculator</span>
+                </a>
+                <div class="side-menu-divider"></div>
+                <a href="dashboard.html" class="side-menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="deploy.html" class="side-menu-item active">
+                    <i class="fas fa-rocket"></i>
+                    <span>Deploy Now</span>
+                </a>
+                <a href="contact.html" class="side-menu-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
+            </div>
+        </nav>
+    </header>
 
     <!-- Deploy Container -->
     <section class="deploy-container">
