@@ -6,7 +6,7 @@
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     
     // Pages that DON'T require authentication
-    const publicPages = ['login.html', 'auth.html'];
+    const publicPages = ['auth.html', 'register.html'];
     
     // Check if current page is public
     const isPublicPage = publicPages.some(page => currentPage.includes(page));
@@ -22,7 +22,7 @@
     if (!currentUser) {
         // Not logged in - redirect to login page
         console.log('Access denied: User not logged in');
-        window.location.href = 'login.html';
+        window.location.href = 'auth.html';
     } else {
         // User is logged in - parse user data
         try {
@@ -34,7 +34,7 @@
         } catch (e) {
             console.error('Invalid session data');
             localStorage.removeItem('univai_user');
-            window.location.href = 'login.html';
+            window.location.href = 'auth.html';
         }
     }
     
@@ -101,7 +101,7 @@
             localStorage.removeItem('univai_user');
             localStorage.removeItem('univai_token');
             localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
+            window.location.href = 'auth.html';
         }
     };
 })();
