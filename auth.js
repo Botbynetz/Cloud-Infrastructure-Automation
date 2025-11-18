@@ -203,9 +203,9 @@ document.getElementById('login-form').addEventListener('submit', async function(
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     
-    // Login via backend API (bcrypt password verification)
+    // Login via backend API (bcrypt password verification + JWT)
     try {
-        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/login', {
+        const response = await apiCall('/api/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -219,6 +219,11 @@ document.getElementById('login-form').addEventListener('submit', async function(
         const data = await response.json();
         
         if (data.success && data.user) {
+            // Store JWT token (IMPORTANT!)
+            if (data.token) {
+                localStorage.setItem('univai_token', data.token);
+            }
+            
             // Store user session in localStorage for persistence
             localStorage.setItem('currentUser', JSON.stringify(data.user));
             localStorage.setItem('univai_user', JSON.stringify({
@@ -309,7 +314,7 @@ document.getElementById('register-form').addEventListener('submit', async functi
     
     // Register user in backend (password will be hashed)
     try {
-        const registerResponse = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/register', {
+        const registerResponse = await apiCall('/api/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -330,6 +335,11 @@ document.getElementById('register-form').addEventListener('submit', async functi
             showAlert(registerData.error || 'Registration failed', 'error');
             return;
         }
+        
+        // Store JWT token (IMPORTANT!)
+        if (registerData.token) {
+            localStorage.setItem('univai_token', registerData.token);
+        }
     } catch (error) {
         console.error('Error registering user:', error);
         showAlert('Failed to register. Please try again.', 'error');
@@ -338,7 +348,7 @@ document.getElementById('register-form').addEventListener('submit', async functi
     
     // Send verification code via email
     try {
-        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-verification-email', {
+        const response = await apiCall('/api/send-verification-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -451,7 +461,7 @@ async function verifyCode() {
     if (enteredCode === verificationCode) {
         // Code is correct - verify user in backend
         try {
-            const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/verify-email', {
+            const response = await apiCall('/api/auth/verify-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -508,7 +518,7 @@ async function resendCode() {
     
     // Send verification code via email
     try {
-        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-verification-email', {
+        const response = await apiCall('/api/send-verification-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -701,7 +711,7 @@ async function requestPasswordReset() {
     
     try {
         // Send email via backend
-        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-password-reset-email', {
+        const response = await apiCall('/api/send-password-reset-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -812,7 +822,7 @@ function resetPassword() {
     }
     
     // Update password in backend
-    fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/auth/reset-password', {
+    apiCall('/api/auth/reset-password', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -859,7 +869,7 @@ async function resendPasswordResetCode() {
     localStorage.setItem(`password_reset_${forgotPasswordData.email}`, JSON.stringify(resetData));
     
     try {
-        const response = await fetch('https://cloud-infrastructure-automation-production.up.railway.app/api/send-password-reset-email', {
+        const response = await apiCall('/api/send-password-reset-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

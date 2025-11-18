@@ -3,39 +3,54 @@ const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
-const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
 const { spawn } = require('child_process');
 const { sendVerificationEmail, sendPasswordResetEmail, verifyEmailConfig } = require('./emailService');
 const authService = require('./authService');
-require('dotenv').config();
-
-// reCAPTCHA Secret Key
-const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || '6LcM7Q4sAAAAALNztAyQDvSPdCQy-5-1RKAweOm2';
+const logger = require('./logger');
+const config = require('./config');
+const { generateToken, verifyToken, optionalAuth } = require('./middleware/auth');
+const {
+    registrationValidation,
+    loginValidation,
+    verificationCodeValidation,
+    passwordResetValidation,
+    contactValidation
+} = require('./middleware/validator');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
     cors: {
-        origin: process.env.FRONTEND_URL || '*',
-        methods: ['GET', 'POST']
+        origin: config.allowedOrigins,
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
 
-// Rate limiting configuration
+// Rate limiting configurations
 const generalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    windowMs: config.rateLimits.general.windowMs,
+    max: config.rateLimits.general.max,
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
 });
 
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit each IP to 10 auth requests per windowMs
+    windowMs: config.rateLimits.auth.windowMs,
+    max: config.rateLimits.auth.max,
     message: 'Too many authentication attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true
+});
+
+const deploymentLimiter = rateLimit({
+    windowMs: config.rateLimits.deployment.windowMs,
+    max: config.rateLimits.deployment.max,
+    message: 'Too many deployment requests, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -43,24 +58,18 @@ const authLimiter = rateLimit({
 // Middleware
 app.use(helmet());
 
-// CORS configuration - more secure for production
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    'https://botbynetz.github.io',
-    process.env.FRONTEND_URL
-].filter(Boolean); // Remove undefined values
-
+// CORS configuration - secure for production
 app.use(cors({
     origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
+        // Only allow requests from allowed origins (no open CORS)
+        if (config.nodeEnv === 'development') {
+            return callback(null, true);
+        }
         
-        // Check if origin is in allowed list or if we're in development
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+        if (!origin || config.allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
+            logger.warn('Blocked by CORS', { origin });
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -69,8 +78,25 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
-app.use(morgan('combined'));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging with Winston
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        logger.info('HTTP Request', {
+            method: req.method,
+            url: req.url,
+            status: res.statusCode,
+            duration: `${duration}ms`,
+            ip: req.ip
+        });
+    });
+    next();
+});
+
 app.use('/api/', generalLimiter);
 
 // Pricing tier configuration
@@ -103,121 +129,97 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/test.html');
 });
 
-// Health check
+// Health check endpoints
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', version: '1.0.0' });
+    res.json({ 
+        status: 'ok', 
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
+app.get('/readiness', async (req, res) => {
+    try {
+        // Check email service
+        const emailReady = await verifyEmailConfig();
+        
+        res.json({
+            status: 'ready',
+            services: {
+                email: emailReady ? 'ok' : 'degraded',
+                api: 'ok'
+            }
+        });
+    } catch (error) {
+        logger.error('Readiness check failed', { error: error.message });
+        res.status(503).json({
+            status: 'not ready',
+            error: error.message
+        });
+    }
 });
 
 // Send verification email endpoint
-app.post('/api/send-verification-email', async (req, res) => {
+app.post('/api/send-verification-email', verificationCodeValidation, async (req, res) => {
     try {
         const { email, code } = req.body;
-        
-        // Validate input
-        if (!email || !code) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Email and code are required' 
-            });
-        }
-        
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Invalid email format' 
-            });
-        }
-        
-        // Validate code format (6 digits)
-        if (!/^\d{6}$/.test(code)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Code must be 6 digits' 
-            });
-        }
         
         // Send email
         const result = await sendVerificationEmail(email, code);
         
         if (result.success) {
+            logger.info('Verification email sent', { email });
             res.json({ 
                 success: true, 
                 message: 'Verification email sent successfully',
                 messageId: result.messageId
             });
         } else {
+            logger.error('Failed to send verification email', { email, error: result.error });
             res.status(500).json({ 
                 success: false, 
-                error: 'Failed to send email',
-                details: result.error
+                error: 'Failed to send email'
             });
         }
         
     } catch (error) {
-        console.error('Error in send-verification-email endpoint:', error);
+        logger.error('Error in send-verification-email endpoint', { error: error.message });
         res.status(500).json({ 
             success: false, 
-            error: 'Internal server error',
-            details: error.message
+            error: 'Internal server error'
         });
     }
 });
 
 // Send password reset email endpoint
-app.post('/api/send-password-reset-email', async (req, res) => {
+app.post('/api/send-password-reset-email', verificationCodeValidation, async (req, res) => {
     try {
         const { email, code } = req.body;
-        
-        // Validate input
-        if (!email || !code) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Email and code are required' 
-            });
-        }
-        
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Invalid email format' 
-            });
-        }
-        
-        // Validate code format (6 digits)
-        if (!/^\d{6}$/.test(code)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Code must be 6 digits' 
-            });
-        }
         
         // Send email
         const result = await sendPasswordResetEmail(email, code);
         
         if (result.success) {
+            logger.info('Password reset email sent', { email });
             res.json({ 
                 success: true, 
                 message: 'Password reset email sent successfully',
                 messageId: result.messageId
             });
         } else {
+            logger.error('Failed to send password reset email', { email, error: result.error });
             res.status(500).json({ 
                 success: false, 
-                error: 'Failed to send email',
-                details: result.error
+                error: 'Failed to send email'
             });
         }
         
     } catch (error) {
-        console.error('Error in send-password-reset-email endpoint:', error);
+        logger.error('Error in send-password-reset-email endpoint', { error: error.message });
         res.status(500).json({ 
             success: false, 
-            error: 'Internal server error',
-            details: error.message
+            error: 'Internal server error'
         });
     }
 });
@@ -226,27 +228,32 @@ app.post('/api/send-password-reset-email', async (req, res) => {
 
 // Verify reCAPTCHA token
 async function verifyRecaptcha(token) {
+    if (!config.recaptchaSecret) {
+        logger.warn('reCAPTCHA not configured, skipping verification');
+        return true; // Skip in development
+    }
+    
     try {
         const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `secret=${RECAPTCHA_SECRET_KEY}&response=${token}`
+            body: `secret=${config.recaptchaSecret}&response=${token}`
         });
         const data = await response.json();
         return data.success && data.score >= 0.5;
     } catch (error) {
-        console.error('reCAPTCHA verification error:', error);
+        logger.error('reCAPTCHA verification error', { error: error.message });
         return false;
     }
 }
 
 // Register user
-app.post('/api/auth/register', authLimiter, async (req, res) => {
+app.post('/api/auth/register', authLimiter, registrationValidation, async (req, res) => {
     try {
         const { email, password, company, phone, tier, recaptchaToken } = req.body;
         
-        // Verify reCAPTCHA (skip in development)
-        if (recaptchaToken && process.env.NODE_ENV === 'production') {
+        // Verify reCAPTCHA in production
+        if (config.nodeEnv === 'production' && recaptchaToken) {
             const isValidRecaptcha = await verifyRecaptcha(recaptchaToken);
             if (!isValidRecaptcha) {
                 return res.status(400).json({ 
@@ -254,30 +261,6 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
                     error: 'reCAPTCHA verification failed' 
                 });
             }
-        }
-        
-        if (!email || !password) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Email and password are required' 
-            });
-        }
-        
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Invalid email format' 
-            });
-        }
-        
-        // Validate password strength
-        if (password.length < 8) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Password must be at least 8 characters' 
-            });
         }
         
         const result = await authService.registerUser({
@@ -290,14 +273,27 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
         });
         
         if (result.success) {
-            res.json(result);
+            // Generate JWT token
+            const token = generateToken(result.user);
+            logger.info('User registered successfully', { email });
+            
+            res.json({
+                success: true,
+                user: result.user,
+                token
+            });
         } else {
             res.status(400).json(result);
         }
         
     } catch (error) {
-        console.error('Error in register endpoint:', error);
+        logger.error('Error in register endpoint', { error: error.message });
         res.status(500).json({ 
+            success: false, 
+            error: 'Internal server error'
+        });
+    }
+}); 
             success: false, 
             error: 'Registration failed' 
         });
@@ -305,27 +301,29 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
 });
 
 // Login user
-app.post('/api/auth/login', authLimiter, async (req, res) => {
+app.post('/api/auth/login', authLimiter, loginValidation, async (req, res) => {
     try {
         const { email, password } = req.body;
-        
-        if (!email || !password) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Email and password are required' 
-            });
-        }
         
         const result = await authService.loginUser(email, password);
         
         if (result.success) {
-            res.json(result);
+            // Generate JWT token
+            const token = generateToken(result.user);
+            logger.info('User logged in successfully', { email });
+            
+            res.json({
+                success: true,
+                user: result.user,
+                token
+            });
         } else {
+            logger.warn('Login failed', { email, reason: result.error });
             res.status(401).json(result);
         }
         
     } catch (error) {
-        console.error('Error in login endpoint:', error);
+        logger.error('Error in login endpoint', { error: error.message });
         res.status(500).json({ 
             success: false, 
             error: 'Login failed' 
@@ -636,14 +634,22 @@ function sleep(ms) {
 
 // WebSocket connection
 io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
+    logger.info('Client connected', { socketId: socket.id });
     
     socket.on('deploy', async (config) => {
-        console.log('Deployment request:', config);
+        logger.info('Deployment request received', { 
+            socketId: socket.id,
+            modules: config.modules,
+            environment: config.environment 
+        });
         
         // Validate
         const validation = validateDeployment(config);
         if (!validation.valid) {
+            logger.warn('Deployment validation failed', { 
+                reason: validation.error,
+                config 
+            });
             socket.emit('error', { message: validation.error });
             return;
         }
@@ -670,6 +676,11 @@ io.on('connection', (socket) => {
             deployment.endTime = Date.now();
             deployment.result = result;
             
+            logger.info('Deployment completed', { 
+                jobId,
+                duration: Math.round((deployment.endTime - deployment.startTime) / 1000) 
+            });
+            
             socket.emit('complete', {
                 jobId,
                 duration: Math.round((deployment.endTime - deployment.startTime) / 1000),
@@ -677,7 +688,11 @@ io.on('connection', (socket) => {
             });
             
         } catch (error) {
-            console.error('Deployment error:', error);
+            logger.error('Deployment failed', { 
+                jobId,
+                error: error.message,
+                stack: error.stack 
+            });
             deployment.status = 'failed';
             deployment.endTime = Date.now();
             deployment.error = error.message;
@@ -687,48 +702,23 @@ io.on('connection', (socket) => {
     });
     
     socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id);
+        logger.info('Client disconnected', { socketId: socket.id });
     });
 });
 
 // Contact form submission endpoint
-app.post('/api/contact', async (req, res) => {
+app.post('/api/contact', contactValidation, async (req, res) => {
     try {
         const { name, email, company, interest, message } = req.body;
         
-        // Validation
-        if (!name || !email || !message) {
-            return res.status(400).json({
-                success: false,
-                error: 'Name, email, and message are required'
-            });
-        }
-        
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid email format'
-            });
-        }
-        
-        // Log contact form submission (In production, save to database)
-        console.log('Contact Form Submission:', {
+        // Log contact form submission
+        logger.info('Contact form submission', {
             name,
             email,
             company: company || 'Not provided',
             interest,
-            message,
             timestamp: new Date().toISOString()
         });
-        
-        // TODO: Send email notification when Resend API key is configured
-        // try {
-        //     await sendContactNotification({ name, email, company, interest, message });
-        // } catch (emailError) {
-        //     console.error('Email sending failed:', emailError);
-        // }
         
         res.json({
             success: true,
@@ -736,7 +726,7 @@ app.post('/api/contact', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Contact form error:', error);
+        logger.error('Contact form error', { error: error.message });
         res.status(500).json({
             success: false,
             error: 'Failed to process contact form'
@@ -744,28 +734,75 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
-// Error handling
+// Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error('Unhandled error', { 
+        error: err.message,
+        stack: err.stack,
+        url: req.url,
+        method: req.method
+    });
+    
+    res.status(err.status || 500).json({ 
+        success: false,
+        error: config.nodeEnv === 'production' ? 'Internal server error' : err.message 
+    });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ 
+        success: false,
+        error: 'Endpoint not found' 
+    });
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0'; // Listen on all network interfaces (required for Railway)
+const PORT = config.port;
+const HOST = config.host;
 
 server.listen(PORT, HOST, async () => {
-    console.log(`🚀 CloudStack Backend running on ${HOST}:${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Public URL: ${process.env.RAILWAY_PUBLIC_DOMAIN || 'localhost'}`);
+    logger.info('🚀 CloudStack Backend started', {
+        host: HOST,
+        port: PORT,
+        environment: config.nodeEnv,
+        publicUrl: process.env.RAILWAY_PUBLIC_DOMAIN || 'localhost',
+        nodeVersion: process.version
+    });
     
     // Verify email service configuration
     const emailReady = await verifyEmailConfig();
     if (emailReady) {
-        console.log('📧 Email service initialized successfully');
+        logger.info('📧 Email service initialized successfully');
     } else {
-        console.warn('⚠️  Email service not configured - set EMAIL_USER and EMAIL_PASS in .env');
+        logger.warn('⚠️  Email service not configured - set RESEND_API_KEY in .env');
     }
+    
+    // Security checks
+    if (!config.jwtSecret || config.jwtSecret === 'change-this-secret-key-in-production') {
+        logger.warn('⚠️  JWT_SECRET not set or using default value. Please set a secure secret!');
+    }
+    
+    if (config.nodeEnv === 'production' && !config.recaptchaSecret) {
+        logger.warn('⚠️  RECAPTCHA_SECRET_KEY not set in production');
+    }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    logger.info('SIGTERM received, closing server gracefully');
+    server.close(() => {
+        logger.info('Server closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    logger.info('SIGINT received, closing server gracefully');
+    server.close(() => {
+        logger.info('Server closed');
+        process.exit(0);
+    });
 });
 
 module.exports = { app, server };

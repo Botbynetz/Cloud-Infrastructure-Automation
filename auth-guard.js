@@ -18,15 +18,33 @@
     
     // Check if user is logged in
     const currentUser = localStorage.getItem('univai_user');
+    const token = localStorage.getItem('univai_token');
     
-    if (!currentUser) {
+    if (!currentUser || !token) {
         // Not logged in - redirect to login page
         console.log('Access denied: User not logged in');
+        localStorage.removeItem('univai_user');
+        localStorage.removeItem('univai_token');
         window.location.href = 'auth.html';
     } else {
-        // User is logged in - parse user data
+        // User is logged in - parse user data and check token expiry
         try {
             const userData = JSON.parse(currentUser);
+            
+            // Check token expiration (JWT tokens expire after 24h)
+            const tokenPayload = parseJwt(token);
+            if (tokenPayload && tokenPayload.exp) {
+                const currentTime = Math.floor(Date.now() / 1000);
+                if (currentTime > tokenPayload.exp) {
+                    console.log('Token expired - please login again');
+                    localStorage.removeItem('univai_user');
+                    localStorage.removeItem('univai_token');
+                    alert('Your session has expired. Please login again.');
+                    window.location.href = 'auth.html';
+                    return;
+                }
+            }
+            
             console.log('User authenticated:', userData.email);
             
             // Add user info to pages (if element exists)
@@ -34,7 +52,23 @@
         } catch (e) {
             console.error('Invalid session data');
             localStorage.removeItem('univai_user');
+            localStorage.removeItem('univai_token');
             window.location.href = 'auth.html';
+        }
+    }
+    
+    // Parse JWT token helper function
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            console.error('JWT Parse Error:', e);
+            return null;
         }
     }
     

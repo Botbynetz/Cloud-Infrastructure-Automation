@@ -4,11 +4,11 @@ package-lock.json
 
 # Environment variables
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -38,3 +38,11 @@ coverage/
 # Build
 dist/
 build/
+
+# Data directory (user data, deployments)
+data/
+!data/.gitkeep
+
+# Temporary files
+*.tmp
+.cache/
