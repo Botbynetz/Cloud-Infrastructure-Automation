@@ -478,15 +478,17 @@
         .workflow-canvas {
             background: #2A2D3E;
             border-radius: 12px;
-            padding: 36px 20px 28px;
+            padding: 40px 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            overflow-x: auto;
+            gap: 12px;
+            overflow-x: visible;
+            overflow-y: visible;
             min-height: 160px;
             position: relative;
             box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
         }
 
         /* Compact Network Nodes */
@@ -495,10 +497,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             flex-shrink: 0;
             transition: all 0.3s ease;
-            padding: 8px 4px;
+            padding: 12px 8px;
+            min-width: 90px;
         }
 
         .workflow-node:hover .node-icon {
@@ -508,8 +511,8 @@
 
         /* Circular Icon Nodes */
         .node-icon {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             background: linear-gradient(135deg, #4A5568, #2D3748);
             border: 3px solid #3A4051;
             border-radius: 50%;
@@ -517,7 +520,7 @@
             align-items: center;
             justify-content: center;
             color: #9CA3AF;
-            font-size: 20px;
+            font-size: 22px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             position: relative;
@@ -575,7 +578,7 @@
         }
 
         .node-title {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             color: #E5E7EB;
             margin-bottom: 2px;
@@ -583,11 +586,11 @@
         }
 
         .node-subtitle {
-            font-size: 9px;
+            font-size: 10px;
             color: #9CA3AF;
             line-height: 1.3;
             display: block;
-            max-width: 85px;
+            max-width: 100px;
             white-space: normal;
             text-align: center;
         }
@@ -599,13 +602,13 @@
 
         /* Connection Lines - Network Style */
         .workflow-connector {
-            width: 40px;
+            width: 48px;
             height: 2px;
             background: #4A5568;
             position: relative;
             flex-shrink: 0;
             transition: all 0.3s ease;
-            margin: 0 -4px;
+            margin: 0;
         }
 
         .workflow-connector.active {
@@ -725,6 +728,37 @@
         .legend-dot.error {
             background: #F87171;
             color: #F87171;
+        }
+
+        /* Mobile Responsive - Vertical Layout */
+        @media (max-width: 768px) {
+            .workflow-canvas {
+                flex-direction: column;
+                padding: 32px 16px;
+                gap: 8px;
+            }
+            
+            .workflow-connector {
+                width: 2px;
+                height: 32px;
+                margin: 0;
+            }
+            
+            .workflow-connector::after {
+                right: 50%;
+                top: auto;
+                bottom: -4px;
+                transform: translateX(50%) rotate(90deg);
+            }
+            
+            .workflow-legend {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .legend-item {
+                justify-content: flex-start;
+            }
         }
 
         /* Mobile Responsive */
