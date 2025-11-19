@@ -126,6 +126,9 @@ function renderGoogleButton() {
 function handleGoogleSignIn(response) {
     console.log('🔑 Google Sign-In callback triggered');
     
+    // Show loading indicator
+    showAlert('Logging in with Google...', 'info');
+    
     try {
         const payload = parseJwt(response.credential);
         const email = payload.email;
@@ -261,6 +264,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            // Show loading indicator
+            showAlert('Logging in...', 'info');
+            
             try {
                 const response = await fetch(`${API_URL}/api/auth/login`, {
                     method: 'POST',
@@ -337,6 +343,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 showAlert('Password must be at least 6 characters', 'error');
                 return;
             }
+            
+            // Show loading indicator
+            showAlert('Creating account...', 'info');
             
             try {
                 const response = await fetch(`${API_URL}/api/auth/register`, {
