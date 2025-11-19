@@ -6,6 +6,35 @@ const PRICING_TIERS = {
         maxModules: 1,
         color: "#6B7280"
     },
+
+// ============================================
+// DEMO MODE - Test Credentials
+// ============================================
+const DEMO_MODE = true; // Set false untuk production
+const TEST_CREDENTIALS = {
+    accessKey: 'AKIAIOSFODNN7EXAMPLE',
+    secretKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    region: 'us-east-1'
+};
+
+// Demo mode messages
+function isDemoMode(accessKey, secretKey) {
+    return DEMO_MODE && (
+        accessKey === TEST_CREDENTIALS.accessKey || 
+        accessKey === 'test' || 
+        accessKey.includes('EXAMPLE')
+    );
+}
+// ============================================
+
+// Pricing tiers configuration
+const PRICING_TIERS = {
+    free: {
+        name: "Free",
+        modules: ["self-service-portal"],
+        maxModules: 1,
+        color: "#6B7280"
+    },
     professional: {
         name: "Professional",
         modules: ["self-service-portal", "observability", "gitops", "service-mesh", "finops"],
@@ -368,6 +397,14 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         tier: currentTier
     };
     
+    // Check for demo mode
+    if (isDemoMode(config.awsAccessKey, config.awsSecretKey)) {
+        addConsoleLog('🔧 DEMO MODE ACTIVATED', 'warning');
+        addConsoleLog('Using test credentials - No real AWS resources will be created', 'info');
+        await runDemoDeployment(config);
+        return;
+    }
+    
     // Clear previous logs
     const console = document.getElementById('console');
     console.innerHTML = '';
@@ -548,3 +585,197 @@ function resetWorkflow() {
         updateWorkflowConnector(i, false);
     }
 }
+
+// ============================================
+// DEMO MODE DEPLOYMENT SIMULATION
+// ============================================
+async function runDemoDeployment(config) {
+    const deployBtn = document.getElementById('deploy-btn');
+    deployBtn.disabled = true;
+    deployBtn.classList.add('deploying');
+    deployBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Deploying...</span>';
+    
+    // Clear previous logs
+    const console = document.getElementById('console');
+    console.innerHTML = '';
+    document.getElementById('module-progress').innerHTML = '';
+    document.getElementById('deployment-summary').classList.remove('show');
+    
+    // Initialize module statuses
+    config.modules.forEach(moduleId => {
+        updateModuleStatus(moduleId, 'pending');
+    });
+    
+    resetWorkflow();
+    await sleep(500);
+    
+    // Start deployment simulation
+    addConsoleLog('═══════════════════════════════════════', 'info');
+    addConsoleLog('🚀 CloudStack Deployment Started', 'success');
+    addConsoleLog('═══════════════════════════════════════', 'info');
+    addConsoleLog(`Project: ${config.projectName}`, 'info');
+    addConsoleLog(`Environment: ${config.environment}`, 'info');
+    addConsoleLog(`Region: ${config.awsRegion}`, 'info');
+    addConsoleLog(`Tier: ${config.tier}`, 'info');
+    addConsoleLog(`Modules: ${config.modules.length} selected`, 'info');
+    addConsoleLog('', 'info');
+    
+    updateProgress(5, 'Initializing deployment...');
+    
+    // Step 1: Start
+    updateWorkflowNode('start', 'running');
+    addConsoleLog('📍 Step 1: Initialization', 'info');
+    await sleep(1000);
+    addConsoleLog('✅ Deployment session initialized', 'success');
+    updateWorkflowNode('start', 'success');
+    updateWorkflowConnector(1, true);
+    updateProgress(10, 'Validating configuration...');
+    await sleep(500);
+    
+    // Step 2: Validate
+    updateWorkflowNode('validate', 'running');
+    addConsoleLog('', 'info');
+    addConsoleLog('📍 Step 2: Validation', 'info');
+    await sleep(800);
+    addConsoleLog('🔐 Validating AWS credentials (Demo Mode)', 'info');
+    await sleep(1000);
+    addConsoleLog('✅ Credentials validated', 'success');
+    await sleep(800);
+    addConsoleLog('📋 Checking IAM permissions', 'info');
+    await sleep(1000);
+    addConsoleLog('✅ All permissions available', 'success');
+    updateWorkflowNode('validate', 'success');
+    updateWorkflowConnector(2, true);
+    updateProgress(20, 'Provisioning infrastructure...');
+    await sleep(500);
+    
+    // Step 3: Provision
+    updateWorkflowNode('provision', 'running');
+    addConsoleLog('', 'info');
+    addConsoleLog('📍 Step 3: Infrastructure Provisioning', 'info');
+    await sleep(1000);
+    addConsoleLog('🏗️  Creating VPC and subnets', 'info');
+    await sleep(1500);
+    addConsoleLog('✅ VPC created: vpc-0abc123def456', 'success');
+    await sleep(1000);
+    addConsoleLog('🔒 Setting up security groups', 'info');
+    await sleep(1200);
+    addConsoleLog('✅ Security groups configured', 'success');
+    await sleep(1000);
+    addConsoleLog('⚡ Provisioning EC2 instances', 'info');
+    await sleep(1800);
+    addConsoleLog('✅ EC2 instances running', 'success');
+    updateWorkflowNode('provision', 'success');
+    updateWorkflowConnector(3, true);
+    updateProgress(40, 'Deploying modules...');
+    await sleep(500);
+    
+    // Step 4: Deploy Modules
+    updateWorkflowNode('modules', 'running');
+    addConsoleLog('', 'info');
+    addConsoleLog('📍 Step 4: Module Deployment', 'info');
+    
+    const totalModules = config.modules.length;
+    for (let i = 0; i < totalModules; i++) {
+        const moduleId = config.modules[i];
+        const moduleConfig = MODULES[moduleId];
+        
+        await sleep(800);
+        addConsoleLog(``, 'info');
+        addConsoleLog(`📦 Deploying module ${i + 1}/${totalModules}: ${moduleConfig.name}`, 'info');
+        updateModuleStatus(moduleId, 'deploying');
+        
+        await sleep(1000);
+        addConsoleLog(`   └─ Installing Terraform modules`, 'info');
+        await sleep(1500);
+        addConsoleLog(`   └─ Creating ${moduleConfig.resources} AWS resources`, 'info');
+        await sleep(2000);
+        addConsoleLog(`   └─ Configuring services`, 'info');
+        await sleep(1500);
+        addConsoleLog(`✅ ${moduleConfig.name} deployed successfully`, 'success');
+        updateModuleStatus(moduleId, 'success');
+        
+        const progress = 40 + ((i + 1) / totalModules) * 30;
+        updateProgress(progress, `Deployed ${i + 1}/${totalModules} modules`);
+    }
+    
+    updateWorkflowNode('modules', 'success');
+    updateWorkflowConnector(4, true);
+    updateProgress(70, 'Configuring environment...');
+    await sleep(500);
+    
+    // Step 5: Configure
+    updateWorkflowNode('configure', 'running');
+    addConsoleLog('', 'info');
+    addConsoleLog('📍 Step 5: Configuration', 'info');
+    await sleep(1000);
+    addConsoleLog('⚙️  Applying environment settings', 'info');
+    await sleep(1500);
+    addConsoleLog('✅ Environment configured', 'success');
+    await sleep(1000);
+    addConsoleLog('🔗 Setting up networking', 'info');
+    await sleep(1200);
+    addConsoleLog('✅ Network routing configured', 'success');
+    updateWorkflowNode('configure', 'success');
+    updateWorkflowConnector(5, true);
+    updateProgress(85, 'Running tests...');
+    await sleep(500);
+    
+    // Step 6: Test
+    updateWorkflowNode('test', 'running');
+    addConsoleLog('', 'info');
+    addConsoleLog('📍 Step 6: Testing & Verification', 'info');
+    await sleep(1000);
+    addConsoleLog('🧪 Running health checks', 'info');
+    await sleep(1500);
+    addConsoleLog('✅ All services healthy', 'success');
+    await sleep(1000);
+    addConsoleLog('🔍 Verifying endpoints', 'info');
+    await sleep(1200);
+    addConsoleLog('✅ All endpoints accessible', 'success');
+    updateWorkflowNode('test', 'success');
+    updateWorkflowConnector(6, true);
+    updateProgress(95, 'Finalizing...');
+    await sleep(500);
+    
+    // Step 7: Complete
+    updateWorkflowNode('complete', 'running');
+    await sleep(1000);
+    updateWorkflowNode('complete', 'success');
+    updateProgress(100, 'Deployment completed');
+    
+    // Calculate demo resources
+    let totalResources = 0;
+    config.modules.forEach(moduleId => {
+        totalResources += MODULES[moduleId].resources;
+    });
+    
+    addConsoleLog('', 'info');
+    addConsoleLog('═══════════════════════════════════════', 'success');
+    addConsoleLog('🎉 Deployment Completed Successfully!', 'success');
+    addConsoleLog('═══════════════════════════════════════', 'success');
+    addConsoleLog(`✨ Total resources created: ${totalResources}`, 'success');
+    addConsoleLog(`⏱️  Deployment time: ${Math.floor(Math.random() * 3) + 2}m ${Math.floor(Math.random() * 60)}s`, 'success');
+    addConsoleLog('', 'info');
+    addConsoleLog('📊 Demo Mode Summary:', 'warning');
+    addConsoleLog('   • No real AWS resources were created', 'warning');
+    addConsoleLog('   • This is a simulation for testing purposes', 'warning');
+    addConsoleLog('   • Use real AWS credentials for production', 'warning');
+    
+    // Show summary
+    const summary = document.getElementById('deployment-summary');
+    summary.classList.add('show');
+    document.getElementById('summary-time').textContent = `${Math.floor(Math.random() * 3) + 2}m ${Math.floor(Math.random() * 60)}s`;
+    document.getElementById('summary-resources').textContent = totalResources;
+    document.getElementById('summary-modules').textContent = config.modules.length;
+    
+    // Reset button
+    deployBtn.disabled = false;
+    deployBtn.classList.remove('deploying');
+    deployBtn.innerHTML = '<i class="fas fa-redo"></i> <span>Deploy Again</span>';
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+// ============================================
