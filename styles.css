@@ -275,11 +275,18 @@ img {
     transform: rotate(-45deg) translate(7px, -7px);
 }
 
-/* Header Right Side - Mode Toggle + Menu Button */
-.header-right {
+/* Header Left Side - Profile + Mode Toggle */
+.header-left {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
+}
+
+/* Header Right Side - Menu Button */
+.header-right {
+    display: flex;
+    align-items: center;
     flex-shrink: 0;
 }
 

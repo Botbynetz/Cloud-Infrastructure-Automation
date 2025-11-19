@@ -843,20 +843,14 @@
     <!-- Clean Navigation Header -->
     <header class="main-header">
         <div class="header-container">
-            <!-- Profile Button (Left) -->
-            <button class="profile-btn" id="profileBtn" aria-label="Profile">
-                <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
-                     alt="Profile" id="userAvatar">
-            </button>
-            
-            <!-- Logo (Center) -->
-            <a href="index.html" class="header-logo">
-                <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 40px;">
-                <span>UnivAI Cloud</span>
-            </a>
-            
-            <!-- Right Side: Mode Toggle + Menu Button -->
-            <div class="header-right">
+            <!-- Left Side: Profile + Mode Toggle -->
+            <div class="header-left">
+                <!-- Profile Button -->
+                <button class="profile-btn" id="profileBtn" aria-label="Profile">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                         alt="Profile" id="userAvatar">
+                </button>
+                
                 <!-- Mode Toggle Switch -->
                 <div class="mode-toggle" id="modeToggle">
                     <span class="mode-label" id="modeLabel">Demo</span>
@@ -865,7 +859,16 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-                
+            </div>
+            
+            <!-- Logo (Center) -->
+            <a href="index.html" class="header-logo">
+                <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 40px;">
+                <span>UnivAI Cloud</span>
+            </a>
+            
+            <!-- Right Side: Menu Button -->
+            <div class="header-right">
                 <!-- Hamburger Menu -->
                 <button class="menu-toggle" id="menuToggle" aria-label="Menu">
                     <span></span>
