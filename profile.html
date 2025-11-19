@@ -39,11 +39,23 @@
     <!-- Clean Navigation Header -->
     <header class="main-header">
         <div class="header-container">
-            <!-- Profile Button (Left) -->
-            <button class="profile-btn" id="profileBtn" aria-label="Profile">
-                <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
-                     alt="Profile" id="userAvatar">
-            </button>
+            <!-- Left Side: Profile + Mode Toggle -->
+            <div class="header-left">
+                <!-- Profile Button -->
+                <button class="profile-btn" id="profileBtn" aria-label="Profile">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                         alt="Profile" id="userAvatar">
+                </button>
+                
+                <!-- Mode Toggle Switch -->
+                <div class="mode-toggle" id="modeToggle">
+                    <span class="mode-label" id="modeLabel">Demo</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="modeSwitch">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
             
             <!-- Logo (Center) -->
             <a href="index.html" class="header-logo">
@@ -51,12 +63,15 @@
                 <span>UnivAI Cloud</span>
             </a>
             
-            <!-- Menu Button (Right) -->
-            <button class="menu-btn" id="menuBtn" aria-label="Menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <!-- Right Side: Menu Button -->
+            <div class="header-right">
+                <!-- Menu Button -->
+                <button class="menu-btn" id="menuBtn" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -396,6 +411,9 @@
         });
     </script>
     <script src="script.js"></script>
+    
+    <!-- Mode Toggle Script -->
+    <script src="mode-toggle.js"></script>
     
     <!-- Chatbot Widget -->
     <link rel="stylesheet" href="chatbot.css">
