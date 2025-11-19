@@ -267,7 +267,7 @@
             font-family: 'Courier New', monospace;
             font-size: 13px;
             color: #00ff00;
-            height: 600px;
+            height: 400px;
             overflow-y: auto;
             line-height: 1.6;
         }
@@ -399,44 +399,40 @@
         }
 
         /* Workflow Visualization */
-        .workflow-section {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 40px;
-            margin-top: 40px;
+        .workflow-section-inline {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
         }
 
-        .workflow-header {
+        .workflow-header-inline {
             display: flex;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 40px;
-            padding-bottom: 24px;
-            border-bottom: 2px solid var(--border);
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
-        .workflow-icon {
-            width: 60px;
-            height: 60px;
+        .workflow-icon-inline {
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #0066FF, #00C2FF);
-            border-radius: 16px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 28px;
+            font-size: 18px;
         }
 
-        .workflow-header h2 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--dark);
-            margin: 0 0 4px 0;
-        }
-
-        .workflow-header p {
+        .workflow-header-inline h3 {
             font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0 0 2px 0;
+        }
+
+        .workflow-header-inline p {
+            font-size: 12px;
             color: var(--text);
             margin: 0;
         }
@@ -445,23 +441,25 @@
             display: flex;
             align-items: center;
             gap: 0;
-            padding: 40px 20px;
+            padding: 20px 10px;
             overflow-x: auto;
-            min-height: 200px;
+            min-height: 150px;
+            background: #F9FAFB;
+            border-radius: 12px;
         }
 
         .workflow-node {
             position: relative;
             background: white;
             border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            min-width: 180px;
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 140px;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             flex-shrink: 0;
         }
 
@@ -501,15 +499,15 @@
         }
 
         .node-icon {
-            width: 56px;
-            height: 56px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 14px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
+            font-size: 20px;
         }
 
         .node-content {
@@ -517,16 +515,16 @@
         }
 
         .node-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--dark);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .node-subtitle {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-light);
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         .node-status {
@@ -569,7 +567,7 @@
         }
 
         .workflow-connector {
-            width: 60px;
+            width: 50px;
             height: 3px;
             background: var(--border);
             position: relative;
@@ -608,23 +606,23 @@
         .workflow-legend {
             display: flex;
             justify-content: center;
-            gap: 32px;
-            margin-top: 32px;
-            padding-top: 24px;
+            gap: 24px;
+            margin-top: 16px;
+            padding-top: 16px;
             border-top: 1px solid var(--border);
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
+            gap: 6px;
+            font-size: 12px;
             color: var(--text);
         }
 
         .legend-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
         }
 
@@ -927,22 +925,20 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Visual Deployment Workflow -->
-            <div class="workflow-section">
-                <div class="workflow-header">
-                    <div class="workflow-icon">
-                        <i class="fas fa-project-diagram"></i>
-                    </div>
-                    <div>
-                        <h2>Deployment Workflow</h2>
-                        <p>Real-time visual representation of your deployment process</p>
-                    </div>
-                </div>
-                
-                <div class="workflow-canvas" id="workflowCanvas">
+                    <!-- Visual Deployment Workflow -->
+                    <div class="workflow-section-inline">
+                        <div class="workflow-header-inline">
+                            <div class="workflow-icon-inline">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div>
+                                <h3>Deployment Workflow</h3>
+                                <p>Real-time visual representation</p>
+                            </div>
+                        </div>
+                        
+                        <div class="workflow-canvas" id="workflowCanvas">
                     <!-- Start Node -->
                     <div class="workflow-node start-node" id="node-start">
                         <div class="node-icon">
@@ -1058,25 +1054,26 @@
                             <i class="fas fa-circle"></i>
                         </div>
                     </div>
-                </div>
 
-                <!-- Workflow Legend -->
-                <div class="workflow-legend">
-                    <div class="legend-item">
-                        <span class="legend-dot pending"></span>
-                        <span>Pending</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot running"></span>
-                        <span>Running</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot success"></span>
-                        <span>Success</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot error"></span>
-                        <span>Error</span>
+                        <!-- Workflow Legend -->
+                        <div class="workflow-legend">
+                            <div class="legend-item">
+                                <span class="legend-dot pending"></span>
+                                <span>Pending</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot running"></span>
+                                <span>Running</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot success"></span>
+                                <span>Success</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot error"></span>
+                                <span>Error</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
