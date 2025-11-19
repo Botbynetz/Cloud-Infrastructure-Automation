@@ -53,6 +53,15 @@
                 <span>UnivAI Cloud</span>
             </a>
             
+            <!-- Mode Toggle Switch -->
+            <div class="mode-toggle" id="modeToggle">
+                <span class="mode-label" id="modeLabel">Demo</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="modeSwitch">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
             <!-- Menu Button (Right) -->
             <button class="menu-btn" id="menuBtn" aria-label="Menu">
                 <span></span>
@@ -86,7 +95,7 @@
             <i class="fas fa-user-cog"></i>
             <span>Profile Settings</span>
         </a>
-        <a href="pricing.html" class="profile-menu-item" aria-label="Upgrade Plan">
+        <a href="pricing.html" class="profile-menu-item pricing-menu-item" aria-label="Upgrade Plan">
             <i class="fas fa-crown"></i>
             <span>Upgrade Plan</span>
         </a>
@@ -129,7 +138,7 @@
                 <i class="fas fa-calculator"></i>
                 <span>ROI Calculator</span>
             </a>
-            <a href="pricing.html" class="side-menu-item" aria-label="Pricing">
+            <a href="pricing.html" class="side-menu-item pricing-menu-item" aria-label="Pricing">
                 <i class="fas fa-tag"></i>
                 <span>Pricing</span>
             </a>
@@ -1181,6 +1190,7 @@
     </main>
 
     <script src="script.js"></script>
+    <script src="mode-toggle.js"></script>
     
     <!-- Chatbot Widget -->
     <link rel="stylesheet" href="chatbot.css">

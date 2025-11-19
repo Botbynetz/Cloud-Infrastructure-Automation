@@ -340,6 +340,15 @@
                 <span>UnivAI Cloud</span>
             </a>
             
+            <!-- Mode Toggle Switch -->
+            <div class="mode-toggle" id="modeToggle">
+                <span class="mode-label" id="modeLabel">Demo</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="modeSwitch">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
             <!-- Hamburger Menu (Right) -->
             <button class="menu-toggle" id="menuToggle" aria-label="Menu">
                 <span></span>
@@ -368,7 +377,7 @@
                     <i class="fas fa-user-cog"></i>
                     <span>Profile Settings</span>
                 </a>
-                <a href="pricing.html" class="profile-menu-item">
+                <a href="pricing.html" class="profile-menu-item pricing-menu-item">
                     <i class="fas fa-crown"></i>
                     <span>Upgrade Plan</span>
                 </a>
@@ -661,6 +670,9 @@
             return 'Just now';
         }
     </script>
+    
+    <!-- Mode Toggle Script -->
+    <script src="mode-toggle.js"></script>
     
     <!-- Chatbot Widget -->
     <link rel="stylesheet" href="chatbot.css?v=2">
