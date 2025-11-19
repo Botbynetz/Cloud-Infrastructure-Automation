@@ -109,6 +109,12 @@ function handleGoogleSignIn(response) {
             showAlert('Welcome back! Logging in with Google...', 'success');
         }
         
+        // Store Google JWT token (from credential response)
+        if (response.credential) {
+            localStorage.setItem('univai_token', response.credential);
+            console.log('✓ Google JWT token stored');
+        }
+        
         // Store session in localStorage for persistence
         localStorage.setItem('univai_user', JSON.stringify({
             email: user.email,
