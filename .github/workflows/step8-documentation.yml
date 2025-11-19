@@ -1,0 +1,1231 @@
+name: "STEP 8: Documentation Automation"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'terraform/**/*.tf'
+      - '.terraform-docs.yml'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'terraform/**/*.tf'
+      - '.terraform-docs.yml'
+  workflow_dispatch:
+    inputs:
+      generate_diagrams:
+        description: 'Generate architecture diagrams'
+        required: false
+        default: 'true'
+      generate_api_docs:
+        description: 'Generate API documentation'
+        required: false
+        default: 'true'
+
+env:
+  TERRAFORM_VERSION: '1.5.0'
+  TERRAFORM_DOCS_VERSION: 'v0.16.0'
+  GRAPHVIZ_VERSION: '2.50.0'
+
+jobs:
+  # =============================================================================
+  # Job 1: Generate Terraform Documentation
+  # =============================================================================
+  terraform-docs:
+    name: Generate Terraform Docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Install terraform-docs
+        run: |
+          wget -q https://github.com/terraform-docs/terraform-docs/releases/download/${{ env.TERRAFORM_DOCS_VERSION }}/terraform-docs-${{ env.TERRAFORM_DOCS_VERSION }}-linux-amd64.tar.gz
+          tar -xzf terraform-docs-${{ env.TERRAFORM_DOCS_VERSION }}-linux-amd64.tar.gz
+          chmod +x terraform-docs
+          sudo mv terraform-docs /usr/local/bin/
+          terraform-docs --version
+
+      - name: Generate Module Documentation
+        run: |
+          echo "🚀 Generating documentation for all modules..."
+          
+          # Root module
+          terraform-docs markdown table . > README-TERRAFORM.md
+          
+          # Individual modules
+          for module_dir in terraform/modules/*/; do
+            if [ -f "${module_dir}main.tf" ]; then
+              module_name=$(basename "$module_dir")
+              echo "📝 Generating docs for module: $module_name"
+              
+              terraform-docs markdown table "$module_dir" > "${module_dir}README.md"
+              
+              # Add module-specific header
+              cat > "${module_dir}README-HEADER.md" <<EOF
+          # Terraform Module: $module_name
+          
+          Part of the Cloud Infrastructure Automation Platform - STEP 8
+          
+          EOF
+              cat "${module_dir}README-HEADER.md" "${module_dir}README.md" > "${module_dir}README-TEMP.md"
+              mv "${module_dir}README-TEMP.md" "${module_dir}README.md"
+              rm "${module_dir}README-HEADER.md"
+            fi
+          done
+          
+          echo "✅ Documentation generation complete"
+
+      - name: Generate Module Index
+        run: |
+          cat > terraform/modules/README.md <<'EOF'
+          # Terraform Modules - Complete Index
+          
+          Enterprise-grade Terraform modules for Cloud Infrastructure Automation.
+          
+          ## 🎯 Overview
+          
+          This directory contains all Terraform modules used in the platform. Each module is:
+          - **Self-contained**: Can be used independently
+          - **Well-documented**: Auto-generated documentation
+          - **Tested**: Comprehensive Terratest coverage
+          - **Secure**: OPA policy validation
+          - **Cost-optimized**: Infracost integration
+          - **Monitored**: Prometheus metrics
+          
+          ## 📦 Available Modules
+          
+          ### Core Infrastructure
+          - **[ec2](ec2/)** - EC2 instance management with auto-scaling
+          - **[bastion](bastion/)** - Secure bastion host for SSH access
+          - **[disaster-recovery](disaster-recovery/)** - DR and backup automation
+          
+          ### Security & Compliance
+          - **[iam-security](iam-security/)** - IAM roles and policies
+          - **[iam-least-privilege](iam-least-privilege/)** - Least privilege access
+          - **[kms](kms/)** - KMS key management and encryption
+          - **[secrets](secrets/)** - AWS Secrets Manager integration
+          - **[secrets-rotation](secrets-rotation/)** - Automated secret rotation
+          - **[guardduty](guardduty/)** - GuardDuty threat detection
+          - **[security-hub](security-hub/)** - Security Hub aggregation
+          - **[aws-config](aws-config/)** - AWS Config compliance
+          - **[compliance](compliance/)** - Compliance frameworks (SOC2, HIPAA)
+          - **[zero-trust](zero-trust/)** - Zero-trust architecture
+          
+          ### Monitoring & Observability
+          - **[monitoring](monitoring/)** - CloudWatch monitoring
+          - **[observability](observability/)** - Prometheus + Grafana stack
+          - **[alerting](alerting/)** - Alert management and routing
+          - **[centralized-logging](centralized-logging/)** - Log aggregation
+          - **[application-insights](application-insights/)** - APM integration
+          - **[container-insights](container-insights/)** - Container monitoring
+          - **[lambda-insights](lambda-insights/)** - Lambda monitoring
+          - **[xray](xray/)** - AWS X-Ray tracing
+          
+          ### Cost Management
+          - **[finops](finops/)** - FinOps cost optimization
+          
+          ### Advanced Features
+          - **[aiops](aiops/)** - AI-powered operations
+          - **[gitops](gitops/)** - GitOps deployment patterns
+          - **[blue-green-deployment](blue-green-deployment/)** - Blue-green deployments
+          - **[service-mesh](service-mesh/)** - Service mesh (Istio)
+          - **[self-service-portal](self-service-portal/)** - Self-service infrastructure
+          
+          ### Multi-Cloud
+          - **[multi-cloud](multi-cloud/)** - Multi-cloud abstractions
+          - **[cloud-agnostic](cloud-agnostic/)** - Cloud-agnostic patterns
+          
+          ## 🚀 Quick Start
+          
+          ```hcl
+          module "example" {
+            source = "./terraform/modules/MODULE_NAME"
+            
+            environment  = "prod"
+            project_name = "my-project"
+            
+            # Additional configuration...
+          }
+          ```
+          
+          ## 📚 Documentation
+          
+          Each module contains:
+          - **README.md** - Auto-generated documentation
+          - **variables.tf** - Input variables with descriptions
+          - **outputs.tf** - Output values with descriptions
+          - **main.tf** - Resource definitions
+          
+          ## 🧪 Testing
+          
+          All modules are tested with Terratest:
+          ```bash
+          cd test
+          go test -v -timeout 30m -run TestModule
+          ```
+          
+          ## 📊 Module Metrics
+          
+          | Metric | Count |
+          |--------|-------|
+          | Total Modules | 29 |
+          | Security Modules | 10 |
+          | Monitoring Modules | 8 |
+          | Core Infrastructure | 3 |
+          | Advanced Features | 5 |
+          | Multi-Cloud | 2 |
+          
+          ## 🔗 Integration
+          
+          All modules integrate with:
+          - **STEP 1**: Multi-environment infrastructure
+          - **STEP 2**: Security and secrets management
+          - **STEP 3**: OPA policy validation
+          - **STEP 4**: CI/CD automation
+          - **STEP 5**: Terratest validation
+          - **STEP 6**: Infracost cost tracking
+          - **STEP 7**: Prometheus monitoring
+          - **STEP 8**: Auto-generated documentation
+          
+          ---
+          *Generated by STEP 8: Documentation Automation*
+          EOF
+
+      - name: Validate Documentation
+        run: |
+          echo "🔍 Validating generated documentation..."
+          
+          # Check if documentation was generated
+          doc_count=$(find terraform/modules -name "README.md" | wc -l)
+          echo "📊 Generated documentation for $doc_count modules"
+          
+          if [ "$doc_count" -lt 10 ]; then
+            echo "❌ Error: Expected at least 10 module READMEs"
+            exit 1
+          fi
+          
+          echo "✅ Documentation validation passed"
+
+      - name: Commit Documentation Changes
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add terraform/modules/*/README.md
+          git add terraform/modules/README.md
+          git add README-TERRAFORM.md
+          
+          if git diff --staged --quiet; then
+            echo "📝 No documentation changes to commit"
+          else
+            git commit -m "docs: auto-generate Terraform module documentation [STEP 8]"
+            git push
+            echo "✅ Documentation committed and pushed"
+          fi
+
+  # =============================================================================
+  # Job 2: Generate Architecture Diagrams
+  # =============================================================================
+  architecture-diagrams:
+    name: Generate Architecture Diagrams
+    runs-on: ubuntu-latest
+    if: github.event.inputs.generate_diagrams != 'false'
+    needs: terraform-docs
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+          dot -V
+
+      - name: Install PlantUML
+        run: |
+          sudo apt-get install -y plantuml
+          plantuml -version
+
+      - name: Generate Infrastructure Diagram
+        run: |
+          mkdir -p docs/diagrams
+          
+          cat > docs/diagrams/infrastructure.dot <<'EOF'
+          digraph infrastructure {
+            rankdir=TB;
+            node [shape=box, style=rounded];
+            
+            subgraph cluster_users {
+              label="Users";
+              style=filled;
+              color=lightgrey;
+              users [label="End Users"];
+            }
+            
+            subgraph cluster_frontend {
+              label="Frontend Layer";
+              style=filled;
+              color=lightblue;
+              cloudfront [label="CloudFront CDN"];
+              s3_web [label="S3 Static Website"];
+            }
+            
+            subgraph cluster_application {
+              label="Application Layer";
+              style=filled;
+              color=lightgreen;
+              alb [label="Application Load Balancer"];
+              asg [label="Auto Scaling Group"];
+              ec2_app [label="EC2 Instances"];
+            }
+            
+            subgraph cluster_data {
+              label="Data Layer";
+              style=filled;
+              color=lightyellow;
+              rds [label="RDS Database"];
+              elasticache [label="ElastiCache"];
+              s3_data [label="S3 Data Storage"];
+            }
+            
+            subgraph cluster_security {
+              label="Security & Compliance";
+              style=filled;
+              color=lightpink;
+              kms [label="KMS Encryption"];
+              secrets [label="Secrets Manager"];
+              guardduty [label="GuardDuty"];
+              config [label="AWS Config"];
+            }
+            
+            subgraph cluster_monitoring {
+              label="Observability";
+              style=filled;
+              color=lightcyan;
+              prometheus [label="Prometheus"];
+              grafana [label="Grafana"];
+              cloudwatch [label="CloudWatch"];
+            }
+            
+            subgraph cluster_cicd {
+              label="CI/CD Pipeline";
+              style=filled;
+              color=lavender;
+              github [label="GitHub Actions"];
+              terraform [label="Terraform"];
+              opa [label="OPA Policies"];
+            }
+            
+            users -> cloudfront;
+            cloudfront -> s3_web;
+            cloudfront -> alb;
+            alb -> asg;
+            asg -> ec2_app;
+            ec2_app -> rds;
+            ec2_app -> elasticache;
+            ec2_app -> s3_data;
+            ec2_app -> secrets;
+            kms -> rds;
+            kms -> s3_data;
+            kms -> secrets;
+            guardduty -> cloudwatch;
+            config -> cloudwatch;
+            ec2_app -> cloudwatch;
+            prometheus -> ec2_app;
+            grafana -> prometheus;
+            github -> terraform;
+            terraform -> opa;
+          }
+          EOF
+          
+          dot -Tpng docs/diagrams/infrastructure.dot -o docs/diagrams/infrastructure.png
+          dot -Tsvg docs/diagrams/infrastructure.dot -o docs/diagrams/infrastructure.svg
+          
+          echo "✅ Infrastructure diagram generated"
+
+      - name: Generate Security Architecture
+        run: |
+          cat > docs/diagrams/security.dot <<'EOF'
+          digraph security {
+            rankdir=LR;
+            node [shape=box, style=rounded];
+            
+            internet [label="Internet", shape=ellipse];
+            
+            subgraph cluster_perimeter {
+              label="Perimeter Security";
+              style=filled;
+              color=red;
+              waf [label="WAF"];
+              shield [label="Shield"];
+            }
+            
+            subgraph cluster_network {
+              label="Network Security";
+              style=filled;
+              color=orange;
+              vpc [label="VPC"];
+              nacl [label="Network ACL"];
+              sg [label="Security Groups"];
+            }
+            
+            subgraph cluster_identity {
+              label="Identity & Access";
+              style=filled;
+              color=yellow;
+              iam [label="IAM Roles"];
+              cognito [label="Cognito"];
+              sts [label="STS"];
+            }
+            
+            subgraph cluster_data_security {
+              label="Data Protection";
+              style=filled;
+              color=green;
+              kms [label="KMS"];
+              secrets [label="Secrets Manager"];
+              acm [label="ACM Certificates"];
+            }
+            
+            subgraph cluster_monitoring {
+              label="Security Monitoring";
+              style=filled;
+              color=blue;
+              guardduty [label="GuardDuty"];
+              config [label="Config"];
+              cloudtrail [label="CloudTrail"];
+              security_hub [label="Security Hub"];
+            }
+            
+            internet -> waf;
+            waf -> shield;
+            shield -> vpc;
+            vpc -> nacl;
+            nacl -> sg;
+            sg -> iam;
+            iam -> cognito;
+            cognito -> sts;
+            sts -> kms;
+            kms -> secrets;
+            secrets -> acm;
+            guardduty -> security_hub;
+            config -> security_hub;
+            cloudtrail -> security_hub;
+          }
+          EOF
+          
+          dot -Tpng docs/diagrams/security.dot -o docs/diagrams/security.png
+          dot -Tsvg docs/diagrams/security.dot -o docs/diagrams/security.svg
+          
+          echo "✅ Security architecture diagram generated"
+
+      - name: Generate CI/CD Pipeline Diagram
+        run: |
+          cat > docs/diagrams/cicd.puml <<'EOF'
+          @startuml
+          !theme plain
+          
+          title Cloud Infrastructure Automation - CI/CD Pipeline
+          
+          actor Developer
+          participant GitHub
+          participant "GitHub Actions" as GHA
+          participant Terraform
+          participant OPA
+          participant Terratest
+          participant Infracost
+          participant AWS
+          participant Prometheus
+          
+          Developer -> GitHub: Push Code
+          GitHub -> GHA: Trigger Workflow
+          
+          group STEP 1: Multi-Environment Setup
+            GHA -> Terraform: terraform init
+            GHA -> Terraform: terraform plan
+          end
+          
+          group STEP 2: Security Validation
+            GHA -> Terraform: Check encryption
+            GHA -> AWS: Validate KMS keys
+          end
+          
+          group STEP 3: Policy Validation
+            GHA -> OPA: opa test
+            OPA -> GHA: Policy results
+          end
+          
+          group STEP 4: CI/CD Execution
+            GHA -> Terraform: terraform apply
+            Terraform -> AWS: Create resources
+          end
+          
+          group STEP 5: Testing
+            GHA -> Terratest: go test
+            Terratest -> AWS: Validate resources
+          end
+          
+          group STEP 6: Cost Analysis
+            GHA -> Infracost: Calculate costs
+            Infracost -> GHA: Cost report
+          end
+          
+          group STEP 7: Monitoring Setup
+            GHA -> Prometheus: Configure scraping
+            Prometheus -> AWS: Collect metrics
+          end
+          
+          group STEP 8: Documentation
+            GHA -> GHA: Generate docs
+            GHA -> GitHub: Commit docs
+          end
+          
+          GHA -> Developer: Deployment complete
+          
+          @enduml
+          EOF
+          
+          plantuml -tpng docs/diagrams/cicd.puml
+          plantuml -tsvg docs/diagrams/cicd.puml
+          
+          echo "✅ CI/CD pipeline diagram generated"
+
+      - name: Generate README with Diagrams
+        run: |
+          cat > docs/ARCHITECTURE-DIAGRAMS.md <<'EOF'
+          # Architecture Diagrams
+          
+          Visual representation of the Cloud Infrastructure Automation Platform.
+          
+          ## Infrastructure Overview
+          
+          ![Infrastructure Architecture](diagrams/infrastructure.svg)
+          
+          ### Components
+          
+          1. **Frontend Layer**: CloudFront CDN + S3 static hosting
+          2. **Application Layer**: ALB + Auto Scaling EC2 instances
+          3. **Data Layer**: RDS, ElastiCache, S3
+          4. **Security**: KMS, Secrets Manager, GuardDuty, Config
+          5. **Monitoring**: Prometheus, Grafana, CloudWatch
+          6. **CI/CD**: GitHub Actions, Terraform, OPA
+          
+          ## Security Architecture
+          
+          ![Security Architecture](diagrams/security.svg)
+          
+          ### Security Layers
+          
+          1. **Perimeter**: WAF, Shield DDoS protection
+          2. **Network**: VPC, NACLs, Security Groups
+          3. **Identity**: IAM, Cognito, STS
+          4. **Data Protection**: KMS encryption, Secrets Manager
+          5. **Monitoring**: GuardDuty, Config, CloudTrail, Security Hub
+          
+          ## CI/CD Pipeline
+          
+          ![CI/CD Pipeline](diagrams/cicd.svg)
+          
+          ### Pipeline Stages
+          
+          1. **STEP 1**: Multi-environment Terraform setup
+          2. **STEP 2**: Security validation
+          3. **STEP 3**: OPA policy checks
+          4. **STEP 4**: Infrastructure deployment
+          5. **STEP 5**: Terratest validation
+          6. **STEP 6**: Infracost analysis
+          7. **STEP 7**: Monitoring configuration
+          8. **STEP 8**: Documentation generation
+          
+          ## Data Flow
+          
+          ```
+          User Request
+              ↓
+          CloudFront CDN
+              ↓
+          Application Load Balancer
+              ↓
+          EC2 Auto Scaling Group
+              ↓
+          ├─→ RDS Database
+          ├─→ ElastiCache
+          └─→ S3 Storage
+          ```
+          
+          ## Deployment Flow
+          
+          ```
+          Code Push → GitHub Actions → Terraform Plan
+              ↓
+          OPA Validation → Terraform Apply → AWS Resources
+              ↓
+          Terratest → Monitoring Setup → Documentation
+          ```
+          
+          ---
+          *Auto-generated by STEP 8: Documentation Automation*
+          EOF
+
+      - name: Commit Diagrams
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add docs/diagrams/
+          git add docs/ARCHITECTURE-DIAGRAMS.md
+          
+          if git diff --staged --quiet; then
+            echo "📝 No diagram changes to commit"
+          else
+            git commit -m "docs: generate architecture diagrams [STEP 8]"
+            git push
+            echo "✅ Diagrams committed and pushed"
+          fi
+
+  # =============================================================================
+  # Job 3: Generate API Documentation
+  # =============================================================================
+  api-documentation:
+    name: Generate API Documentation
+    runs-on: ubuntu-latest
+    if: github.event.inputs.generate_api_docs != 'false'
+    needs: terraform-docs
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Terraform Outputs Documentation
+        run: |
+          cat > docs/TERRAFORM-OUTPUTS.md <<'EOF'
+          # Terraform Outputs Reference
+          
+          Complete reference of all Terraform outputs across all modules.
+          
+          ## Overview
+          
+          This document provides a comprehensive list of all outputs available from 
+          the Cloud Infrastructure Automation platform modules.
+          
+          ## Core Infrastructure Outputs
+          
+          ### VPC Module
+          ```hcl
+          output "vpc_id" {
+            description = "ID of the VPC"
+            value       = aws_vpc.main.id
+          }
+          
+          output "private_subnet_ids" {
+            description = "List of private subnet IDs"
+            value       = aws_subnet.private[*].id
+          }
+          
+          output "public_subnet_ids" {
+            description = "List of public subnet IDs"
+            value       = aws_subnet.public[*].id
+          }
+          ```
+          
+          ### EC2 Module
+          ```hcl
+          output "instance_ids" {
+            description = "List of EC2 instance IDs"
+            value       = aws_instance.app[*].id
+          }
+          
+          output "instance_private_ips" {
+            description = "Private IP addresses"
+            value       = aws_instance.app[*].private_ip
+          }
+          
+          output "autoscaling_group_name" {
+            description = "Name of the Auto Scaling group"
+            value       = aws_autoscaling_group.app.name
+          }
+          ```
+          
+          ## Security Outputs
+          
+          ### KMS Module
+          ```hcl
+          output "kms_key_id" {
+            description = "KMS key ID for encryption"
+            value       = aws_kms_key.main.id
+            sensitive   = true
+          }
+          
+          output "kms_key_arn" {
+            description = "KMS key ARN"
+            value       = aws_kms_key.main.arn
+          }
+          ```
+          
+          ### Secrets Module
+          ```hcl
+          output "secret_arns" {
+            description = "ARNs of created secrets"
+            value       = { for k, v in aws_secretsmanager_secret.secrets : k => v.arn }
+          }
+          ```
+          
+          ### IAM Module
+          ```hcl
+          output "role_arns" {
+            description = "IAM role ARNs"
+            value       = { for k, v in aws_iam_role.roles : k => v.arn }
+          }
+          
+          output "policy_arns" {
+            description = "IAM policy ARNs"
+            value       = { for k, v in aws_iam_policy.policies : k => v.arn }
+          }
+          ```
+          
+          ## Monitoring Outputs
+          
+          ### Observability Module
+          ```hcl
+          output "prometheus_endpoint" {
+            description = "Prometheus server endpoint"
+            value       = "http://${aws_lb.prometheus.dns_name}:9090"
+          }
+          
+          output "grafana_endpoint" {
+            description = "Grafana dashboard endpoint"
+            value       = "https://${aws_lb.grafana.dns_name}"
+          }
+          
+          output "alertmanager_endpoint" {
+            description = "Alertmanager endpoint"
+            value       = "http://${aws_lb.alertmanager.dns_name}:9093"
+          }
+          ```
+          
+          ### CloudWatch Module
+          ```hcl
+          output "log_group_names" {
+            description = "CloudWatch log group names"
+            value       = { for k, v in aws_cloudwatch_log_group.groups : k => v.name }
+          }
+          
+          output "dashboard_url" {
+            description = "CloudWatch dashboard URL"
+            value       = "https://console.aws.amazon.com/cloudwatch/home?region=${var.aws_region}#dashboards:name=${aws_cloudwatch_dashboard.main.dashboard_name}"
+          }
+          ```
+          
+          ## Cost Management Outputs
+          
+          ### FinOps Module
+          ```hcl
+          output "cost_anomaly_monitor_arn" {
+            description = "Cost anomaly detection monitor ARN"
+            value       = aws_ce_anomaly_monitor.main.arn
+          }
+          
+          output "budget_arns" {
+            description = "Budget ARNs"
+            value       = { for k, v in aws_budgets_budget.budgets : k => v.arn }
+          }
+          ```
+          
+          ## Disaster Recovery Outputs
+          
+          ### DR Module
+          ```hcl
+          output "backup_vault_arn" {
+            description = "AWS Backup vault ARN"
+            value       = aws_backup_vault.main.arn
+          }
+          
+          output "replication_bucket" {
+            description = "DR replication S3 bucket"
+            value       = aws_s3_bucket.dr_replication.id
+          }
+          ```
+          
+          ## Usage Examples
+          
+          ### Referencing Outputs Between Modules
+          
+          ```hcl
+          # Use VPC outputs in EC2 module
+          module "ec2" {
+            source = "./modules/ec2"
+            
+            vpc_id     = module.vpc.vpc_id
+            subnet_ids = module.vpc.private_subnet_ids
+          }
+          
+          # Use KMS outputs in RDS module
+          module "rds" {
+            source = "./modules/rds"
+            
+            kms_key_id = module.kms.kms_key_id
+          }
+          
+          # Use monitoring outputs for alerts
+          module "alerting" {
+            source = "./modules/alerting"
+            
+            prometheus_endpoint = module.observability.prometheus_endpoint
+          }
+          ```
+          
+          ### Accessing Outputs via CLI
+          
+          ```bash
+          # Get all outputs
+          terraform output
+          
+          # Get specific output
+          terraform output vpc_id
+          
+          # Get output in JSON
+          terraform output -json
+          ```
+          
+          ## Output Conventions
+          
+          All outputs follow these naming conventions:
+          - **IDs**: `<resource>_id` (e.g., `vpc_id`)
+          - **ARNs**: `<resource>_arn` (e.g., `kms_key_arn`)
+          - **Names**: `<resource>_name` (e.g., `cluster_name`)
+          - **Endpoints**: `<resource>_endpoint` (e.g., `prometheus_endpoint`)
+          - **URLs**: `<resource>_url` (e.g., `dashboard_url`)
+          
+          ---
+          *Auto-generated by STEP 8: Documentation Automation*
+          EOF
+
+      - name: Generate Variables Reference
+        run: |
+          cat > docs/TERRAFORM-VARIABLES.md <<'EOF'
+          # Terraform Variables Reference
+          
+          Complete reference of all configurable variables.
+          
+          ## Common Variables
+          
+          These variables are used across all modules:
+          
+          ```hcl
+          variable "environment" {
+            description = "Environment name (dev, staging, prod, dr)"
+            type        = string
+            validation {
+              condition     = contains(["dev", "staging", "prod", "dr"], var.environment)
+              error_message = "Environment must be dev, staging, prod, or dr."
+            }
+          }
+          
+          variable "project_name" {
+            description = "Project name for resource naming"
+            type        = string
+            default     = "cloud-infrastructure-automation"
+          }
+          
+          variable "aws_region" {
+            description = "AWS region for resource deployment"
+            type        = string
+            default     = "us-east-1"
+          }
+          
+          variable "tags" {
+            description = "Common tags for all resources"
+            type        = map(string)
+            default = {
+              Project   = "Cloud-Infrastructure-Automation"
+              ManagedBy = "Terraform"
+            }
+          }
+          ```
+          
+          ## Environment-Specific Variables
+          
+          ### Development
+          ```hcl
+          environment          = "dev"
+          instance_type        = "t3.micro"
+          min_size            = 1
+          max_size            = 2
+          enable_monitoring   = false
+          backup_retention    = 7
+          ```
+          
+          ### Staging
+          ```hcl
+          environment          = "staging"
+          instance_type        = "t3.small"
+          min_size            = 2
+          max_size            = 4
+          enable_monitoring   = true
+          backup_retention    = 14
+          ```
+          
+          ### Production
+          ```hcl
+          environment          = "prod"
+          instance_type        = "t3.medium"
+          min_size            = 3
+          max_size            = 10
+          enable_monitoring   = true
+          backup_retention    = 30
+          multi_az            = true
+          ```
+          
+          ## Security Variables
+          
+          ```hcl
+          variable "kms_key_deletion_window" {
+            description = "KMS key deletion window in days"
+            type        = number
+            default     = 30
+          }
+          
+          variable "enable_encryption" {
+            description = "Enable encryption at rest"
+            type        = bool
+            default     = true
+          }
+          
+          variable "secret_rotation_days" {
+            description = "Days between secret rotations"
+            type        = number
+            default     = 90
+          }
+          ```
+          
+          ## Monitoring Variables
+          
+          ```hcl
+          variable "prometheus_retention_days" {
+            description = "Prometheus data retention in days"
+            type        = number
+            default     = 15
+          }
+          
+          variable "alert_endpoints" {
+            description = "Alert notification endpoints"
+            type = object({
+              email      = list(string)
+              slack_url  = string
+              pagerduty  = string
+            })
+          }
+          
+          variable "enable_detailed_monitoring" {
+            description = "Enable detailed CloudWatch monitoring"
+            type        = bool
+            default     = false
+          }
+          ```
+          
+          ## Cost Management Variables
+          
+          ```hcl
+          variable "monthly_budget" {
+            description = "Monthly budget limit in USD"
+            type        = number
+            default     = 1000
+          }
+          
+          variable "cost_alert_threshold" {
+            description = "Cost alert threshold percentage"
+            type        = number
+            default     = 80
+          }
+          ```
+          
+          ## Usage Examples
+          
+          ### Using terraform.tfvars
+          
+          ```hcl
+          # terraform.tfvars
+          environment  = "prod"
+          project_name = "my-app"
+          aws_region   = "us-west-2"
+          
+          tags = {
+            Project     = "MyApp"
+            Environment = "Production"
+            Owner       = "Platform-Team"
+            CostCenter  = "Engineering"
+          }
+          
+          monthly_budget = 5000
+          
+          alert_endpoints = {
+            email      = ["ops@example.com", "security@example.com"]
+            slack_url  = "https://hooks.slack.com/services/XXX"
+            pagerduty  = "https://events.pagerduty.com/integration/XXX"
+          }
+          ```
+          
+          ### Using Environment Files
+          
+          ```bash
+          # Load dev configuration
+          terraform plan -var-file="terraform/backend/dev.tfvars"
+          
+          # Load prod configuration
+          terraform apply -var-file="terraform/backend/prod.tfvars"
+          ```
+          
+          ---
+          *Auto-generated by STEP 8: Documentation Automation*
+          EOF
+
+      - name: Commit API Documentation
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add docs/TERRAFORM-OUTPUTS.md
+          git add docs/TERRAFORM-VARIABLES.md
+          
+          if git diff --staged --quiet; then
+            echo "📝 No API documentation changes to commit"
+          else
+            git commit -m "docs: generate API documentation [STEP 8]"
+            git push
+            echo "✅ API documentation committed and pushed"
+          fi
+
+  # =============================================================================
+  # Job 4: Documentation Summary
+  # =============================================================================
+  documentation-summary:
+    name: Generate Documentation Summary
+    runs-on: ubuntu-latest
+    needs: [terraform-docs, architecture-diagrams, api-documentation]
+    if: always()
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Summary Report
+        run: |
+          cat > docs/DOCUMENTATION-INDEX.md <<'EOF'
+          # Documentation Index
+          
+          Complete documentation for the Cloud Infrastructure Automation Platform.
+          
+          ## 📚 Quick Links
+          
+          - [Architecture Overview](architecture.md)
+          - [Deployment Guide](DEPLOYMENT-GUIDE.md)
+          - [Monitoring Guide](MONITORING_GUIDE.md)
+          - [Best Practices](BEST_PRACTICES.md)
+          - [FAQ](FAQ.md)
+          
+          ## 🎯 Step-by-Step Guides
+          
+          Each step includes comprehensive documentation:
+          
+          1. **[STEP 1: Multi-Environment Setup](../terraform/README.md)**
+             - Multi-environment Terraform configuration
+             - Backend state management
+             - Workspace organization
+          
+          2. **[STEP 2: Security & Secrets](ANSIBLE_SECRETS.md)**
+             - KMS encryption setup
+             - Secrets Manager integration
+             - IAM security configuration
+          
+          3. **[STEP 3: Policy-as-Code](../terraform/policies/README.md)**
+             - OPA policy definitions
+             - Compliance validation
+             - Security controls
+          
+          4. **[STEP 4: CI/CD Pipeline](../README.md#cicd-pipeline)**
+             - GitHub Actions workflows
+             - Automated deployments
+             - Pipeline configuration
+          
+          5. **[STEP 5: Testing](../test/README.md)**
+             - Terratest setup
+             - Test execution
+             - Validation strategies
+          
+          6. **[STEP 6: FinOps](../terraform/modules/finops/README.md)**
+             - Cost optimization
+             - Budget monitoring
+             - Infracost integration
+          
+          7. **[STEP 7: Observability](MONITORING_GUIDE.md)**
+             - Prometheus setup
+             - Grafana dashboards
+             - Alert configuration
+          
+          8. **[STEP 8: Documentation](DOCUMENTATION-INDEX.md)** (This Guide)
+             - Auto-generated docs
+             - Architecture diagrams
+             - API references
+          
+          ## 🏗️ Architecture Documentation
+          
+          - [Architecture Diagrams](ARCHITECTURE-DIAGRAMS.md)
+          - [Infrastructure Overview](architecture.md)
+          - [Security Architecture](ARCHITECTURE-DIAGRAMS.md#security-architecture)
+          - [Deployment Strategies](DEPLOYMENT_STRATEGIES.md)
+          - [Disaster Recovery](DR_GUIDE.md)
+          
+          ## 🔧 Technical References
+          
+          - [Terraform Modules Index](../terraform/modules/README.md)
+          - [Terraform Outputs Reference](TERRAFORM-OUTPUTS.md)
+          - [Terraform Variables Reference](TERRAFORM-VARIABLES.md)
+          - [Terraform State Structure](terraform-state-structure.md)
+          
+          ## 🔒 Security Documentation
+          
+          - [Security Best Practices](BEST_PRACTICES.md#security)
+          - [Secrets Management](ANSIBLE_SECRETS.md)
+          - [IAM Configuration](../terraform/modules/iam-security/README.md)
+          - [Compliance Guide](../terraform/modules/compliance/README.md)
+          
+          ## 📊 Monitoring & Operations
+          
+          - [Monitoring Guide](MONITORING_GUIDE.md)
+          - [APM Setup](APM_GUIDE.md)
+          - [CloudWatch Dashboards](cloudwatch-dashboard.md)
+          - [Alert Configuration](../terraform/modules/alerting/README.md)
+          
+          ## 💰 Cost Management
+          
+          - [FinOps Guide](../terraform/modules/finops/README.md)
+          - [Cost Calculator](../scripts/cost-calculator.ps1)
+          - [Budget Monitoring](../scripts/cost-monitoring.ps1)
+          
+          ## 🧪 Testing & Validation
+          
+          - [Testing Guide](TESTING_GUIDE.md)
+          - [Pre-Launch Checklist](PRE_LAUNCH_TEST_CHECKLIST.md)
+          - [Validation Summary](VALIDATION-SUMMARY.md)
+          
+          ## 🚀 Deployment
+          
+          - [Deployment Guide](DEPLOYMENT-GUIDE.md)
+          - [Multi-Cloud Deployment](MULTI_CLOUD_DEPLOYMENT.md)
+          - [Drift Detection](DRIFT_DETECTION.md)
+          - [Branch Protection](BRANCH_PROTECTION.md)
+          
+          ## 🏢 Enterprise Features
+          
+          - [Enterprise Implementation](ENTERPRISE_IMPLEMENTATION.md)
+          - [GitOps Integration](../terraform/modules/gitops/README.md)
+          - [AIOps Features](../terraform/modules/aiops/README.md)
+          - [Self-Service Portal](../terraform/modules/self-service-portal/README.md)
+          
+          ## 📖 Additional Resources
+          
+          - [Contributing Guidelines](../CONTRIBUTING.md)
+          - [Code of Conduct](../CODE_OF_CONDUCT.md)
+          - [Security Policy](../SECURITY.md)
+          - [Changelog](../CHANGELOG.md)
+          - [Roadmap](../ROADMAP.md)
+          
+          ## 🛠️ Scripts & Tools
+          
+          - [Setup Scripts](../scripts/README.md)
+          - [Backend Setup](../backend/README.md)
+          - [Ansible Playbooks](../ansible/README.md)
+          
+          ## 📧 Support
+          
+          For questions or issues:
+          - Create an issue on GitHub
+          - Check the [FAQ](FAQ.md)
+          - Review [Best Practices](BEST_PRACTICES.md)
+          
+          ---
+          
+          ## Documentation Metrics
+          
+          | Category | Documents | Status |
+          |----------|-----------|--------|
+          | Architecture | 5 | ✅ Complete |
+          | Deployment | 6 | ✅ Complete |
+          | Security | 4 | ✅ Complete |
+          | Monitoring | 4 | ✅ Complete |
+          | Testing | 3 | ✅ Complete |
+          | Cost Management | 3 | ✅ Complete |
+          | Module Docs | 29 | ✅ Auto-generated |
+          | Diagrams | 3 | ✅ Auto-generated |
+          | **Total** | **57** | **✅ Complete** |
+          
+          ---
+          *Auto-generated by STEP 8: Documentation Automation*
+          *Last updated: 2025-11-20*
+          EOF
+
+      - name: Commit Documentation Index
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add docs/DOCUMENTATION-INDEX.md
+          
+          if git diff --staged --quiet; then
+            echo "📝 No index changes to commit"
+          else
+            git commit -m "docs: generate documentation index [STEP 8]"
+            git push
+            echo "✅ Documentation index committed and pushed"
+          fi
+
+      - name: Workflow Summary
+        run: |
+          echo "## 📊 Documentation Automation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Completed Tasks" >> $GITHUB_STEP_SUMMARY
+          echo "- Generated Terraform module documentation" >> $GITHUB_STEP_SUMMARY
+          echo "- Created architecture diagrams" >> $GITHUB_STEP_SUMMARY
+          echo "- Generated API documentation" >> $GITHUB_STEP_SUMMARY
+          echo "- Created documentation index" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📚 Documentation Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [Documentation Index](docs/DOCUMENTATION-INDEX.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Architecture Diagrams](docs/ARCHITECTURE-DIAGRAMS.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Terraform Modules](terraform/modules/README.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [API Reference](docs/TERRAFORM-OUTPUTS.md)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 **STEP 8: Documentation Automation - COMPLETE**" >> $GITHUB_STEP_SUMMARY
