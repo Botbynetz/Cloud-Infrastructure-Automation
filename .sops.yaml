@@ -1,0 +1,52 @@
+# Mozilla SOPS Configuration for Multi-Cloud Encryption
+# Supports AWS KMS, GCP KMS, Azure Key Vault
+
+# Default configuration
+creation_rules:
+  # Development Environment - AWS KMS
+  - path_regex: environments/dev\.tfvars$
+    kms: 'arn:aws:kms:ap-southeast-1:ACCOUNT_ID:key/DEV_KMS_KEY_ID'
+    aws_profile: 'dev'
+    encrypted_regex: '^(password|secret|token|key|credential)$'
+    
+  # Staging Environment - AWS KMS
+  - path_regex: environments/staging\.tfvars$
+    kms: 'arn:aws:kms:ap-southeast-1:ACCOUNT_ID:key/STAGING_KMS_KEY_ID'
+    aws_profile: 'staging'
+    encrypted_regex: '^(password|secret|token|key|credential)$'
+    
+  # Production Environment - AWS KMS + GCP KMS (Multi-Cloud)
+  - path_regex: environments/prod\.tfvars$
+    kms: 'arn:aws:kms:ap-southeast-1:ACCOUNT_ID:key/PROD_KMS_KEY_ID'
+    gcp_kms: 'projects/PROJECT_ID/locations/asia-southeast1/keyRings/prod-keyring/cryptoKeys/terraform-key'
+    aws_profile: 'prod'
+    encrypted_regex: '^(password|secret|token|key|credential|private_key)$'
+    
+  # DR Environment - AWS KMS (Different Region)
+  - path_regex: environments/dr\.tfvars$
+    kms: 'arn:aws:kms:us-west-2:ACCOUNT_ID:key/DR_KMS_KEY_ID'
+    aws_profile: 'dr'
+    encrypted_regex: '^(password|secret|token|key|credential)$'
+    
+  # Ansible Secrets - AWS KMS
+  - path_regex: ansible/group_vars/.*\.yml$
+    kms: 'arn:aws:kms:ap-southeast-1:ACCOUNT_ID:key/ANSIBLE_KMS_KEY_ID'
+    aws_profile: 'prod'
+    encrypted_regex: '^(password|vault_.*|secret_.*|.*_token|.*_key)$'
+    
+  # Backend Configuration - AWS KMS (High Security)
+  - path_regex: terraform/backend/.*\.conf$
+    kms: 'arn:aws:kms:ap-southeast-1:ACCOUNT_ID:key/BACKEND_KMS_KEY_ID'
+    aws_profile: 'prod'
+    encrypted_regex: '^(kms_key_id)$'
+    
+  # GCP Service Account Keys - GCP KMS
+  - path_regex: .*-gcp-.*\.json$
+    gcp_kms: 'projects/PROJECT_ID/locations/asia-southeast1/keyRings/prod-keyring/cryptoKeys/service-account-key'
+    
+  # Azure Secrets - Azure Key Vault
+  - path_regex: environments/azure/.*\.tfvars$
+    azure_keyvault: 'https://VAULT_NAME.vault.azure.net/keys/terraform-key/KEY_VERSION'
+    
+  # Default fallback - PGP encryption
+  - pgp: '85D77543B3D624B63CEA9E6DBC17301B491B3F21'

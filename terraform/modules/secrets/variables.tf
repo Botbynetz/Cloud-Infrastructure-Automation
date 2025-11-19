@@ -49,3 +49,25 @@ variable "rotation_lambda_arn" {
   type        = string
   default     = ""
 }
+
+# ============================================
+# HashiCorp Vault Configuration
+# ============================================
+
+variable "enable_vault_integration" {
+  description = "Enable HashiCorp Vault integration for secrets management"
+  type        = bool
+  default     = false
+}
+
+variable "vault_address" {
+  description = "HashiCorp Vault server address"
+  type        = string
+  default     = ""
+}
+
+variable "vault_namespace" {
+  description = "Vault namespace (for Vault Enterprise)"
+  type        = string
+  default     = ""
+}
