@@ -1132,6 +1132,93 @@
                 }
             });
         });
+
+        // Profile Menu Toggle
+        const profileBtn = document.getElementById('profileBtn');
+        const profileMenu = document.getElementById('profileMenu');
+        
+        if (profileBtn && profileMenu) {
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileMenu.classList.toggle('show');
+            });
+            
+            // Close profile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
+                    profileMenu.classList.remove('show');
+                }
+            });
+        }
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const sideMenu = document.getElementById('sideMenu');
+        
+        if (menuBtn && sideMenu) {
+            menuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sideMenu.classList.toggle('active');
+                menuBtn.classList.toggle('active');
+            });
+            
+            // Close side menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!sideMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+                    sideMenu.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                }
+            });
+        }
+
+        // Load user info from localStorage
+        const currentUser = localStorage.getItem('univai_user');
+        if (currentUser) {
+            try {
+                const userData = JSON.parse(currentUser);
+                const userName = document.getElementById('userName');
+                const userEmail = document.getElementById('userEmail');
+                const userAvatar = document.getElementById('userAvatar');
+                const profileMenuAvatar = document.getElementById('profileMenuAvatar');
+                const planBadge = document.getElementById('planBadge');
+                
+                if (userName) userName.textContent = userData.name || userData.email.split('@')[0];
+                if (userEmail) userEmail.textContent = userData.email;
+                if (planBadge) {
+                    const plan = userData.tier || userData.plan || 'free';
+                    planBadge.setAttribute('data-plan', plan.toLowerCase());
+                    planBadge.querySelector('.badge-text').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+                }
+                
+                // Update avatar with initials
+                const initials = (userData.name || userData.email).split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=0066FF&color=fff&size=128`;
+                if (userAvatar) userAvatar.src = avatarUrl;
+                if (profileMenuAvatar) profileMenuAvatar.src = avatarUrl;
+            } catch (e) {
+                console.error('Error loading user data:', e);
+            }
+        }
+
+        // Logout functionality
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            const isLoggedIn = localStorage.getItem('univai_token');
+            if (isLoggedIn) {
+                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i><span>Logout</span>';
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('univai_token');
+                    localStorage.removeItem('univai_user');
+                    window.location.href = 'auth.html';
+                });
+            } else {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = 'auth.html';
+                });
+            }
+        }
     </script>
 </body>
 </html>
