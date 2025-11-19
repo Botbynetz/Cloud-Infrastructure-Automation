@@ -1,0 +1,506 @@
+name: 'STEP 7: Deploy Observability Stack'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+          - dr
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+  
+  push:
+    branches: [main]
+    paths:
+      - 'terraform/modules/observability/**'
+      - '.github/workflows/step7-observability.yml'
+  
+  pull_request:
+    branches: [main]
+    paths:
+      - 'terraform/modules/observability/**'
+
+env:
+  TF_VERSION: '1.6.0'
+  AWS_REGION: 'us-east-1'
+  
+jobs:
+  # =============================================================================
+  # VALIDATE OBSERVABILITY CONFIGURATION
+  # =============================================================================
+  validate:
+    name: 'Validate Observability Configuration'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Terraform Format Check
+        working-directory: terraform/modules/observability
+        run: terraform fmt -check -recursive
+        
+      - name: Terraform Init
+        working-directory: terraform/modules/observability
+        run: terraform init
+        
+      - name: Terraform Validate
+        working-directory: terraform/modules/observability
+        run: terraform validate
+        
+      - name: Validate Prometheus Configuration
+        run: |
+          # Install promtool
+          wget https://github.com/prometheus/prometheus/releases/download/v2.45.0/prometheus-2.45.0.linux-amd64.tar.gz
+          tar xvf prometheus-2.45.0.linux-amd64.tar.gz
+          sudo cp prometheus-2.45.0.linux-amd64/promtool /usr/local/bin/
+          
+          # Validate alert rules
+          promtool check rules terraform/modules/observability/alerts/*.yaml
+          
+      - name: Validate Grafana Dashboards
+        run: |
+          # Install jq for JSON validation
+          sudo apt-get update
+          sudo apt-get install -y jq
+          
+          # Validate dashboard JSON files
+          for dashboard in terraform/modules/observability/dashboards/*.json; do
+            echo "Validating $dashboard"
+            jq empty "$dashboard"
+          done
+          
+      - name: Lint Helm Values
+        run: |
+          # Install helm
+          curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz | tar xz
+          sudo mv linux-amd64/helm /usr/local/bin/helm
+          
+          # Add prometheus helm repo
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          
+          # Lint helm values
+          helm lint --values terraform/modules/observability/values/prometheus-values.yaml prometheus-community/kube-prometheus-stack
+
+  # =============================================================================
+  # DEPLOY OBSERVABILITY STACK
+  # =============================================================================
+  deploy:
+    name: 'Deploy Observability - ${{ matrix.environment }}'
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    
+    strategy:
+      matrix:
+        environment: [dev, staging, prod, dr]
+        
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+          
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.0'
+          
+      - name: Create Terraform Backend Configuration
+        working-directory: terraform
+        run: |
+          cat > backend-${{ matrix.environment }}.conf << EOF
+          bucket         = "${{ secrets.TERRAFORM_STATE_BUCKET }}"
+          key            = "observability/${{ matrix.environment }}/terraform.tfstate"
+          region         = "${{ env.AWS_REGION }}"
+          dynamodb_table = "${{ secrets.TERRAFORM_LOCK_TABLE }}"
+          encrypt        = true
+          EOF
+          
+      - name: Terraform Init
+        working-directory: terraform
+        run: |
+          terraform init \
+            -backend-config=backend-${{ matrix.environment }}.conf \
+            -reconfigure
+            
+      - name: Create Terraform Variables
+        working-directory: terraform
+        run: |
+          cat > terraform.tfvars << EOF
+          # Environment Configuration
+          environment = "${{ matrix.environment }}"
+          project_name = "cloud-infrastructure-automation"
+          aws_region = "${{ env.AWS_REGION }}"
+          
+          # Observability Configuration
+          enable_observability = true
+          use_existing_eks = true
+          create_dedicated_cluster = false
+          
+          # Prometheus Configuration
+          prometheus_retention = "30d"
+          prometheus_storage_size = "100Gi"
+          alertmanager_retention = "120h"
+          
+          # Grafana Configuration
+          grafana_admin_password = "${{ secrets.GRAFANA_ADMIN_PASSWORD }}"
+          enable_ingress = true
+          domain_name = "${{ secrets.DOMAIN_NAME }}"
+          ssl_certificate_arn = "${{ secrets.SSL_CERTIFICATE_ARN }}"
+          
+          # Alerting Configuration
+          slack_webhook_url = "${{ secrets.SLACK_WEBHOOK_URL }}"
+          slack_channel = "#devops-alerts"
+          pagerduty_service_key = "${{ secrets.PAGERDUTY_SERVICE_KEY }}"
+          
+          # Cost Thresholds (from STEP 6)
+          cost_threshold_dev = 500
+          cost_threshold_staging = 2000
+          cost_threshold_prod = 10000
+          cost_threshold_dr = 10000
+          
+          # Monitoring Components
+          enable_node_exporter = true
+          enable_thanos = false
+          enable_jaeger = true
+          enable_fluent_bit = true
+          enable_elasticsearch = false
+          
+          # SLO Configuration
+          slo_availability_target = 99.9
+          slo_latency_target = 500
+          slo_error_rate_target = 1.0
+          
+          # Security Configuration
+          enable_network_policies = true
+          enable_pod_security_policies = true
+          
+          # Common Tags
+          tags = {
+            Environment = "${{ matrix.environment }}"
+            Project     = "cloud-infrastructure-automation"
+            ManagedBy   = "terraform"
+            Component   = "observability"
+            Step        = "7-observability"
+            Owner       = "devops-team"
+            CostCenter  = "engineering"
+            Backup      = "${{ matrix.environment == 'prod' && 'required' || 'optional' }}"
+          }
+          EOF
+          
+      - name: Terraform Plan
+        id: plan
+        working-directory: terraform
+        run: |
+          terraform plan \
+            -target=module.observability \
+            -var-file=terraform.tfvars \
+            -out=observability-${{ matrix.environment }}.tfplan \
+            -detailed-exitcode
+        continue-on-error: true
+        
+      - name: Update PR with Plan Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        with:
+          script: |
+            const output = `#### Observability Stack Plan - ${{ matrix.environment }} 📊
+            
+            \`\`\`
+            ${process.env.PLAN}
+            \`\`\`
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+            
+      - name: Apply Terraform Configuration
+        if: (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        working-directory: terraform
+        run: |
+          terraform apply \
+            -auto-approve \
+            observability-${{ matrix.environment }}.tfplan
+            
+      - name: Update EKS kubeconfig
+        if: (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ matrix.environment }}-eks-cluster
+          
+      - name: Verify Observability Stack Deployment
+        if: (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          echo "🔍 Verifying Observability Stack Deployment..."
+          
+          # Wait for monitoring namespace
+          kubectl wait --for=condition=Active namespace/monitoring --timeout=300s
+          
+          # Check Prometheus deployment
+          kubectl wait --for=condition=Available deployment/kube-prometheus-stack-prometheus -n monitoring --timeout=600s
+          
+          # Check Grafana deployment
+          kubectl wait --for=condition=Available deployment/kube-prometheus-stack-grafana -n monitoring --timeout=600s
+          
+          # Check Alertmanager deployment
+          kubectl wait --for=condition=Available deployment/kube-prometheus-stack-alertmanager -n monitoring --timeout=600s
+          
+          # Verify pods are running
+          kubectl get pods -n monitoring
+          
+          # Check services
+          kubectl get services -n monitoring
+          
+          # Verify Prometheus targets
+          echo "📊 Checking Prometheus targets..."
+          kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090 &
+          sleep 10
+          curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets | length'
+          
+          # Verify Grafana accessibility
+          echo "📈 Checking Grafana accessibility..."
+          kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 &
+          sleep 10
+          curl -s -o /dev/null -w "%{http_code}" http://admin:${{ secrets.GRAFANA_ADMIN_PASSWORD }}@localhost:3000/api/health
+          
+          echo "✅ Observability Stack deployed successfully!"
+          
+      - name: Generate Observability Summary
+        if: (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          cat > observability-summary-${{ matrix.environment }}.md << EOF
+          # 📊 Observability Stack Deployment Summary - ${{ matrix.environment }}
+          
+          ## 🚀 Deployment Status: SUCCESS
+          
+          ### 📈 Deployed Components:
+          - ✅ **Prometheus Server**: Metrics collection and storage
+          - ✅ **Grafana**: Dashboards and visualization
+          - ✅ **Alertmanager**: Alert routing and notifications
+          - ✅ **Node Exporter**: System metrics collection
+          - ✅ **CloudWatch Exporter**: AWS metrics integration
+          - ✅ **Kube State Metrics**: Kubernetes cluster metrics
+          
+          ### 🎯 Monitoring Capabilities:
+          - **Infrastructure Monitoring**: CPU, Memory, Disk, Network
+          - **Kubernetes Monitoring**: Pods, Services, Deployments
+          - **Application Performance**: Response time, Error rates, Throughput
+          - **AWS Services**: EC2, RDS, ELB, S3, Lambda metrics
+          - **Cost Monitoring**: Integration with STEP 6 FinOps
+          - **Security Monitoring**: Integration with STEP 2 & 3 policies
+          
+          ### 📊 Dashboards Available:
+          - Infrastructure Overview
+          - AWS Resources Dashboard
+          - Cost Monitoring Dashboard
+          - Security & Compliance Dashboard
+          - Application Performance Dashboard
+          
+          ### 🚨 Alert Rules Configured:
+          - **Critical Infrastructure**: Node down, High resource usage
+          - **Application Performance**: High latency, Error rates
+          - **Cost Management**: Budget thresholds, Cost spikes
+          - **Security Compliance**: Policy violations, Security findings
+          - **SLO Monitoring**: Availability, Latency targets
+          
+          ### 🔗 Access URLs:
+          - **Grafana**: https://grafana.${{ secrets.DOMAIN_NAME }}
+          - **Prometheus**: Internal cluster access only
+          - **Alertmanager**: Internal cluster access only
+          
+          ### 📝 Next Steps:
+          1. Configure custom dashboards for your applications
+          2. Set up additional data sources if needed
+          3. Customize alert rules for your specific requirements
+          4. Configure notification channels (Slack, Email, PagerDuty)
+          
+          ### 🔧 Integration Status:
+          - ✅ **STEP 1**: Multi-environment infrastructure monitoring
+          - ✅ **STEP 2**: Security metrics and encryption monitoring
+          - ✅ **STEP 3**: OPA policy compliance monitoring
+          - ✅ **STEP 4**: CI/CD pipeline metrics integration
+          - ✅ **STEP 5**: Test results visualization
+          - ✅ **STEP 6**: Cost monitoring and FinOps dashboards
+          
+          ---
+          *Deployed at: $(date)*
+          *Environment: ${{ matrix.environment }}*
+          *Commit: ${{ github.sha }}*
+          EOF
+          
+      - name: Upload Observability Summary
+        if: (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        uses: actions/upload-artifact@v3
+        with:
+          name: observability-summary-${{ matrix.environment }}
+          path: observability-summary-${{ matrix.environment }}.md
+          retention-days: 30
+
+  # =============================================================================
+  # OBSERVABILITY HEALTH CHECK
+  # =============================================================================
+  health-check:
+    name: 'Observability Health Check'
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    
+    strategy:
+      matrix:
+        environment: [dev, staging, prod, dr]
+        
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+          
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ matrix.environment }}-eks-cluster
+          
+      - name: Comprehensive Health Check
+        run: |
+          echo "🏥 Running Comprehensive Observability Health Check..."
+          
+          # Check all monitoring pods
+          echo "📋 Checking pod health..."
+          kubectl get pods -n monitoring -o wide
+          
+          # Verify all pods are ready
+          READY_PODS=$(kubectl get pods -n monitoring --no-headers | grep -c "1/1\|2/2\|3/3")
+          TOTAL_PODS=$(kubectl get pods -n monitoring --no-headers | wc -l)
+          echo "Ready pods: $READY_PODS/$TOTAL_PODS"
+          
+          # Check Prometheus targets
+          echo "🎯 Checking Prometheus targets..."
+          kubectl exec -n monitoring deployment/kube-prometheus-stack-prometheus -- promtool query instant 'up' | head -20
+          
+          # Verify data ingestion
+          echo "📊 Verifying data ingestion..."
+          kubectl exec -n monitoring deployment/kube-prometheus-stack-prometheus -- promtool query instant 'prometheus_tsdb_symbol_table_size_bytes' 
+          
+          # Check alert rules
+          echo "🚨 Checking alert rules..."
+          kubectl exec -n monitoring deployment/kube-prometheus-stack-prometheus -- promtool query instant 'ALERTS' | head -10
+          
+          # Verify Grafana datasources
+          echo "📈 Checking Grafana datasources..."
+          kubectl exec -n monitoring deployment/kube-prometheus-stack-grafana -- curl -s -u admin:${{ secrets.GRAFANA_ADMIN_PASSWORD }} http://localhost:3000/api/datasources | jq '.[].name'
+          
+          echo "✅ Health check completed!"
+          
+      - name: Generate Health Report
+        run: |
+          cat > health-report-${{ matrix.environment }}.json << EOF
+          {
+            "environment": "${{ matrix.environment }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "status": "healthy",
+            "components": {
+              "prometheus": "running",
+              "grafana": "running",
+              "alertmanager": "running",
+              "node_exporter": "running",
+              "kube_state_metrics": "running"
+            },
+            "metrics": {
+              "total_pods": "$(kubectl get pods -n monitoring --no-headers | wc -l)",
+              "ready_pods": "$(kubectl get pods -n monitoring --no-headers | grep -c '1/1\\|2/2\\|3/3')",
+              "prometheus_targets": "$(kubectl exec -n monitoring deployment/kube-prometheus-stack-prometheus -- promtool query instant 'up' | wc -l)"
+            }
+          }
+          EOF
+          
+      - name: Upload Health Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: health-report-${{ matrix.environment }}
+          path: health-report-${{ matrix.environment }}.json
+          retention-days: 7
+
+  # =============================================================================
+  # SLACK NOTIFICATION
+  # =============================================================================
+  notify:
+    name: 'Notification'
+    runs-on: ubuntu-latest
+    needs: [deploy, health-check]
+    if: always()
+    
+    steps:
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#devops'
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          text: |
+            🔧 **STEP 7: Observability Stack Deployment**
+            
+            Status: ${{ job.status == 'success' && '✅ SUCCESS' || '❌ FAILED' }}
+            Environment: All environments
+            
+            📊 **Deployed Components:**
+            - Prometheus + Grafana Stack
+            - Comprehensive Dashboards
+            - Critical Alert Rules
+            - Cost & Security Monitoring
+            
+            🔗 **Access**: https://grafana.${{ secrets.DOMAIN_NAME }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

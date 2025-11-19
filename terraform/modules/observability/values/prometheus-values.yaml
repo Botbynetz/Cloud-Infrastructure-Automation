@@ -1,0 +1,505 @@
+# =============================================================================
+# STEP 7: PROMETHEUS VALUES TEMPLATE
+# =============================================================================
+# Comprehensive Prometheus + Grafana configuration
+# Integrates with all previous steps and AWS services
+
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+# =============================================================================
+# PROMETHEUS SERVER CONFIGURATION
+# =============================================================================
+prometheus:
+  prometheusSpec:
+    # Data retention
+    retention: ${prometheus_retention}
+    retentionSize: "90GB"
+    
+    # Storage configuration
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ${storage_class}
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: ${prometheus_storage_size}
+    
+    # Service account
+    serviceAccountName: ${prometheus_service_account}
+    
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+    
+    # Resources
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1000m"
+      limits:
+        memory: "8Gi"
+        cpu: "4000m"
+    
+    # Remote write to S3 (via Thanos or custom solution)
+    remoteWrite:
+      - url: "http://thanos-receive:19291/api/v1/receive"
+        name: "thanos-s3"
+        queueConfig:
+          capacity: 10000
+          maxSamplesPerSend: 8000
+          batchSendDeadline: 5s
+    
+    # Additional scrape configs for AWS services
+    additionalScrapeConfigs:
+      - job_name: 'cloudwatch-exporter'
+        static_configs:
+          - targets: ['cloudwatch-exporter.monitoring.svc.cluster.local:9106']
+        scrape_interval: 30s
+        metrics_path: /metrics
+        
+      - job_name: 'aws-load-balancer-controller'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: [kube-system]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            action: keep
+            regex: aws-load-balancer-controller
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: webhook
+    
+    # Rule evaluation interval
+    evaluationInterval: 30s
+    
+    # External labels
+    externalLabels:
+      cluster: "${environment}-cluster"
+      region: "${aws_region}"
+      environment: "${environment}"
+    
+    # WAL compression
+    walCompression: true
+    
+    # Enable admin API
+    enableAdminAPI: true
+    
+    # Pod disruption budget
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+
+# =============================================================================
+# ALERTMANAGER CONFIGURATION
+# =============================================================================
+alertmanager:
+  alertmanagerSpec:
+    # Data retention
+    retention: ${alertmanager_retention}
+    
+    # Storage
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ${storage_class}
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: "10Gi"
+    
+    # Resources
+    resources:
+      requests:
+        memory: "200Mi"
+        cpu: "100m"
+      limits:
+        memory: "500Mi"
+        cpu: "200m"
+    
+    # Configuration
+    configSecret: "alertmanager-config"
+    
+    # External URL
+    externalUrl: "https://alertmanager.${domain_name}"
+    
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+      
+  # Alertmanager configuration
+  config:
+    global:
+      smtp_smarthost: 'localhost:587'
+      smtp_from: 'alerts@${domain_name}'
+      slack_api_url: '${slack_webhook_url}'
+      
+    templates:
+      - '/etc/alertmanager/config/*.tmpl'
+      
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'web.hook'
+      routes:
+        # Critical alerts go to PagerDuty
+        - match:
+            severity: critical
+          receiver: pagerduty-critical
+          group_wait: 0s
+          group_interval: 5s
+          repeat_interval: 12h
+          
+        # Cost alerts (STEP 6 integration)
+        - match_re:
+            alertname: ".*Cost.*|.*Budget.*"
+          receiver: cost-alerts
+          group_interval: 30m
+          repeat_interval: 24h
+          
+        # Security alerts (STEP 2 & 3 integration)
+        - match_re:
+            alertname: ".*Security.*|.*Compliance.*|.*Policy.*"
+          receiver: security-alerts
+          group_interval: 5m
+          repeat_interval: 6h
+    
+    receivers:
+      - name: 'web.hook'
+        slack_configs:
+          - channel: '${slack_channel}'
+            title: 'Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            text: |
+              {{ range .Alerts }}
+              *Environment:* {{ .Labels.environment }}
+              *Severity:* {{ .Labels.severity }}
+              *Description:* {{ .Annotations.description }}
+              *Runbook:* {{ .Annotations.runbook_url }}
+              {{ end }}
+            
+      - name: 'pagerduty-critical'
+        pagerduty_configs:
+          - service_key: '${pagerduty_service_key}'
+            description: 'Critical Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            
+      - name: 'cost-alerts'
+        slack_configs:
+          - channel: '#finops'
+            title: 'Cost Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            text: |
+              {{ range .Alerts }}
+              *Environment:* {{ .Labels.environment }}
+              *Current Cost:* {{ .Annotations.current_cost }}
+              *Threshold:* {{ .Annotations.threshold }}
+              *Recommendation:* {{ .Annotations.recommendation }}
+              {{ end }}
+            
+      - name: 'security-alerts'
+        slack_configs:
+          - channel: '#security'
+            title: 'Security Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            text: |
+              {{ range .Alerts }}
+              *Environment:* {{ .Labels.environment }}
+              *Policy:* {{ .Labels.policy }}
+              *Resource:* {{ .Labels.resource }}
+              *Action Required:* {{ .Annotations.action_required }}
+              {{ end }}
+
+# =============================================================================
+# GRAFANA CONFIGURATION
+# =============================================================================
+grafana:
+  enabled: true
+  
+  # Admin credentials
+  adminPassword: ${grafana_admin_password}
+  
+  # Persistence
+  persistence:
+    enabled: true
+    storageClassName: ${storage_class}
+    size: 10Gi
+    
+  # Resources
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "100m"
+    limits:
+      memory: "500Mi"
+      cpu: "200m"
+  
+  # Ingress configuration
+%{ if enable_ingress }
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/certificate-arn: ${ssl_certificate_arn}
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    hosts:
+      - grafana.${domain_name}
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.${domain_name}
+%{ endif }
+  
+  # Data sources
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        # Prometheus (primary)
+        - name: Prometheus
+          type: prometheus
+          uid: prometheus
+          url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          access: proxy
+          isDefault: true
+          jsonData:
+            timeInterval: 30s
+            
+        # CloudWatch (for AWS native metrics)
+        - name: CloudWatch
+          type: cloudwatch
+          uid: cloudwatch
+          jsonData:
+            authType: default
+            defaultRegion: ${aws_region}
+            customMetricsNamespaces: "AWS/EC2,AWS/ELB,AWS/RDS,AWS/Lambda,AWS/S3,CWAgent"
+            
+        # X-Ray (for distributed tracing)
+        - name: X-Ray
+          type: grafana-x-ray-datasource
+          uid: xray
+          jsonData:
+            authType: default
+            defaultRegion: ${aws_region}
+  
+  # Grafana configuration
+  grafana.ini:
+    server:
+      root_url: "https://grafana.${domain_name}"
+      serve_from_sub_path: false
+      
+    security:
+      admin_user: admin
+      admin_password: ${grafana_admin_password}
+      cookie_secure: true
+      cookie_samesite: strict
+      
+    auth:
+      disable_login_form: false
+      oauth_auto_login: false
+      
+    users:
+      allow_sign_up: false
+      auto_assign_org: true
+      auto_assign_org_id: 1
+      auto_assign_org_role: Viewer
+      
+    analytics:
+      reporting_enabled: false
+      check_for_updates: false
+      
+    log:
+      mode: console
+      level: info
+      
+    alerting:
+      enabled: true
+      execute_alerts: true
+      
+    unified_alerting:
+      enabled: true
+  
+  # Sidecar for dashboard provisioning
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      folder: /tmp/dashboards
+      searchNamespace: ALL
+      provider:
+        allowUiUpdates: false
+        
+    datasources:
+      enabled: true
+      label: grafana_datasource
+      labelValue: "1"
+      
+    notifiers:
+      enabled: true
+      label: grafana_notifier
+      labelValue: "1"
+  
+  # Dashboard providers
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+            
+        - name: 'infrastructure'
+          orgId: 1
+          folder: 'Infrastructure'
+          type: file
+          disableDeletion: false
+          editable: true
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/infrastructure
+            
+        - name: 'applications'
+          orgId: 1
+          folder: 'Applications'
+          type: file
+          disableDeletion: false
+          editable: true
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/applications
+
+# =============================================================================
+# KUBE-STATE-METRICS
+# =============================================================================
+kubeStateMetrics:
+  enabled: true
+  
+# =============================================================================
+# NODE EXPORTER
+# =============================================================================
+nodeExporter:
+  enabled: true
+  
+# =============================================================================
+# PROMETHEUS OPERATOR
+# =============================================================================
+prometheusOperator:
+  enabled: true
+  
+  # Resources
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "100m"
+    limits:
+      memory: "500Mi"
+      cpu: "200m"
+      
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    
+  # Enable admission webhooks
+  admissionWebhooks:
+    enabled: true
+    patch:
+      enabled: true
+      
+  # TLS configuration
+  tls:
+    enabled: true
+
+# =============================================================================
+# CUSTOM RECORDING RULES
+# =============================================================================
+additionalPrometheusRulesMap:
+  # Cost monitoring rules (STEP 6 integration)
+  cost-monitoring:
+    groups:
+      - name: cost.rules
+        interval: 30s
+        rules:
+          - record: aws:ec2_cost_per_hour
+            expr: |
+              (
+                aws_ec2_info{instance_type!=""} * on (instance_id) group_left(instance_type)
+                aws_ec2_instance_cost_per_hour
+              )
+              
+          - record: aws:total_hourly_cost
+            expr: sum(aws:ec2_cost_per_hour) by (environment, project)
+            
+          - record: aws:daily_cost_projection
+            expr: aws:total_hourly_cost * 24
+            
+          - record: aws:monthly_cost_projection
+            expr: aws:daily_cost_projection * 30
+  
+  # SLO recording rules
+  slo-recording:
+    groups:
+      - name: slo.rules
+        interval: 30s
+        rules:
+          - record: slo:availability_5m
+            expr: |
+              (
+                sum(rate(http_requests_total{code!~"5.."}[5m])) by (job, instance)
+                /
+                sum(rate(http_requests_total[5m])) by (job, instance)
+              ) * 100
+              
+          - record: slo:latency_p99_5m
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(http_request_duration_seconds_bucket[5m])) by (job, instance, le)
+              ) * 1000
+              
+          - record: slo:error_rate_5m
+            expr: |
+              (
+                sum(rate(http_requests_total{code=~"5.."}[5m])) by (job, instance)
+                /
+                sum(rate(http_requests_total[5m])) by (job, instance)
+              ) * 100
+
+# =============================================================================
+# SERVICE MONITORS
+# =============================================================================
+additionalServiceMonitors:
+  # AWS Load Balancer Controller
+  - name: aws-load-balancer-controller
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: aws-load-balancer-controller
+    endpoints:
+      - port: webhook
+        interval: 30s
+        path: /metrics
+        
+  # Custom application monitoring
+  - name: application-metrics
+    selector:
+      matchLabels:
+        monitoring: enabled
+    endpoints:
+      - port: metrics
+        interval: 15s
+        path: /metrics

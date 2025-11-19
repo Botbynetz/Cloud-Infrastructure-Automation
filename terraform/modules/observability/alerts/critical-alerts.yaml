@@ -1,0 +1,304 @@
+# =============================================================================
+# STEP 7: CRITICAL INFRASTRUCTURE ALERTS
+# =============================================================================
+# Comprehensive alerting rules for infrastructure monitoring
+# Integrates with STEP 2 (security), STEP 3 (policies), STEP 6 (costs)
+
+groups:
+  # =============================================================================
+  # INFRASTRUCTURE HEALTH ALERTS
+  # =============================================================================
+  - name: infrastructure.critical
+    interval: 30s
+    rules:
+      # Node down alert
+      - alert: NodeDown
+        expr: up{job="kubernetes-nodes"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: infrastructure
+          environment: ${environment}
+        annotations:
+          summary: "Node {{ $labels.instance }} is down"
+          description: "Node {{ $labels.instance }} has been down for more than 5 minutes"
+          runbook_url: "https://runbooks.example.com/node-down"
+          action_required: "Check node health and restart if necessary"
+      
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+          environment: ${environment}
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for 10 minutes on {{ $labels.instance }}"
+          runbook_url: "https://runbooks.example.com/high-cpu"
+          
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+          environment: ${environment}
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 90% for 10 minutes on {{ $labels.instance }}"
+          runbook_url: "https://runbooks.example.com/high-memory"
+          
+      # Disk space critical
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"}) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: infrastructure
+          environment: ${environment}
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}"
+          description: "Disk {{ $labels.mountpoint }} on {{ $labels.instance }} has less than 10% free space"
+          runbook_url: "https://runbooks.example.com/disk-space"
+          action_required: "Free up disk space immediately"
+          
+      # Pod crash loop
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+          environment: ${environment}
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has restarted {{ $value }} times in the last 15 minutes"
+          runbook_url: "https://runbooks.example.com/pod-crash-loop"
+
+  # =============================================================================
+  # KUBERNETES CLUSTER ALERTS
+  # =============================================================================
+  - name: kubernetes.critical
+    interval: 30s
+    rules:
+      # API server down
+      - alert: KubernetesAPIServerDown
+        expr: up{job="kubernetes-apiservers"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: kubernetes
+          environment: ${environment}
+        annotations:
+          summary: "Kubernetes API server is down"
+          description: "Kubernetes API server has been down for more than 5 minutes"
+          runbook_url: "https://runbooks.example.com/api-server-down"
+          action_required: "Check control plane health immediately"
+          
+      # etcd down
+      - alert: EtcdDown
+        expr: up{job="kubernetes-etcd"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: kubernetes
+          environment: ${environment}
+        annotations:
+          summary: "etcd is down"
+          description: "etcd has been down for more than 5 minutes"
+          runbook_url: "https://runbooks.example.com/etcd-down"
+          action_required: "Check etcd cluster health immediately"
+          
+      # Node not ready
+      - alert: NodeNotReady
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 10m
+        labels:
+          severity: warning
+          component: kubernetes
+          environment: ${environment}
+        annotations:
+          summary: "Node {{ $labels.node }} is not ready"
+          description: "Node {{ $labels.node }} has been not ready for more than 10 minutes"
+          runbook_url: "https://runbooks.example.com/node-not-ready"
+          
+      # Pod not ready
+      - alert: PodNotReady
+        expr: kube_pod_status_ready{condition="true"} == 0
+        for: 15m
+        labels:
+          severity: warning
+          component: kubernetes
+          environment: ${environment}
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is not ready"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has been not ready for more than 15 minutes"
+          runbook_url: "https://runbooks.example.com/pod-not-ready"
+
+  # =============================================================================
+  # APPLICATION PERFORMANCE ALERTS
+  # =============================================================================
+  - name: application.performance
+    interval: 30s
+    rules:
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (job, le)) > 1
+        for: 10m
+        labels:
+          severity: warning
+          component: application
+          environment: ${environment}
+        annotations:
+          summary: "High response time for {{ $labels.job }}"
+          description: "95th percentile response time is above 1 second for 10 minutes"
+          runbook_url: "https://runbooks.example.com/high-response-time"
+          
+      # High error rate
+      - alert: HighErrorRate
+        expr: (sum(rate(http_requests_total{code=~"5.."}[5m])) by (job) / sum(rate(http_requests_total[5m])) by (job)) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: application
+          environment: ${environment}
+        annotations:
+          summary: "High error rate for {{ $labels.job }}"
+          description: "Error rate is above 5% for 5 minutes"
+          runbook_url: "https://runbooks.example.com/high-error-rate"
+          action_required: "Check application logs and dependencies"
+          
+      # SLO burn rate (fast)
+      - alert: SLOBurnRateFast
+        expr: slo:availability_5m < 99.5
+        for: 5m
+        labels:
+          severity: critical
+          component: slo
+          environment: ${environment}
+        annotations:
+          summary: "SLO burn rate is too fast for {{ $labels.job }}"
+          description: "Availability has dropped below 99.5% - error budget burning fast"
+          runbook_url: "https://runbooks.example.com/slo-burn-rate"
+          action_required: "Investigate immediately to prevent SLO breach"
+          
+      # SLO burn rate (slow)
+      - alert: SLOBurnRateSlow
+        expr: slo:availability_5m < 99.9
+        for: 1h
+        labels:
+          severity: warning
+          component: slo
+          environment: ${environment}
+        annotations:
+          summary: "SLO burn rate is elevated for {{ $labels.job }}"
+          description: "Availability has been below 99.9% for 1 hour"
+          runbook_url: "https://runbooks.example.com/slo-burn-rate"
+
+  # =============================================================================
+  # AWS SERVICES ALERTS
+  # =============================================================================
+  - name: aws.services
+    interval: 60s
+    rules:
+      # RDS connection issues
+      - alert: RDSConnectionsHigh
+        expr: aws_rds_database_connections_average > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          environment: ${environment}
+        annotations:
+          summary: "High RDS connections on {{ $labels.dbinstance_identifier }}"
+          description: "RDS connections are above 80 on {{ $labels.dbinstance_identifier }}"
+          runbook_url: "https://runbooks.example.com/rds-connections"
+          
+      # ELB unhealthy targets
+      - alert: ELBUnhealthyTargets
+        expr: aws_applicationelb_unhealthy_host_count_average > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: loadbalancer
+          environment: ${environment}
+        annotations:
+          summary: "Unhealthy targets in {{ $labels.load_balancer }}"
+          description: "Load balancer {{ $labels.load_balancer }} has {{ $value }} unhealthy targets"
+          runbook_url: "https://runbooks.example.com/elb-unhealthy"
+          
+      # Lambda errors
+      - alert: LambdaHighErrorRate
+        expr: aws_lambda_errors_sum / aws_lambda_invocations_sum > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: lambda
+          environment: ${environment}
+        annotations:
+          summary: "High error rate in Lambda {{ $labels.function_name }}"
+          description: "Lambda function {{ $labels.function_name }} has error rate above 5%"
+          runbook_url: "https://runbooks.example.com/lambda-errors"
+          
+      # S3 4xx errors
+      - alert: S3HighClientErrors
+        expr: aws_s3_4xx_errors_sum > 10
+        for: 10m
+        labels:
+          severity: warning
+          component: storage
+          environment: ${environment}
+        annotations:
+          summary: "High 4xx errors in S3 bucket {{ $labels.bucket_name }}"
+          description: "S3 bucket {{ $labels.bucket_name }} has {{ $value }} client errors"
+          runbook_url: "https://runbooks.example.com/s3-client-errors"
+
+  # =============================================================================
+  # MONITORING SYSTEM ALERTS
+  # =============================================================================
+  - name: monitoring.system
+    interval: 60s
+    rules:
+      # Prometheus targets down
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 10m
+        labels:
+          severity: warning
+          component: monitoring
+          environment: ${environment}
+        annotations:
+          summary: "Prometheus target {{ $labels.instance }} is down"
+          description: "Prometheus target {{ $labels.instance }} has been down for 10 minutes"
+          runbook_url: "https://runbooks.example.com/prometheus-target-down"
+          
+      # Prometheus config reload failed
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: monitoring
+          environment: ${environment}
+        annotations:
+          summary: "Prometheus config reload failed"
+          description: "Prometheus configuration reload has failed"
+          runbook_url: "https://runbooks.example.com/prometheus-config-reload"
+          action_required: "Check Prometheus configuration and restart if necessary"
+          
+      # Alertmanager config reload failed
+      - alert: AlertmanagerConfigReloadFailed
+        expr: alertmanager_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: monitoring
+          environment: ${environment}
+        annotations:
+          summary: "Alertmanager config reload failed"
+          description: "Alertmanager configuration reload has failed"
+          runbook_url: "https://runbooks.example.com/alertmanager-config-reload"
+          action_required: "Check Alertmanager configuration and restart if necessary"

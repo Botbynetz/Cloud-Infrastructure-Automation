@@ -1,0 +1,267 @@
+# =============================================================================
+# STEP 7: COST MONITORING ALERTS (Integration with STEP 6 FinOps)
+# =============================================================================
+# Cost optimization and budget alerts integrated with Infracost data
+
+groups:
+  # =============================================================================
+  # ENVIRONMENT-SPECIFIC COST ALERTS
+  # =============================================================================
+  - name: cost.environment.thresholds
+    interval: 60s
+    rules:
+      # Development environment cost alert
+      - alert: DevEnvironmentCostThreshold
+        expr: aws:monthly_cost_projection{environment="dev"} > ${cost_threshold_dev}
+        for: 30m
+        labels:
+          severity: warning
+          component: cost
+          environment: dev
+        annotations:
+          summary: "Development environment cost exceeds threshold"
+          description: "Monthly projected cost for dev environment is ${{ $value }}, exceeding threshold of $${cost_threshold_dev}"
+          current_cost: "${{ $value }}"
+          threshold: "$${cost_threshold_dev}"
+          recommendation: "Review and optimize dev resources: scale down instances, use spot instances, clean up unused resources"
+          runbook_url: "https://runbooks.example.com/cost-optimization"
+          
+      # Staging environment cost alert
+      - alert: StagingEnvironmentCostThreshold
+        expr: aws:monthly_cost_projection{environment="staging"} > ${cost_threshold_staging}
+        for: 30m
+        labels:
+          severity: warning
+          component: cost
+          environment: staging
+        annotations:
+          summary: "Staging environment cost exceeds threshold"
+          description: "Monthly projected cost for staging environment is ${{ $value }}, exceeding threshold of $${cost_threshold_staging}"
+          current_cost: "${{ $value }}"
+          threshold: "$${cost_threshold_staging}"
+          recommendation: "Review staging resource usage: consider right-sizing instances, implement auto-shutdown"
+          runbook_url: "https://runbooks.example.com/cost-optimization"
+          
+      # Production environment cost alert
+      - alert: ProductionEnvironmentCostThreshold
+        expr: aws:monthly_cost_projection{environment="prod"} > ${cost_threshold_prod}
+        for: 15m
+        labels:
+          severity: critical
+          component: cost
+          environment: prod
+        annotations:
+          summary: "Production environment cost exceeds threshold"
+          description: "Monthly projected cost for prod environment is ${{ $value }}, exceeding threshold of $${cost_threshold_prod}"
+          current_cost: "${{ $value }}"
+          threshold: "$${cost_threshold_prod}"
+          recommendation: "Immediate review required: check for cost anomalies, optimize Reserved Instances, review usage patterns"
+          runbook_url: "https://runbooks.example.com/cost-emergency"
+          action_required: "Immediate cost review and optimization"
+          
+      # DR environment cost alert
+      - alert: DREnvironmentCostThreshold
+        expr: aws:monthly_cost_projection{environment="dr"} > ${cost_threshold_dr}
+        for: 15m
+        labels:
+          severity: warning
+          component: cost
+          environment: dr
+        annotations:
+          summary: "DR environment cost exceeds threshold"
+          description: "Monthly projected cost for DR environment is ${{ $value }}, exceeding threshold of $${cost_threshold_dr}"
+          current_cost: "${{ $value }}"
+          threshold: "$${cost_threshold_dr}"
+          recommendation: "Verify DR resources are not over-provisioned, ensure proper scheduling for standby resources"
+          runbook_url: "https://runbooks.example.com/dr-cost-optimization"
+
+  # =============================================================================
+  # COST ANOMALY DETECTION
+  # =============================================================================
+  - name: cost.anomaly.detection
+    interval: 60s
+    rules:
+      # Sudden cost spike
+      - alert: CostSpikeDetected
+        expr: (aws:daily_cost_projection - aws:daily_cost_projection offset 1d) / aws:daily_cost_projection offset 1d > 0.5
+        for: 2h
+        labels:
+          severity: critical
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Sudden cost spike detected in {{ $labels.environment }}"
+          description: "Daily cost has increased by {{ $value | humanizePercentage }} compared to yesterday"
+          recommendation: "Investigate new resources, check for runaway processes, review auto-scaling configurations"
+          runbook_url: "https://runbooks.example.com/cost-spike"
+          action_required: "Investigate cost anomaly immediately"
+          
+      # Unusual instance type usage
+      - alert: UnexpectedInstanceTypeUsage
+        expr: |
+          (
+            aws_ec2_info{instance_type=~".*xlarge|.*2xlarge|.*4xlarge"} 
+            and on (instance_id) 
+            aws_ec2_info{environment="dev"}
+          ) > 0
+        for: 30m
+        labels:
+          severity: warning
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Large instance type detected in {{ $labels.environment }}"
+          description: "Instance {{ $labels.instance_id }} is using {{ $labels.instance_type }} in {{ $labels.environment }} environment"
+          recommendation: "Verify if large instance is necessary for {{ $labels.environment }}, consider right-sizing"
+          runbook_url: "https://runbooks.example.com/instance-rightsizing"
+          
+      # Orphaned resources
+      - alert: OrphanedResourcesDetected
+        expr: aws_ec2_info{tag_Environment=""} or aws_ec2_info{tag_Project=""} or aws_ec2_info{tag_Owner=""}
+        for: 4h
+        labels:
+          severity: warning
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Orphaned resources detected"
+          description: "Resource {{ $labels.instance_id }} is missing required tags (Environment, Project, Owner)"
+          recommendation: "Tag the resource properly or consider deletion if unused"
+          runbook_url: "https://runbooks.example.com/resource-tagging"
+
+  # =============================================================================
+  # RESOURCE OPTIMIZATION ALERTS
+  # =============================================================================
+  - name: cost.optimization.opportunities
+    interval: 3h
+    rules:
+      # Low CPU utilization
+      - alert: LowCPUUtilizationOpportunity
+        expr: 100 - (avg_over_time(node_cpu_seconds_total{mode="idle"}[7d]) * 100) < 20
+        for: 24h
+        labels:
+          severity: info
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Cost optimization opportunity: Low CPU utilization"
+          description: "Instance {{ $labels.instance }} has averaged {{ $value }}% CPU utilization over 7 days"
+          recommendation: "Consider downsizing instance or using burstable instances (t3/t4g family)"
+          savings_potential: "Up to 50% cost reduction"
+          runbook_url: "https://runbooks.example.com/cpu-rightsizing"
+          
+      # Underutilized storage
+      - alert: UnderutilizedStorageOpportunity
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) > 0.7
+        for: 7d
+        labels:
+          severity: info
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Cost optimization opportunity: Underutilized storage"
+          description: "Storage {{ $labels.mountpoint }} on {{ $labels.instance }} is {{ $value | humanizePercentage }} free for 7 days"
+          recommendation: "Consider reducing storage size or implementing storage lifecycle policies"
+          savings_potential: "10-30% storage cost reduction"
+          runbook_url: "https://runbooks.example.com/storage-optimization"
+          
+      # Reserved Instance recommendations
+      - alert: ReservedInstanceOpportunity
+        expr: |
+          (
+            count(aws_ec2_info{instance_type!="", environment=~"prod|staging"}) by (instance_type) > 2
+          ) and (
+            count(aws_ec2_info{instance_type!="", environment=~"prod|staging"}) by (instance_type) 
+            unless 
+            count(aws_ec2_reserved_instance_info) by (instance_type)
+          )
+        for: 30d
+        labels:
+          severity: info
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Reserved Instance opportunity for {{ $labels.instance_type }}"
+          description: "Running {{ $value }} instances of {{ $labels.instance_type }} for 30+ days without Reserved Instances"
+          recommendation: "Purchase Reserved Instances for consistent workloads"
+          savings_potential: "Up to 40% cost reduction with 1-year RI, 60% with 3-year RI"
+          runbook_url: "https://runbooks.example.com/reserved-instances"
+          
+      # Spot instance opportunity
+      - alert: SpotInstanceOpportunity
+        expr: aws_ec2_info{instance_type!="", environment=~"dev|staging"} and on (instance_id) aws_ec2_info{lifecycle!="spot"}
+        for: 7d
+        labels:
+          severity: info
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Spot Instance opportunity in {{ $labels.environment }}"
+          description: "Instance {{ $labels.instance_id }} in {{ $labels.environment }} could use Spot pricing"
+          recommendation: "Migrate fault-tolerant workloads to Spot Instances"
+          savings_potential: "Up to 70% cost reduction"
+          runbook_url: "https://runbooks.example.com/spot-instances"
+
+  # =============================================================================
+  # BUDGET COMPLIANCE ALERTS
+  # =============================================================================
+  - name: cost.budget.compliance
+    interval: 4h
+    rules:
+      # Monthly budget 80% threshold
+      - alert: MonthlyBudget80Percent
+        expr: |
+          (
+            sum(aws:daily_cost_projection) * (day_of_month() + days_in_month() - day_of_month()) 
+          ) > (
+            (${cost_threshold_dev} + ${cost_threshold_staging} + ${cost_threshold_prod} + ${cost_threshold_dr}) * 0.8
+          )
+        for: 4h
+        labels:
+          severity: warning
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Monthly budget 80% threshold reached"
+          description: "Projected monthly cost will exceed 80% of total budget"
+          recommendation: "Review spending patterns and implement cost controls"
+          runbook_url: "https://runbooks.example.com/budget-management"
+          
+      # Monthly budget 100% threshold
+      - alert: MonthlyBudget100Percent
+        expr: |
+          (
+            sum(aws:daily_cost_projection) * (day_of_month() + days_in_month() - day_of_month())
+          ) > (
+            ${cost_threshold_dev} + ${cost_threshold_staging} + ${cost_threshold_prod} + ${cost_threshold_dr}
+          )
+        for: 1h
+        labels:
+          severity: critical
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Monthly budget threshold exceeded"
+          description: "Projected monthly cost will exceed total budget"
+          recommendation: "Immediate cost reduction measures required"
+          runbook_url: "https://runbooks.example.com/budget-emergency"
+          action_required: "Implement immediate cost controls"
+          
+      # Weekly cost trend alert
+      - alert: WeeklyCostTrendIncreasing
+        expr: |
+          (
+            avg_over_time(aws:daily_cost_projection[7d]) 
+            - 
+            avg_over_time(aws:daily_cost_projection[14d] offset 7d)
+          ) / avg_over_time(aws:daily_cost_projection[14d] offset 7d) > 0.15
+        for: 12h
+        labels:
+          severity: warning
+          component: cost
+          environment: ${environment}
+        annotations:
+          summary: "Weekly cost trend increasing"
+          description: "Average daily cost has increased by {{ $value | humanizePercentage }} compared to last week"
+          recommendation: "Review recent changes and resource additions"
+          runbook_url: "https://runbooks.example.com/cost-trend-analysis"

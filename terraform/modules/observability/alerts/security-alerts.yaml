@@ -1,0 +1,332 @@
+# =============================================================================
+# STEP 7: SECURITY & COMPLIANCE ALERTS (Integration with STEP 2 & 3)
+# =============================================================================
+# Security monitoring and compliance alerts integrated with OPA policies
+
+groups:
+  # =============================================================================
+  # SECURITY POLICY VIOLATIONS (STEP 3 Integration)
+  # =============================================================================
+  - name: security.policy.violations
+    interval: 30s
+    rules:
+      # SSH access from internet (OPA policy violation)
+      - alert: SSHAccessFromInternet
+        expr: |
+          opa_policy_violation{policy="ssh-restriction", violation_type="ssh_from_internet"} > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: security
+          environment: ${environment}
+          policy: "ssh-restriction"
+        annotations:
+          summary: "SSH access from internet detected"
+          description: "Security group allows SSH (port 22) access from 0.0.0.0/0"
+          resource: "{{ $labels.resource_id }}"
+          policy: "{{ $labels.policy }}"
+          action_required: "Restrict SSH access to specific IP ranges immediately"
+          runbook_url: "https://runbooks.example.com/ssh-security"
+          remediation: "Update security group to allow SSH only from bastion or VPN"
+          
+      # Public S3 bucket (OPA policy violation)
+      - alert: PublicS3BucketDetected
+        expr: |
+          opa_policy_violation{policy="s3-security", violation_type="public_bucket"} > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: security
+          environment: ${environment}
+          policy: "s3-security"
+        annotations:
+          summary: "Public S3 bucket detected"
+          description: "S3 bucket {{ $labels.resource_id }} allows public read or write access"
+          resource: "{{ $labels.resource_id }}"
+          policy: "{{ $labels.policy }}"
+          action_required: "Remove public access from S3 bucket immediately"
+          runbook_url: "https://runbooks.example.com/s3-security"
+          remediation: "Configure bucket policy and ACLs to prevent public access"
+          
+      # Unencrypted RDS instance (OPA policy violation)
+      - alert: UnencryptedRDSInstance
+        expr: |
+          opa_policy_violation{policy="rds-encryption", violation_type="unencrypted_storage"} > 0
+        for: 5m
+        labels:
+          severity: high
+          component: security
+          environment: ${environment}
+          policy: "rds-encryption"
+        annotations:
+          summary: "Unencrypted RDS instance detected"
+          description: "RDS instance {{ $labels.resource_id }} does not have storage encryption enabled"
+          resource: "{{ $labels.resource_id }}"
+          policy: "{{ $labels.policy }}"
+          action_required: "Enable encryption on RDS instance"
+          runbook_url: "https://runbooks.example.com/rds-encryption"
+          remediation: "Create encrypted snapshot and restore to new encrypted instance"
+          
+      # Missing mandatory tags (Compliance violation)
+      - alert: MissingMandatoryTags
+        expr: |
+          opa_policy_violation{policy="tagging-compliance", violation_type="missing_tags"} > 0
+        for: 30m
+        labels:
+          severity: warning
+          component: compliance
+          environment: ${environment}
+          policy: "tagging-compliance"
+        annotations:
+          summary: "Resource missing mandatory tags"
+          description: "Resource {{ $labels.resource_id }} is missing mandatory tags: {{ $labels.missing_tags }}"
+          resource: "{{ $labels.resource_id }}"
+          policy: "{{ $labels.policy }}"
+          missing_tags: "{{ $labels.missing_tags }}"
+          action_required: "Add mandatory tags to resource"
+          runbook_url: "https://runbooks.example.com/resource-tagging"
+
+  # =============================================================================
+  # AWS SECURITY SERVICE ALERTS
+  # =============================================================================
+  - name: security.aws.services
+    interval: 60s
+    rules:
+      # GuardDuty findings
+      - alert: GuardDutyHighSeverityFinding
+        expr: aws_guardduty_finding_count{severity="HIGH"} > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "GuardDuty high severity finding detected"
+          description: "GuardDuty detected {{ $value }} high severity security findings"
+          action_required: "Investigate GuardDuty findings immediately"
+          runbook_url: "https://runbooks.example.com/guardduty-response"
+          
+      # Security Hub compliance score low
+      - alert: SecurityHubComplianceLow
+        expr: aws_securityhub_compliance_score < 80
+        for: 30m
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "Security Hub compliance score is low"
+          description: "Overall compliance score is {{ $value }}%, below 80% threshold"
+          recommendation: "Review and fix Security Hub findings"
+          runbook_url: "https://runbooks.example.com/security-hub"
+          
+      # CloudTrail logging disabled
+      - alert: CloudTrailLoggingDisabled
+        expr: aws_cloudtrail_logging_enabled == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "CloudTrail logging is disabled"
+          description: "CloudTrail logging has been disabled for trail {{ $labels.trail_name }}"
+          action_required: "Enable CloudTrail logging immediately"
+          runbook_url: "https://runbooks.example.com/cloudtrail-security"
+          
+      # Config compliance
+      - alert: AWSConfigNonCompliant
+        expr: aws_config_compliance_status{status="NON_COMPLIANT"} > 0
+        for: 15m
+        labels:
+          severity: warning
+          component: compliance
+          environment: ${environment}
+        annotations:
+          summary: "AWS Config non-compliant resources detected"
+          description: "{{ $value }} resources are non-compliant with AWS Config rules"
+          recommendation: "Review and remediate non-compliant resources"
+          runbook_url: "https://runbooks.example.com/aws-config"
+
+  # =============================================================================
+  # AUTHENTICATION & ACCESS ALERTS
+  # =============================================================================
+  - name: security.authentication
+    interval: 60s
+    rules:
+      # Failed login attempts
+      - alert: HighFailedLoginAttempts
+        expr: rate(aws_cloudwatch_log_events{log_group=~".*auth.*", filter="FAILED"}[5m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "High number of failed login attempts"
+          description: "Detected {{ $value }} failed login attempts per second"
+          recommendation: "Investigate potential brute force attack"
+          runbook_url: "https://runbooks.example.com/failed-logins"
+          
+      # Root account usage
+      - alert: RootAccountUsage
+        expr: aws_cloudtrail_root_account_usage > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "Root account usage detected"
+          description: "AWS root account has been used for {{ $labels.action }}"
+          action_required: "Investigate root account usage immediately"
+          runbook_url: "https://runbooks.example.com/root-account-security"
+          
+      # Unusual API calls
+      - alert: UnusualAPICallPattern
+        expr: rate(aws_cloudtrail_api_calls{action=~".*Delete.*|.*Terminate.*"}[1h]) > 0.01
+        for: 30m
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "Unusual destructive API call pattern detected"
+          description: "High rate of destructive API calls: {{ $labels.action }}"
+          recommendation: "Investigate unusual API activity"
+          runbook_url: "https://runbooks.example.com/api-monitoring"
+
+  # =============================================================================
+  # ENCRYPTION & DATA PROTECTION ALERTS
+  # =============================================================================
+  - name: security.encryption
+    interval: 60s
+    rules:
+      # KMS key rotation overdue (STEP 2 Integration)
+      - alert: KMSKeyRotationOverdue
+        expr: |
+          (time() - aws_kms_key_last_rotation_timestamp) / 86400 > 365
+          and aws_kms_key_rotation_enabled == 1
+        for: 24h
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "KMS key rotation is overdue"
+          description: "KMS key {{ $labels.key_id }} has not been rotated for {{ $value }} days"
+          recommendation: "Review KMS key rotation policy and rotate if necessary"
+          runbook_url: "https://runbooks.example.com/kms-rotation"
+          
+      # Unencrypted data transmission
+      - alert: UnencryptedDataTransmission
+        expr: |
+          aws_elb_request_count{protocol="HTTP"} > 0
+          and aws_elb_request_count{protocol="HTTPS"} == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "Unencrypted data transmission detected"
+          description: "Load balancer {{ $labels.load_balancer }} is serving HTTP traffic without HTTPS"
+          recommendation: "Implement SSL/TLS termination and redirect HTTP to HTTPS"
+          runbook_url: "https://runbooks.example.com/tls-encryption"
+          
+      # Certificate expiration warning
+      - alert: SSLCertificateExpiringSoon
+        expr: (aws_acm_certificate_expiry_timestamp - time()) / 86400 < 30
+        for: 4h
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate {{ $labels.certificate_arn }} expires in {{ $value }} days"
+          recommendation: "Renew SSL certificate before expiration"
+          runbook_url: "https://runbooks.example.com/ssl-renewal"
+
+  # =============================================================================
+  # VULNERABILITY & PATCH MANAGEMENT
+  # =============================================================================
+  - name: security.vulnerability
+    interval: 3h
+    rules:
+      # Critical security patches available
+      - alert: CriticalSecurityPatchesAvailable
+        expr: aws_systems_manager_patch_compliance{severity="Critical", status="Missing"} > 0
+        for: 12h
+        labels:
+          severity: high
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "Critical security patches available"
+          description: "{{ $value }} critical security patches are missing on {{ $labels.instance_id }}"
+          action_required: "Schedule emergency patching window"
+          runbook_url: "https://runbooks.example.com/emergency-patching"
+          
+      # Outdated AMI usage
+      - alert: OutdatedAMIUsage
+        expr: |
+          (time() - aws_ec2_ami_creation_timestamp) / 86400 > 90
+        for: 7d
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "Outdated AMI in use"
+          description: "Instance {{ $labels.instance_id }} is using AMI {{ $labels.ami_id }} that is {{ $value }} days old"
+          recommendation: "Update to latest AMI with security patches"
+          runbook_url: "https://runbooks.example.com/ami-updates"
+          
+      # Container image vulnerabilities
+      - alert: ContainerImageVulnerabilities
+        expr: container_image_vulnerability_count{severity="HIGH"} > 0
+        for: 24h
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "High severity vulnerabilities in container image"
+          description: "Container image {{ $labels.image }} has {{ $value }} high severity vulnerabilities"
+          recommendation: "Update container image to patch vulnerabilities"
+          runbook_url: "https://runbooks.example.com/container-security"
+
+  # =============================================================================
+  # NETWORK SECURITY ALERTS
+  # =============================================================================
+  - name: security.network
+    interval: 60s
+    rules:
+      # Unusual network traffic
+      - alert: UnusualNetworkTraffic
+        expr: rate(aws_ec2_network_packets_in[5m]) > 10000
+        for: 15m
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "Unusual network traffic detected"
+          description: "Instance {{ $labels.instance_id }} is receiving {{ $value }} packets per second"
+          recommendation: "Investigate potential DDoS or security incident"
+          runbook_url: "https://runbooks.example.com/network-security"
+          
+      # VPC Flow Logs disabled
+      - alert: VPCFlowLogsDisabled
+        expr: aws_vpc_flow_logs_enabled == 0
+        for: 1h
+        labels:
+          severity: warning
+          component: security
+          environment: ${environment}
+        annotations:
+          summary: "VPC Flow Logs are disabled"
+          description: "VPC {{ $labels.vpc_id }} does not have Flow Logs enabled"
+          recommendation: "Enable VPC Flow Logs for network monitoring"
+          runbook_url: "https://runbooks.example.com/vpc-flow-logs"
