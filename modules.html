@@ -26,6 +26,17 @@
     <meta name="twitter:image" content="https://univaicloud.com/frontend/assets/images/univai-logo.png">
     
     <link rel="icon" type="image/png" href="frontend/assets/images/univai-logo.png">
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                console.log('Service Worker registered with scope:', registration.scope);
+            }).catch(function(error) {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="frontend/assets/brand.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
