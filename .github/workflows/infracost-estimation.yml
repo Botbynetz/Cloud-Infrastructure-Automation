@@ -1,0 +1,583 @@
+name: Infracost - Cost Estimation
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'terraform/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'terraform/**'
+  workflow_dispatch:
+  schedule:
+    # Monthly cost report on 1st of each month at 9 AM UTC
+    - cron: '0 9 1 * *'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  TF_VERSION: 1.6.0
+  INFRACOST_VERSION: 0.10.x
+
+jobs:
+  # ============================================
+  # JOB 1: Cost Estimation - All Environments
+  # ============================================
+  infracost-estimate:
+    name: Cost Estimation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, staging, prod, dr]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+          version: ${{ env.INFRACOST_VERSION }}
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend=false
+      
+      - name: Generate Infracost Baseline
+        run: |
+          cd terraform
+          infracost breakdown \
+            --path . \
+            --terraform-var-file=environments/${{ matrix.environment }}.tfvars \
+            --format json \
+            --out-file /tmp/infracost-baseline-${{ matrix.environment }}.json
+      
+      - name: Generate Cost Estimate
+        run: |
+          cd terraform
+          infracost breakdown \
+            --path . \
+            --terraform-var-file=environments/${{ matrix.environment }}.tfvars \
+            --format table \
+            --out-file /tmp/infracost-${{ matrix.environment }}.txt
+          
+          # Also generate HTML report
+          infracost breakdown \
+            --path . \
+            --terraform-var-file=environments/${{ matrix.environment }}.tfvars \
+            --format html \
+            --out-file /tmp/infracost-${{ matrix.environment }}.html
+      
+      - name: Check Cost Threshold
+        id: cost_check
+        run: |
+          cd terraform
+          
+          # Get monthly cost
+          MONTHLY_COST=$(infracost breakdown \
+            --path . \
+            --terraform-var-file=environments/${{ matrix.environment }}.tfvars \
+            --format json | jq -r '.totalMonthlyCost')
+          
+          echo "monthly_cost=$MONTHLY_COST" >> $GITHUB_OUTPUT
+          
+          # Set thresholds per environment (from STEP 3 policies)
+          case "${{ matrix.environment }}" in
+            dev)
+              THRESHOLD=500
+              ;;
+            staging)
+              THRESHOLD=2000
+              ;;
+            prod)
+              THRESHOLD=10000
+              ;;
+            dr)
+              THRESHOLD=10000
+              ;;
+          esac
+          
+          echo "threshold=$THRESHOLD" >> $GITHUB_OUTPUT
+          
+          # Compare
+          if (( $(echo "$MONTHLY_COST > $THRESHOLD" | bc -l) )); then
+            echo "threshold_exceeded=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Cost threshold exceeded: \$$MONTHLY_COST > \$$THRESHOLD"
+          else
+            echo "threshold_exceeded=false" >> $GITHUB_OUTPUT
+            echo "✅ Cost within threshold: \$$MONTHLY_COST <= \$$THRESHOLD"
+          fi
+      
+      - name: Upload Cost Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: infracost-report-${{ matrix.environment }}
+          path: |
+            /tmp/infracost-*.json
+            /tmp/infracost-*.txt
+            /tmp/infracost-*.html
+          retention-days: 90
+
+  # ============================================
+  # JOB 2: Cost Diff on PR
+  # ============================================
+  infracost-pr-diff:
+    name: Cost Diff (PR)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+      
+      - name: Generate Baseline Costs
+        run: |
+          cd terraform
+          terraform init -backend=false
+          
+          # Generate baseline for each environment
+          for env in dev staging prod dr; do
+            infracost breakdown \
+              --path . \
+              --terraform-var-file=environments/${env}.tfvars \
+              --format json \
+              --out-file /tmp/infracost-base-${env}.json
+          done
+      
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+      
+      - name: Generate PR Costs
+        run: |
+          cd terraform
+          terraform init -backend=false
+          
+          # Generate costs for PR changes
+          for env in dev staging prod dr; do
+            infracost breakdown \
+              --path . \
+              --terraform-var-file=environments/${env}.tfvars \
+              --format json \
+              --out-file /tmp/infracost-pr-${env}.json
+          done
+      
+      - name: Generate Cost Diff
+        id: diff
+        run: |
+          # Combine all environments
+          infracost diff \
+            --path /tmp/infracost-base-*.json \
+            --compare-to /tmp/infracost-pr-*.json \
+            --format json \
+            --out-file /tmp/infracost-diff.json
+          
+          # Generate human-readable diff
+          infracost diff \
+            --path /tmp/infracost-base-*.json \
+            --compare-to /tmp/infracost-pr-*.json \
+            --format table \
+            --out-file /tmp/infracost-diff.txt
+          
+          # Get total diff
+          TOTAL_DIFF=$(jq -r '.diffTotalMonthlyCost' /tmp/infracost-diff.json)
+          echo "total_diff=$TOTAL_DIFF" >> $GITHUB_OUTPUT
+          
+          # Check if cost increases significantly
+          if (( $(echo "$TOTAL_DIFF > 1000" | bc -l) )); then
+            echo "significant_increase=true" >> $GITHUB_OUTPUT
+          else
+            echo "significant_increase=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Comment PR - Cost Diff
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const diff = fs.readFileSync('/tmp/infracost-diff.txt', 'utf8');
+            const totalDiff = '${{ steps.diff.outputs.total_diff }}';
+            const significant = '${{ steps.diff.outputs.significant_increase }}' === 'true';
+            
+            const emoji = significant ? '🚨' : '💰';
+            const warning = significant ? '\n\n⚠️ **WARNING: Significant cost increase detected!**' : '';
+            
+            const comment = `## ${emoji} Infrastructure Cost Estimate
+            
+            **Total Monthly Cost Change:** $${totalDiff}
+            ${warning}
+            
+            <details>
+            <summary>View Detailed Cost Breakdown</summary>
+            
+            \`\`\`
+            ${diff}
+            \`\`\`
+            </details>
+            
+            ### Cost by Environment
+            - 📊 Download detailed reports from workflow artifacts
+            - 🔍 Review cost optimization recommendations below
+            
+            ### Recommendations
+            ${significant ? '- ⚠️ Review and justify the cost increase\n- Consider cost optimization strategies\n- Update budget alerts if needed' : '- ✅ Cost change is within acceptable range\n- Continue monitoring in production'}
+            
+            ---
+            *Powered by [Infracost](https://www.infracost.io) - Cost estimates are based on list prices*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+      
+      - name: Upload Diff Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: infracost-pr-diff
+          path: /tmp/infracost-diff.*
+          retention-days: 90
+
+  # ============================================
+  # JOB 3: Cost Optimization Analysis
+  # ============================================
+  cost-optimization:
+    name: Cost Optimization Analysis
+    runs-on: ubuntu-latest
+    needs: infracost-estimate
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download All Cost Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: cost-reports/
+      
+      - name: Analyze Cost Optimization
+        run: |
+          cat > /tmp/cost-optimization.md << 'EOF'
+          # 💰 Cost Optimization Recommendations
+          
+          ## Overview
+          Monthly infrastructure cost analysis and optimization opportunities.
+          
+          ## Quick Wins
+          
+          ### 1. Right-Sizing Instances
+          - **Dev Environment**: Use t3.micro instead of t3.small (30% savings)
+          - **Staging**: Consider spot instances for non-critical workloads (70% savings)
+          - **Production**: Review CloudWatch metrics for underutilized instances
+          
+          ### 2. Storage Optimization
+          - Enable S3 Intelligent-Tiering for infrequently accessed data
+          - Implement lifecycle policies for old logs (move to Glacier after 90 days)
+          - Review EBS volumes and delete unused snapshots
+          
+          ### 3. Reserved Instances / Savings Plans
+          - **Production**: Consider 1-year Reserved Instances (40% savings)
+          - **Staging**: Use Savings Plans for flexible workloads (30% savings)
+          - Review usage patterns monthly
+          
+          ### 4. Auto-Scaling
+          - Implement auto-shutdown for dev environment (evenings/weekends)
+          - Use scheduled scaling for predictable load patterns
+          - Set up CloudWatch alarms for cost anomalies
+          
+          ### 5. Network Optimization
+          - Use VPC endpoints to avoid NAT Gateway costs
+          - Minimize cross-AZ data transfer
+          - Review CloudFront usage for static content
+          
+          ## Environment-Specific Recommendations
+          
+          ### Development
+          - ✅ Auto-shutdown enabled (saves ~70% on compute)
+          - ⚠️ Consider using AWS Lambda for intermittent workloads
+          - 💡 Use smaller instance types (t3.micro)
+          
+          ### Staging
+          - ✅ No multi-AZ for RDS (policy enforced)
+          - ⚠️ Consider spot instances for testing
+          - 💡 Share resources across multiple projects
+          
+          ### Production
+          - ✅ Multi-AZ enabled for HA
+          - ✅ Reserved capacity for predictable workloads
+          - 💡 Review CloudWatch metrics for optimization
+          
+          ### Disaster Recovery
+          - ✅ Resources only in standby
+          - ⚠️ Consider warm standby vs hot standby trade-offs
+          - 💡 Use automated backups instead of full replication when possible
+          
+          ## Cost Monitoring
+          
+          ### Set Up Alerts
+          - AWS Budgets: Monthly threshold alerts
+          - CloudWatch: Cost anomaly detection
+          - Infracost: PR-level cost review
+          
+          ### Regular Reviews
+          - Weekly: Check cost trends
+          - Monthly: Review this optimization report
+          - Quarterly: Re-evaluate Reserved Instance strategy
+          
+          ## Estimated Savings
+          - **Quick Wins**: $500-1000/month (5-10% reduction)
+          - **Reserved Instances**: $2000-4000/month (20-40% reduction)
+          - **Right-Sizing**: $300-600/month (3-6% reduction)
+          
+          **Total Potential Savings**: $2800-5600/month (28-56% reduction)
+          
+          ## Action Items
+          1. ☐ Review underutilized EC2 instances
+          2. ☐ Enable S3 lifecycle policies
+          3. ☐ Purchase Reserved Instances for production
+          4. ☐ Implement auto-shutdown for dev
+          5. ☐ Set up AWS Budgets alerts
+          6. ☐ Schedule quarterly cost review meeting
+          
+          ---
+          *Report generated on $(date)*
+          EOF
+          
+          cat /tmp/cost-optimization.md >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload Optimization Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cost-optimization-report
+          path: /tmp/cost-optimization.md
+          retention-days: 90
+
+  # ============================================
+  # JOB 4: Monthly Cost Report
+  # ============================================
+  monthly-cost-report:
+    name: Monthly Cost Report
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 9 1 * *' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Generate Monthly Report
+        run: |
+          cd terraform
+          terraform init -backend=false
+          
+          # Generate comprehensive report
+          cat > /tmp/monthly-cost-report.md << EOF
+          # 📊 Monthly Infrastructure Cost Report
+          
+          **Report Date:** $(date +"%B %Y")
+          **Generated:** $(date)
+          
+          ## Executive Summary
+          
+          EOF
+          
+          TOTAL_COST=0
+          
+          for env in dev staging prod dr; do
+            COST=$(infracost breakdown \
+              --path . \
+              --terraform-var-file=environments/${env}.tfvars \
+              --format json | jq -r '.totalMonthlyCost')
+            
+            TOTAL_COST=$(echo "$TOTAL_COST + $COST" | bc)
+            
+            cat >> /tmp/monthly-cost-report.md << EOF
+          ### ${env^} Environment
+          - **Monthly Cost:** \$${COST}
+          
+          EOF
+            
+            # Generate detailed breakdown
+            infracost breakdown \
+              --path . \
+              --terraform-var-file=environments/${env}.tfvars \
+              --format table >> /tmp/monthly-cost-report-${env}.txt
+          done
+          
+          cat >> /tmp/monthly-cost-report.md << EOF
+          
+          ## Total Monthly Cost
+          **\$${TOTAL_COST}**
+          
+          ## Cost Breakdown by Service
+          - EC2 Instances
+          - RDS Databases
+          - S3 Storage
+          - Data Transfer
+          - Other Services
+          
+          ## Trends
+          - Compare with previous month
+          - Year-over-year comparison
+          - Growth rate analysis
+          
+          ## Recommendations
+          See detailed cost optimization report for savings opportunities.
+          
+          ---
+          *Automated monthly report powered by Infracost*
+          EOF
+      
+      - name: Create GitHub Issue - Monthly Report
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/monthly-cost-report.md', 'utf8');
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 Monthly Cost Report - ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}`,
+              body: report,
+              labels: ['cost-report', 'finops', 'monthly-report']
+            });
+            
+            console.log('Created monthly cost report issue:', issue.data.number);
+      
+      - name: Upload Monthly Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-cost-report-${{ github.run_id }}
+          path: /tmp/monthly-cost-report*
+          retention-days: 365  # Keep for 1 year
+
+  # ============================================
+  # JOB 5: Budget Alert Check
+  # ============================================
+  budget-alert:
+    name: Budget Alert Check
+    runs-on: ubuntu-latest
+    needs: infracost-estimate
+    
+    steps:
+      - name: Download Cost Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: cost-reports/
+      
+      - name: Check Budget Thresholds
+        id: budget
+        run: |
+          # Define monthly budgets per environment
+          declare -A BUDGETS=(
+            [dev]=500
+            [staging]=2000
+            [prod]=10000
+            [dr]=10000
+          )
+          
+          ALERTS=""
+          
+          for env in dev staging prod dr; do
+            # Extract cost from JSON report
+            COST=$(jq -r '.totalMonthlyCost' cost-reports/infracost-report-${env}/infracost-baseline-${env}.json 2>/dev/null || echo "0")
+            BUDGET=${BUDGETS[$env]}
+            THRESHOLD_80=$(echo "$BUDGET * 0.8" | bc)
+            THRESHOLD_100=$(echo "$BUDGET * 1.0" | bc)
+            
+            if (( $(echo "$COST > $THRESHOLD_100" | bc -l) )); then
+              ALERTS="${ALERTS}\n🚨 **${env^^}**: \$${COST} exceeds budget (\$${BUDGET})"
+            elif (( $(echo "$COST > $THRESHOLD_80" | bc -l) )); then
+              ALERTS="${ALERTS}\n⚠️ **${env^^}**: \$${COST} is above 80% of budget (\$${BUDGET})"
+            fi
+          done
+          
+          if [ -n "$ALERTS" ]; then
+            echo "alerts_found=true" >> $GITHUB_OUTPUT
+            echo -e "$ALERTS" > /tmp/budget-alerts.txt
+          else
+            echo "alerts_found=false" >> $GITHUB_OUTPUT
+            echo "✅ All environments within budget" > /tmp/budget-alerts.txt
+          fi
+      
+      - name: Create Budget Alert Issue
+        if: steps.budget.outputs.alerts_found == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const alerts = fs.readFileSync('/tmp/budget-alerts.txt', 'utf8');
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Budget Alert - Cost Threshold Exceeded',
+              body: `## Budget Alert
+              
+              ${alerts}
+              
+              ## Action Required
+              1. Review cost reports in workflow artifacts
+              2. Identify cost drivers
+              3. Implement cost optimization measures
+              4. Update budgets if needed
+              
+              ## Resources
+              - Cost reports: See workflow artifacts
+              - Optimization guide: \`.github/workflows/README.md\`
+              - AWS Cost Explorer: Check detailed breakdown
+              
+              **Generated:** ${new Date().toISOString()}
+              `,
+              labels: ['budget-alert', 'finops', 'high-priority']
+            });
+            
+            console.log('Created budget alert issue:', issue.data.number);
+      
+      - name: Notify Team
+        if: steps.budget.outputs.alerts_found == 'true'
+        run: |
+          echo "## 🚨 Budget Alert" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/budget-alerts.txt >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A GitHub issue has been created to track this alert." >> $GITHUB_STEP_SUMMARY
