@@ -231,6 +231,9 @@ async function simulateDeployment(config) {
     deployBtn.classList.add('deploying');
     deployBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Deploying...</span>';
     
+    // Reset workflow
+    resetWorkflow();
+    
     const startTime = Date.now();
     
     addConsoleLog('🚀 Starting deployment process...', 'info');
@@ -238,6 +241,9 @@ async function simulateDeployment(config) {
     addConsoleLog(`Environment: ${config.environment}`, 'info');
     addConsoleLog(`Region: ${config.awsRegion}`, 'info');
     addConsoleLog(`Modules: ${selectedModules.length}`, 'info');
+    
+    // Start workflow animation
+    animateWorkflow();
     
     await sleep(1000);
     
@@ -279,6 +285,9 @@ async function simulateDeployment(config) {
         
         await sleep(500);
     }
+    
+    // Complete workflow animation
+    completeWorkflow();
     
     updateProgress(90, 'Finalizing deployment...');
     addConsoleLog('🔧 Running post-deployment checks...', 'info');
@@ -415,3 +424,115 @@ document.getElementById('deploy-form').addEventListener('submit', async function
 addConsoleLog(`Connected to CloudStack deployment platform`, 'info');
 addConsoleLog(`Your tier: ${tierConfig.name} (${tierConfig.maxModules} modules max)`, 'info');
 addConsoleLog(`Ready to deploy to AWS region of your choice`, 'success');
+
+// Workflow Visualization Functions
+function updateWorkflowNode(nodeId, status) {
+    const node = document.getElementById(`node-${nodeId}`);
+    if (!node) return;
+    
+    // Remove all status classes
+    node.classList.remove('running', 'completed', 'error');
+    
+    // Update node status class
+    if (status === 'running') {
+        node.classList.add('running');
+    } else if (status === 'success') {
+        node.classList.add('completed');
+    } else if (status === 'error') {
+        node.classList.add('error');
+    }
+    
+    // Update status indicator
+    const statusIndicator = node.querySelector('.node-status');
+    if (statusIndicator) {
+        statusIndicator.className = `node-status ${status}`;
+        
+        // Update icon based on status
+        const icon = statusIndicator.querySelector('i');
+        if (icon) {
+            if (status === 'running') {
+                icon.className = 'fas fa-spinner';
+            } else if (status === 'success') {
+                icon.className = 'fas fa-check';
+            } else if (status === 'error') {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-circle';
+            }
+        }
+    }
+}
+
+function updateWorkflowConnector(connectorId, active) {
+    const connector = document.getElementById(`connector-${connectorId}`);
+    if (!connector) return;
+    
+    if (active) {
+        connector.classList.add('active');
+    } else {
+        connector.classList.remove('active');
+    }
+}
+
+async function animateWorkflow() {
+    // Start
+    updateWorkflowNode('start', 'running');
+    await sleep(1000);
+    updateWorkflowNode('start', 'success');
+    updateWorkflowConnector(1, true);
+    await sleep(500);
+    
+    // Validate
+    updateWorkflowNode('validate', 'running');
+    await sleep(2000);
+    updateWorkflowNode('validate', 'success');
+    updateWorkflowConnector(2, true);
+    await sleep(500);
+    
+    // Provision
+    updateWorkflowNode('provision', 'running');
+    await sleep(3000);
+    updateWorkflowNode('provision', 'success');
+    updateWorkflowConnector(3, true);
+    await sleep(500);
+    
+    // Deploy Modules
+    updateWorkflowNode('modules', 'running');
+    // This will run during module deployment
+}
+
+async function completeWorkflow() {
+    updateWorkflowNode('modules', 'success');
+    updateWorkflowConnector(4, true);
+    await sleep(500);
+    
+    // Configure
+    updateWorkflowNode('configure', 'running');
+    await sleep(2000);
+    updateWorkflowNode('configure', 'success');
+    updateWorkflowConnector(5, true);
+    await sleep(500);
+    
+    // Test
+    updateWorkflowNode('test', 'running');
+    await sleep(1500);
+    updateWorkflowNode('test', 'success');
+    updateWorkflowConnector(6, true);
+    await sleep(500);
+    
+    // Complete
+    updateWorkflowNode('complete', 'running');
+    await sleep(1000);
+    updateWorkflowNode('complete', 'success');
+}
+
+function resetWorkflow() {
+    const nodes = ['start', 'validate', 'provision', 'modules', 'configure', 'test', 'complete'];
+    nodes.forEach(nodeId => {
+        updateWorkflowNode(nodeId, 'pending');
+    });
+    
+    for (let i = 1; i <= 6; i++) {
+        updateWorkflowConnector(i, false);
+    }
+}
