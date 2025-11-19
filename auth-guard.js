@@ -20,9 +20,16 @@
     const currentUser = localStorage.getItem('univai_user');
     const token = localStorage.getItem('univai_token');
     
+    console.log('🔍 Auth Guard Check:', {
+        page: currentPage,
+        hasUser: !!currentUser,
+        hasToken: !!token,
+        userPreview: currentUser ? currentUser.substring(0, 50) + '...' : 'null'
+    });
+    
     if (!currentUser || !token) {
         // Not logged in - redirect to login page
-        console.log('Access denied: User not logged in');
+        console.log('❌ Access denied: User not logged in');
         localStorage.removeItem('univai_user');
         localStorage.removeItem('univai_token');
         window.location.href = 'auth.html';
@@ -36,7 +43,7 @@
             if (tokenPayload && tokenPayload.exp) {
                 const currentTime = Math.floor(Date.now() / 1000);
                 if (currentTime > tokenPayload.exp) {
-                    console.log('Token expired - please login again');
+                    console.log('⚠️ Token expired - please login again');
                     localStorage.removeItem('univai_user');
                     localStorage.removeItem('univai_token');
                     alert('Your session has expired. Please login again.');
@@ -45,12 +52,12 @@
                 }
             }
             
-            console.log('User authenticated:', userData.email);
+            console.log('✅ User authenticated:', userData.email);
             
             // Add user info to pages (if element exists)
             addUserInfoToPage(userData);
         } catch (e) {
-            console.error('Invalid session data');
+            console.error('❌ Invalid session data:', e);
             localStorage.removeItem('univai_user');
             localStorage.removeItem('univai_token');
             window.location.href = 'auth.html';

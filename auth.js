@@ -121,14 +121,15 @@ function handleGoogleSignIn(response) {
             authMethod: 'google',
             loginTime: Date.now()
         }));
+        console.log('✓ Google user data stored');
         
         // Get redirect URL
         const urlParams = new URLSearchParams(window.location.search);
         const tier = urlParams.get('tier') || user.tier;
         
-        setTimeout(() => {
-            window.location.href = `index.html`;
-        }, 1000);
+        // Redirect immediately (no delay needed)
+        console.log('🔄 Redirecting to index.html...');
+        window.location.href = 'index.html';
         
     } catch (error) {
         console.error('Google Sign-In Error:', error);
@@ -222,6 +223,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
             // Store JWT token (IMPORTANT!)
             if (data.token) {
                 localStorage.setItem('univai_token', data.token);
+                console.log('✓ Token stored:', data.token.substring(0, 20) + '...');
             }
             
             // Store user session in localStorage for persistence
@@ -235,13 +237,13 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 plan: data.user.tier || 'free', // For badge system compatibility
                 loginTime: Date.now()
             }));
+            console.log('✓ User data stored');
             
             showAlert('Login successful! Redirecting...', 'success');
             
-            // Redirect to homepage
-            setTimeout(() => {
-                window.location.href = `index.html`;
-            }, 1000);
+            // Redirect to homepage immediately (no delay needed)
+            console.log('🔄 Redirecting to index.html...');
+            window.location.href = 'index.html';
         } else {
             showAlert(data.error || 'Invalid email or password. Please try again.', 'error');
         }
