@@ -103,18 +103,8 @@ if (currentTier === 'ultimate') {
     document.getElementById('tier-badge').classList.add('enterprise');
 }
 
-// Module selector toggle
-const moduleHeaderToggle = document.getElementById('moduleHeaderToggle');
-const moduleSelector = document.getElementById('module-selector');
-
-if (moduleHeaderToggle && moduleSelector) {
-    moduleHeaderToggle.addEventListener('click', function() {
-        this.classList.toggle('active');
-        moduleSelector.classList.toggle('collapsed');
-    });
-}
-
 // Populate module selector
+const moduleSelector = document.getElementById('module-selector');
 let selectedModules = [];
 
 Object.keys(MODULES).forEach(moduleId => {
@@ -153,6 +143,18 @@ Object.keys(MODULES).forEach(moduleId => {
     
     moduleSelector.appendChild(moduleOption);
 });
+
+// Module selector toggle - set after modules are populated
+const moduleHeaderToggle = document.getElementById('moduleHeaderToggle');
+
+if (moduleHeaderToggle && moduleSelector) {
+    moduleHeaderToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.toggle('active');
+        moduleSelector.classList.toggle('collapsed');
+    });
+}
 
 function showUpgradeNotice() {
     const notice = document.getElementById('upgrade-notice');
