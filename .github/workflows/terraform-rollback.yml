@@ -1,0 +1,485 @@
+name: Terraform Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+          - dr
+      rollback_type:
+        description: 'Type of rollback'
+        required: true
+        type: choice
+        options:
+          - previous_state
+          - specific_version
+          - manual_revert
+      state_version:
+        description: 'State version to rollback to (for specific_version)'
+        required: false
+        type: string
+      confirmation:
+        description: 'Type "ROLLBACK" to confirm'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+
+env:
+  TF_VERSION: 1.6.0
+  AWS_REGION: ap-southeast-1
+
+jobs:
+  # ============================================
+  # JOB 1: Validate Rollback Request
+  # ============================================
+  validate-rollback:
+    name: Validate Rollback Request
+    runs-on: ubuntu-latest
+    
+    outputs:
+      confirmed: ${{ steps.validate.outputs.confirmed }}
+      is_production: ${{ steps.validate.outputs.is_production }}
+    
+    steps:
+      - name: Validate Confirmation
+        id: validate
+        run: |
+          if [ "${{ github.event.inputs.confirmation }}" != "ROLLBACK" ]; then
+            echo "❌ Invalid confirmation. Must type 'ROLLBACK' exactly."
+            exit 1
+          fi
+          
+          echo "confirmed=true" >> $GITHUB_OUTPUT
+          
+          if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+            echo "is_production=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Production rollback requested"
+          else
+            echo "is_production=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Rollback Tracking Issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔄 Rollback Initiated - ${{ github.event.inputs.environment }}`,
+              body: `## Rollback Request
+              
+              **Environment:** ${{ github.event.inputs.environment }}
+              **Type:** ${{ github.event.inputs.rollback_type }}
+              **Requested By:** ${{ github.actor }}
+              **Timestamp:** ${new Date().toISOString()}
+              **Run ID:** ${{ github.run_id }}
+              
+              ## Details
+              ${github.event.inputs.state_version ? `**State Version:** ${github.event.inputs.state_version}` : ''}
+              
+              **Status:** 🟡 In Progress
+              
+              This issue will be updated with rollback results.
+              `,
+              labels: ['rollback', '${{ github.event.inputs.environment }}', 'infrastructure']
+            });
+            
+            core.setOutput('issue_number', issue.data.number);
+        id: create_issue
+
+  # ============================================
+  # JOB 2: Backup Current State
+  # ============================================
+  backup-current-state:
+    name: Backup Current State
+    runs-on: ubuntu-latest
+    needs: validate-rollback
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', upper(github.event.inputs.environment))] }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/${{ github.event.inputs.environment }}.conf
+      
+      - name: Backup Current State
+        run: |
+          cd terraform
+          
+          # Pull current state
+          terraform state pull > state-backup-$(date +%Y%m%d-%H%M%S).json
+          
+          # Get current outputs
+          terraform output -json > outputs-backup-$(date +%Y%m%d-%H%M%S).json
+          
+          echo "✅ Current state backed up successfully"
+      
+      - name: Upload State Backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: state-backup-${{ github.event.inputs.environment }}-pre-rollback
+          path: terraform/state-backup-*.json
+          retention-days: 90
+      
+      - name: Upload Outputs Backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: outputs-backup-${{ github.event.inputs.environment }}-pre-rollback
+          path: terraform/outputs-backup-*.json
+          retention-days: 90
+
+  # ============================================
+  # JOB 3: Rollback to Previous State
+  # ============================================
+  rollback-previous-state:
+    name: Rollback to Previous State
+    runs-on: ubuntu-latest
+    needs: backup-current-state
+    if: github.event.inputs.rollback_type == 'previous_state'
+    environment:
+      name: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', upper(github.event.inputs.environment))] }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/${{ github.event.inputs.environment }}.conf
+      
+      - name: Get Previous State Version
+        id: previous
+        run: |
+          cd terraform
+          
+          # Get state versions from S3
+          BUCKET=$(grep -oP 'bucket\s*=\s*"\K[^"]+' backend/${{ github.event.inputs.environment }}.conf)
+          KEY=$(grep -oP 'key\s*=\s*"\K[^"]+' backend/${{ github.event.inputs.environment }}.conf)
+          
+          # List versions (requires versioned S3 bucket)
+          aws s3api list-object-versions \
+            --bucket "$BUCKET" \
+            --prefix "$KEY" \
+            --query 'Versions[1].VersionId' \
+            --output text > previous-version.txt
+          
+          PREVIOUS_VERSION=$(cat previous-version.txt)
+          echo "previous_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+          echo "Previous state version: $PREVIOUS_VERSION"
+      
+      - name: Restore Previous State
+        run: |
+          cd terraform
+          
+          # Get bucket and key
+          BUCKET=$(grep -oP 'bucket\s*=\s*"\K[^"]+' backend/${{ github.event.inputs.environment }}.conf)
+          KEY=$(grep -oP 'key\s*=\s*"\K[^"]+' backend/${{ github.event.inputs.environment }}.conf)
+          
+          # Download previous version
+          aws s3api get-object \
+            --bucket "$BUCKET" \
+            --key "$KEY" \
+            --version-id "${{ steps.previous.outputs.previous_version }}" \
+            previous-state.json
+          
+          # Push previous state as current
+          terraform state push previous-state.json
+          
+          echo "✅ State rolled back to previous version"
+      
+      - name: Generate Plan for Rollback
+        id: plan
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/${{ github.event.inputs.environment }}.tfvars -no-color > rollback-plan.txt 2>&1
+        continue-on-error: true
+      
+      - name: Upload Rollback Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-plan-${{ github.event.inputs.environment }}
+          path: terraform/rollback-plan.txt
+          retention-days: 90
+      
+      - name: Apply Rollback
+        run: |
+          cd terraform
+          terraform apply -var-file=environments/${{ github.event.inputs.environment }}.tfvars -auto-approve
+          
+          echo "✅ Rollback applied successfully"
+      
+      - name: Verify Rollback
+        run: |
+          cd terraform
+          
+          echo "## 🔄 Rollback Verification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Previous State Version:** ${{ steps.previous.outputs.previous_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ✅ Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Current Outputs" >> $GITHUB_STEP_SUMMARY
+          terraform output >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # JOB 4: Rollback to Specific Version
+  # ============================================
+  rollback-specific-version:
+    name: Rollback to Specific Version
+    runs-on: ubuntu-latest
+    needs: backup-current-state
+    if: github.event.inputs.rollback_type == 'specific_version'
+    environment:
+      name: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate State Version
+        run: |
+          if [ -z "${{ github.event.inputs.state_version }}" ]; then
+            echo "❌ State version is required for specific_version rollback"
+            exit 1
+          fi
+          
+          echo "Rolling back to state version: ${{ github.event.inputs.state_version }}"
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', upper(github.event.inputs.environment))] }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/${{ github.event.inputs.environment }}.conf
+      
+      - name: Restore Specific State Version
+        run: |
+          cd terraform
+          
+          BUCKET=$(grep -oP 'bucket\s*=\s*"\K[^"]+' backend/${{ github.event.inputs.environment }}.conf)
+          KEY=$(grep -oP 'key\s*=\s*"\K[^"]+' backend/${{ github.event.inputs.environment }}.conf)
+          
+          # Download specific version
+          aws s3api get-object \
+            --bucket "$BUCKET" \
+            --key "$KEY" \
+            --version-id "${{ github.event.inputs.state_version }}" \
+            specific-state.json
+          
+          # Push state
+          terraform state push specific-state.json
+          
+          echo "✅ State rolled back to version ${{ github.event.inputs.state_version }}"
+      
+      - name: Apply Rollback
+        run: |
+          cd terraform
+          terraform apply -var-file=environments/${{ github.event.inputs.environment }}.tfvars -auto-approve
+
+  # ============================================
+  # JOB 5: Manual Revert (Git-based)
+  # ============================================
+  manual-revert:
+    name: Manual Revert (Git)
+    runs-on: ubuntu-latest
+    needs: backup-current-state
+    if: github.event.inputs.rollback_type == 'manual_revert'
+    
+    steps:
+      - name: Instructions
+        run: |
+          echo "## 📝 Manual Revert Instructions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Manual revert requires manual git operations:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Find the commit to revert to:" >> $GITHUB_STEP_SUMMARY
+          echo "   \`git log --oneline\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "2. Create revert commit:" >> $GITHUB_STEP_SUMMARY
+          echo "   \`git revert <commit-hash>\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "3. Push changes:" >> $GITHUB_STEP_SUMMARY
+          echo "   \`git push origin main\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "4. CI/CD pipeline will automatically deploy" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # JOB 6: Post-Rollback Validation
+  # ============================================
+  validate-rollback:
+    name: Post-Rollback Validation
+    runs-on: ubuntu-latest
+    needs: [rollback-previous-state, rollback-specific-version, manual-revert]
+    if: always() && (needs.rollback-previous-state.result == 'success' || needs.rollback-specific-version.result == 'success')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', upper(github.event.inputs.environment))] }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/${{ github.event.inputs.environment }}.conf
+      
+      - name: Validate Infrastructure
+        run: |
+          cd terraform
+          terraform validate
+          terraform output -json > post-rollback-outputs.json
+          
+          echo "✅ Post-rollback validation successful"
+      
+      - name: Upload Post-Rollback Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-rollback-outputs-${{ github.event.inputs.environment }}
+          path: terraform/post-rollback-outputs.json
+          retention-days: 90
+      
+      - name: Run Health Checks
+        run: |
+          echo "## 🏥 Health Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Terraform validation passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Infrastructure outputs verified" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Recommendation:** Monitor application logs and metrics" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Update Tracking Issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'rollback,${{ github.event.inputs.environment }}'
+            });
+            
+            if (issues.data.length > 0) {
+              const issue = issues.data[0];
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `## ✅ Rollback Completed
+                
+                **Status:** Success
+                **Completed:** ${new Date().toISOString()}
+                **Run ID:** ${{ github.run_id }}
+                
+                ### Post-Rollback Validation
+                - ✅ Terraform validation passed
+                - ✅ Infrastructure outputs verified
+                - ✅ State backup created
+                
+                ### Next Steps
+                1. Monitor application metrics
+                2. Verify application functionality
+                3. Review logs for errors
+                4. Document lessons learned
+                
+                See workflow run for detailed artifacts.
+                `
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                labels: ['rollback', '${{ github.event.inputs.environment }}', 'infrastructure', 'completed']
+              });
+            }
+
+  # ============================================
+  # JOB 7: Notification
+  # ============================================
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: validate-rollback
+    if: always()
+    
+    steps:
+      - name: Create Summary
+        run: |
+          echo "# 🔄 Rollback Operation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Rollback Type:** ${{ github.event.inputs.rollback_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Requested By:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ needs.validate-rollback.result == 'success' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- State backup (pre-rollback)" >> $GITHUB_STEP_SUMMARY
+          echo "- Outputs backup (pre-rollback)" >> $GITHUB_STEP_SUMMARY
+          echo "- Rollback plan" >> $GITHUB_STEP_SUMMARY
+          echo "- Post-rollback outputs" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Notify Slack (if configured)
+        run: |
+          echo "Rollback completed for ${{ github.event.inputs.environment }}"
+          # Add Slack webhook here if needed

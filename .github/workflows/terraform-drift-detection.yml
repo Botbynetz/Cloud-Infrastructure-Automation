@@ -1,0 +1,390 @@
+name: Terraform Drift Detection
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC for production
+    - cron: '0 2 * * *'
+    # Run weekly on Mondays at 3 AM UTC for non-prod
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to check drift'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+          - dr
+          - all
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+env:
+  TF_VERSION: 1.6.0
+  AWS_REGION: ap-southeast-1
+
+jobs:
+  # ============================================
+  # JOB 1: Detect Drift - Production (Daily)
+  # ============================================
+  drift-prod:
+    name: Drift Detection - Production
+    runs-on: ubuntu-latest
+    if: |
+      github.event.schedule == '0 2 * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.environment == 'prod' || github.event.inputs.environment == 'all'))
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/prod.conf
+      
+      - name: Terraform Plan (Drift Check)
+        id: drift
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/prod.tfvars -detailed-exitcode -no-color > drift-report.txt 2>&1
+        continue-on-error: true
+      
+      - name: Check Drift Status
+        id: check
+        run: |
+          EXIT_CODE=${{ steps.drift.outcome }}
+          
+          if [ "$EXIT_CODE" == "0" ]; then
+            echo "drift_detected=false" >> $GITHUB_OUTPUT
+            echo "✅ No drift detected in production"
+          elif [ "$EXIT_CODE" == "2" ]; then
+            echo "drift_detected=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Drift detected in production!"
+          else
+            echo "drift_detected=error" >> $GITHUB_OUTPUT
+            echo "❌ Error checking drift"
+          fi
+      
+      - name: Upload Drift Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report-prod
+          path: terraform/drift-report.txt
+          retention-days: 90
+      
+      - name: Create GitHub Issue
+        if: steps.check.outputs.drift_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const driftReport = fs.readFileSync('terraform/drift-report.txt', 'utf8');
+            const truncatedReport = driftReport.length > 50000 ? driftReport.substring(0, 50000) + '\n... (truncated)' : driftReport;
+            
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'drift-detection,production'
+            });
+            
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Infrastructure Drift Detected - Production',
+                body: `## Infrastructure Drift Detected
+                
+                **Environment:** Production
+                **Detected:** ${new Date().toISOString()}
+                **Severity:** 🔴 High
+                
+                <details>
+                <summary>Drift Report</summary>
+                
+                \`\`\`
+                ${truncatedReport}
+                \`\`\`
+                </details>
+                
+                ## Action Required
+                
+                1. Review the drift report above
+                2. Identify the source of changes (manual changes, out-of-band updates)
+                3. Either:
+                   - Update Terraform code to match current state
+                   - Revert manual changes and re-apply Terraform
+                4. Run \`terraform apply\` to reconcile state
+                
+                ## Remediation Steps
+                
+                \`\`\`bash
+                cd terraform
+                terraform init -backend-config=backend/prod.conf
+                terraform plan -var-file=environments/prod.tfvars
+                # Review carefully, then apply
+                terraform apply -var-file=environments/prod.tfvars
+                \`\`\`
+                
+                ## Prevention
+                
+                - Avoid manual changes in production
+                - Use Terraform for all infrastructure changes
+                - Enable AWS Config for change tracking
+                - Review IAM policies for excessive permissions
+                `,
+                labels: ['drift-detection', 'production', 'infrastructure', 'high-priority']
+              });
+              
+              console.log('Created drift detection issue');
+            } else {
+              console.log('Drift issue already exists');
+            }
+
+  # ============================================
+  # JOB 2: Detect Drift - DR (Daily)
+  # ============================================
+  drift-dr:
+    name: Drift Detection - DR
+    runs-on: ubuntu-latest
+    if: |
+      github.event.schedule == '0 2 * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.environment == 'dr' || github.event.inputs.environment == 'all'))
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DR }}
+          aws-region: us-west-2  # DR region
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/dr.conf
+      
+      - name: Terraform Plan (Drift Check)
+        id: drift
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/dr.tfvars -detailed-exitcode -no-color > drift-report.txt 2>&1
+        continue-on-error: true
+      
+      - name: Check Drift Status
+        id: check
+        run: |
+          if [ "${{ steps.drift.outcome }}" == "success" ]; then
+            echo "drift_detected=false" >> $GITHUB_OUTPUT
+          else
+            echo "drift_detected=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Upload Drift Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report-dr
+          path: terraform/drift-report.txt
+          retention-days: 90
+      
+      - name: Create GitHub Issue
+        if: steps.check.outputs.drift_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const driftReport = fs.readFileSync('terraform/drift-report.txt', 'utf8');
+            
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'drift-detection,dr'
+            });
+            
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Infrastructure Drift Detected - Disaster Recovery',
+                body: `## Infrastructure Drift Detected
+                
+                **Environment:** Disaster Recovery (DR)
+                **Detected:** ${new Date().toISOString()}
+                **Severity:** 🔴 Critical
+                
+                ⚠️ **Drift in DR environment may affect disaster recovery capabilities!**
+                
+                Download the drift report artifact from the Actions tab for details.
+                `,
+                labels: ['drift-detection', 'dr', 'infrastructure', 'critical']
+              });
+            }
+
+  # ============================================
+  # JOB 3: Detect Drift - Staging (Weekly)
+  # ============================================
+  drift-staging:
+    name: Drift Detection - Staging
+    runs-on: ubuntu-latest
+    if: |
+      github.event.schedule == '0 3 * * 1' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.environment == 'staging' || github.event.inputs.environment == 'all'))
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_STAGING }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/staging.conf
+      
+      - name: Terraform Plan (Drift Check)
+        id: drift
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/staging.tfvars -detailed-exitcode -no-color > drift-report.txt 2>&1
+        continue-on-error: true
+      
+      - name: Upload Drift Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report-staging
+          path: terraform/drift-report.txt
+          retention-days: 30
+
+  # ============================================
+  # JOB 4: Detect Drift - Development (Weekly)
+  # ============================================
+  drift-dev:
+    name: Drift Detection - Development
+    runs-on: ubuntu-latest
+    if: |
+      github.event.schedule == '0 3 * * 1' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.environment == 'dev' || github.event.inputs.environment == 'all'))
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/dev.conf
+      
+      - name: Terraform Plan (Drift Check)
+        id: drift
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/dev.tfvars -detailed-exitcode -no-color > drift-report.txt 2>&1
+        continue-on-error: true
+      
+      - name: Upload Drift Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report-dev
+          path: terraform/drift-report.txt
+          retention-days: 30
+
+  # ============================================
+  # JOB 5: Generate Drift Summary
+  # ============================================
+  drift-summary:
+    name: Drift Summary Report
+    runs-on: ubuntu-latest
+    needs: [drift-prod, drift-dr, drift-staging, drift-dev]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download All Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: drift-reports/
+      
+      - name: Generate Summary
+        run: |
+          echo "# 📊 Infrastructure Drift Detection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Environments Scanned" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | Frequency | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Production | Daily | ${{ needs.drift-prod.result == 'success' && '✅ No Drift' || '⚠️ Check Reports' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| DR | Daily | ${{ needs.drift-dr.result == 'success' && '✅ No Drift' || '⚠️ Check Reports' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Staging | Weekly | ${{ needs.drift-staging.result == 'success' && '✅ No Drift' || '⚠️ Check Reports' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Development | Weekly | ${{ needs.drift-dev.result == 'success' && '✅ No Drift' || '⚠️ Check Reports' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review any drift reports in the artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Check for open drift detection issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Remediate drift using Terraform" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload Consolidated Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-summary-all-environments
+          path: drift-reports/
+          retention-days: 90

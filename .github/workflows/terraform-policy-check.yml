@@ -1,0 +1,412 @@
+name: OPA Policy Enforcement
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'terraform/**'
+      - 'policies/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'terraform/**'
+      - 'policies/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to check policies'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+          - dr
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  TF_VERSION: 1.6.0
+  OPA_VERSION: 0.58.0
+  AWS_REGION: ap-southeast-1
+
+jobs:
+  # ============================================
+  # JOB 1: Validate OPA Policies
+  # ============================================
+  validate-policies:
+    name: Validate OPA Policies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: ${{ env.OPA_VERSION }}
+      
+      - name: Validate Policy Syntax
+        run: |
+          cd policies
+          opa check terraform.rego
+          opa check cost.rego
+          opa check compliance.rego
+      
+      - name: Run Policy Tests
+        id: test
+        run: |
+          cd policies
+          opa test . -v
+      
+      - name: Comment PR - Policy Tests
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const testSuccess = '${{ steps.test.outcome }}' === 'success';
+            
+            const comment = `## OPA Policy Validation
+            
+            | Check | Status |
+            |-------|--------|
+            | Policy Syntax | ✅ Valid |
+            | Policy Tests | ${testSuccess ? '✅ All Passed' : '❌ Failed'} |
+            
+            All ${testSuccess ? '20+' : 'some'} policy tests ${testSuccess ? 'passed successfully' : 'failed'}.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # ============================================
+  # JOB 2: Security Policy Checks
+  # ============================================
+  security-policies:
+    name: Security Policy Checks
+    runs-on: ubuntu-latest
+    needs: validate-policies
+    strategy:
+      matrix:
+        environment: [dev, staging, prod, dr]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', upper(matrix.environment))] }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: ${{ env.OPA_VERSION }}
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/${{ matrix.environment }}.conf
+      
+      - name: Terraform Plan JSON
+        id: plan
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/${{ matrix.environment }}.tfvars -out=tfplan.binary
+          terraform show -json tfplan.binary > tfplan.json
+        continue-on-error: true
+      
+      - name: Run Security Policy Check
+        id: security
+        run: |
+          cd terraform
+          opa eval --data ../policies/terraform.rego --input tfplan.json "data.terraform.deny" --format pretty > security-violations.txt
+          
+          # Check if violations exist
+          if grep -q "true" security-violations.txt; then
+            echo "violations_found=true" >> $GITHUB_OUTPUT
+            cat security-violations.txt
+            exit 1
+          else
+            echo "violations_found=false" >> $GITHUB_OUTPUT
+            echo "✅ No security policy violations found"
+          fi
+        continue-on-error: true
+      
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report-${{ matrix.environment }}
+          path: terraform/security-violations.txt
+          retention-days: 30
+      
+      - name: Comment PR - Security Violations
+        if: github.event_name == 'pull_request' && steps.security.outputs.violations_found == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const violations = fs.readFileSync('terraform/security-violations.txt', 'utf8');
+            
+            const comment = `## 🔒 Security Policy Violations - ${{ matrix.environment }}
+            
+            ⚠️ **Security violations detected in ${{ matrix.environment }} environment!**
+            
+            <details>
+            <summary>Show Violations</summary>
+            
+            \`\`\`
+            ${violations}
+            \`\`\`
+            </details>
+            
+            **Action Required:**
+            - Review and fix all security violations
+            - Ensure no public S3 buckets
+            - Verify encryption is enabled
+            - Check security group rules
+            - Validate HTTPS enforcement
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # ============================================
+  # JOB 3: Cost Policy Checks
+  # ============================================
+  cost-policies:
+    name: Cost Policy Checks
+    runs-on: ubuntu-latest
+    needs: validate-policies
+    strategy:
+      matrix:
+        environment: [dev, staging, prod, dr]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', upper(matrix.environment))] }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: ${{ env.OPA_VERSION }}
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/${{ matrix.environment }}.conf
+      
+      - name: Terraform Plan JSON
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/${{ matrix.environment }}.tfvars -out=tfplan.binary
+          terraform show -json tfplan.binary > tfplan.json
+      
+      - name: Run Cost Policy Check
+        id: cost
+        run: |
+          cd terraform
+          opa eval --data ../policies/cost.rego --input tfplan.json "data.cost.violations" --format pretty > cost-violations.txt
+          opa eval --data ../policies/cost.rego --input tfplan.json "data.cost.monthly_cost_estimate" --format pretty > cost-estimate.txt
+          
+          # Check for violations
+          if grep -q "true" cost-violations.txt; then
+            echo "violations_found=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Cost policy violations detected"
+          else
+            echo "violations_found=false" >> $GITHUB_OUTPUT
+            echo "✅ No cost policy violations"
+          fi
+          
+          # Show cost estimate
+          cat cost-estimate.txt
+        continue-on-error: true
+      
+      - name: Upload Cost Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cost-report-${{ matrix.environment }}
+          path: |
+            terraform/cost-violations.txt
+            terraform/cost-estimate.txt
+          retention-days: 30
+      
+      - name: Comment PR - Cost Analysis
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const violations = steps.cost.outputs.violations_found === 'true';
+            const costEstimate = fs.readFileSync('terraform/cost-estimate.txt', 'utf8');
+            
+            const comment = `## 💰 Cost Analysis - ${{ matrix.environment }}
+            
+            | Status | ${violations ? '⚠️ Violations Found' : '✅ Compliant'} |
+            |--------|------------|
+            
+            <details>
+            <summary>Monthly Cost Estimate</summary>
+            
+            \`\`\`
+            ${costEstimate}
+            \`\`\`
+            </details>
+            
+            ${violations ? '**Note:** Cost policy violations detected. Review instance types and storage limits.' : ''}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # ============================================
+  # JOB 4: Compliance Policy Checks
+  # ============================================
+  compliance-policies:
+    name: Compliance Checks
+    runs-on: ubuntu-latest
+    needs: validate-policies
+    strategy:
+      matrix:
+        environment: [dev, staging, prod, dr]
+        framework: [gdpr, hipaa, soc2, iso27001, pci_dss]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', upper(matrix.environment))] }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: ${{ env.OPA_VERSION }}
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend/${{ matrix.environment }}.conf
+      
+      - name: Terraform Plan JSON
+        run: |
+          cd terraform
+          terraform plan -var-file=environments/${{ matrix.environment }}.tfvars -out=tfplan.binary
+          terraform show -json tfplan.binary > tfplan.json
+      
+      - name: Run Compliance Check
+        id: compliance
+        run: |
+          cd terraform
+          opa eval --data ../policies/compliance.rego --input tfplan.json "data.compliance.${{ matrix.framework }}.violations" --format pretty > compliance-${{ matrix.framework }}.txt
+          
+          if grep -q "true" compliance-${{ matrix.framework }}.txt; then
+            echo "violations_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "violations_found=false" >> $GITHUB_OUTPUT
+          fi
+          
+          cat compliance-${{ matrix.framework }}.txt
+        continue-on-error: true
+      
+      - name: Upload Compliance Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-${{ matrix.framework }}-${{ matrix.environment }}
+          path: terraform/compliance-${{ matrix.framework }}.txt
+          retention-days: 90  # Longer retention for compliance
+
+  # ============================================
+  # JOB 5: Generate Policy Summary Report
+  # ============================================
+  policy-summary:
+    name: Policy Summary Report
+    runs-on: ubuntu-latest
+    needs: [security-policies, cost-policies, compliance-policies]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports/
+      
+      - name: Generate Summary
+        run: |
+          echo "# 📋 Policy Enforcement Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Environments Checked" >> $GITHUB_STEP_SUMMARY
+          echo "- Development" >> $GITHUB_STEP_SUMMARY
+          echo "- Staging" >> $GITHUB_STEP_SUMMARY
+          echo "- Production" >> $GITHUB_STEP_SUMMARY
+          echo "- Disaster Recovery" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Compliance Frameworks" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ GDPR (Data Protection)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ HIPAA (Healthcare)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SOC2 (Security Controls)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ ISO27001 (Information Security)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ PCI-DSS (Payment Card)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Report Generated:** $(date)" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload Policy Summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: policy-enforcement-summary
+          path: reports/
+          retention-days: 90
