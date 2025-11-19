@@ -440,6 +440,20 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         document.getElementById('summary-resources').textContent = data.totalResources;
         document.getElementById('summary-modules').textContent = data.modulesDeployed;
         
+        // Save deployment to localStorage for dashboard
+        saveDeployment({
+            projectName: config.projectName,
+            environment: config.environment,
+            awsRegion: config.awsRegion,
+            modules: config.modules,
+            tier: config.tier,
+            status: 'completed',
+            timestamp: Date.now(),
+            duration: `${minutes}m ${seconds}s`,
+            resources: data.totalResources,
+            isDemo: false
+        });
+        
         const deployBtn = document.getElementById('deploy-btn');
         deployBtn.disabled = false;
         deployBtn.classList.remove('deploying');
@@ -448,6 +462,19 @@ document.getElementById('deploy-form').addEventListener('submit', async function
     
     socket.on('error', (data) => {
         addConsoleLog(`❌ Error: ${data.message}`, 'error');
+        
+        // Save failed deployment
+        saveDeployment({
+            projectName: config.projectName,
+            environment: config.environment,
+            awsRegion: config.awsRegion,
+            modules: config.modules,
+            tier: config.tier,
+            status: 'failed',
+            timestamp: Date.now(),
+            error: data.message,
+            isDemo: false
+        });
         
         const deployBtn = document.getElementById('deploy-btn');
         deployBtn.disabled = false;
@@ -756,14 +783,47 @@ async function runDemoDeployment(config) {
     // Show summary
     const summary = document.getElementById('deployment-summary');
     summary.classList.add('show');
-    document.getElementById('summary-time').textContent = `${Math.floor(Math.random() * 3) + 2}m ${Math.floor(Math.random() * 60)}s`;
+    const deploymentTime = `${Math.floor(Math.random() * 3) + 2}m ${Math.floor(Math.random() * 60)}s`;
+    document.getElementById('summary-time').textContent = deploymentTime;
     document.getElementById('summary-resources').textContent = totalResources;
     document.getElementById('summary-modules').textContent = config.modules.length;
+    
+    // Save deployment to localStorage for dashboard
+    saveDeployment({
+        projectName: config.projectName,
+        environment: config.environment,
+        awsRegion: config.awsRegion,
+        modules: config.modules,
+        tier: config.tier,
+        status: 'completed',
+        timestamp: Date.now(),
+        duration: deploymentTime,
+        resources: totalResources,
+        isDemo: true
+    });
     
     // Reset button
     deployBtn.disabled = false;
     deployBtn.classList.remove('deploying');
     deployBtn.innerHTML = '<i class="fas fa-redo"></i> <span>Deploy Again</span>';
+}
+
+// Save deployment to localStorage
+function saveDeployment(deployment) {
+    try {
+        let deployments = JSON.parse(localStorage.getItem('univai_deployments') || '[]');
+        deployments.unshift(deployment); // Add to beginning
+        
+        // Keep only last 50 deployments
+        if (deployments.length > 50) {
+            deployments = deployments.slice(0, 50);
+        }
+        
+        localStorage.setItem('univai_deployments', JSON.stringify(deployments));
+        console.log('✅ Deployment saved to localStorage');
+    } catch (e) {
+        console.error('Failed to save deployment:', e);
+    }
 }
 
 function sleep(ms) {

@@ -544,42 +544,122 @@
         // Load user data
         document.addEventListener('DOMContentLoaded', function() {
             const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
-            const deployments = JSON.parse(localStorage.getItem('univai_deployments') || '[]');
+            let deployments = JSON.parse(localStorage.getItem('univai_deployments') || '[]');
             
             // Update user name
             if (user.name) {
                 document.getElementById('dashboardUserName').textContent = user.name;
             }
             
-            // Update stats
-            const activeDeployments = deployments.filter(d => d.status === 'running').length;
-            const completedDeployments = deployments.filter(d => d.status === 'completed').length;
+            // Calculate real-time stats
+            const activeDeployments = deployments.filter(d => d.status === 'running' || d.status === 'deploying').length;
+            const completedDeployments = deployments.filter(d => d.status === 'completed' || d.status === 'success').length;
+            const failedDeployments = deployments.filter(d => d.status === 'failed' || d.status === 'error').length;
             const totalDeployments = deployments.length;
-            const successRate = totalDeployments > 0 ? Math.round((completedDeployments / totalDeployments) * 100) : 0;
             
-            document.getElementById('statDeployments').textContent = activeDeployments;
-            document.getElementById('statSuccessRate').textContent = successRate + '%';
-            document.getElementById('statModules').textContent = deployments.reduce((sum, d) => sum + (d.modules ? d.modules.length : 0), 0);
-            document.getElementById('statSavings').textContent = '$' + (deployments.length * 5000).toLocaleString();
+            // Success Rate: (Completed / (Completed + Failed)) * 100
+            const totalFinished = completedDeployments + failedDeployments;
+            const successRate = totalFinished > 0 ? Math.round((completedDeployments / totalFinished) * 100) : 100;
             
-            // Populate deployments list
+            // Total Modules Deployed (only from completed deployments)
+            const totalModules = deployments
+                .filter(d => d.status === 'completed' || d.status === 'success')
+                .reduce((sum, d) => sum + (d.modules ? d.modules.length : 0), 0);
+            
+            // Cost Savings: $5K per module deployed
+            const costSavings = totalModules * 5000;
+            
+            // Update stats with animations
+            animateValue('statDeployments', 0, activeDeployments, 1000);
+            animateValue('statSuccessRate', 0, successRate, 1000, '%');
+            animateValue('statModules', 0, totalModules, 1000);
+            animateValue('statSavings', 0, costSavings, 1000, '$', true);
+            
+            // Populate deployments list (show latest 5)
             if (deployments.length > 0) {
+                // Sort by timestamp (newest first)
+                deployments.sort((a, b) => {
+                    const timeA = new Date(a.timestamp || Date.now()).getTime();
+                    const timeB = new Date(b.timestamp || Date.now()).getTime();
+                    return timeB - timeA;
+                });
+                
                 const deploymentsList = document.getElementById('deploymentsList');
-                deploymentsList.innerHTML = deployments.slice(0, 5).map(deployment => `
-                    <div class="deployment-item">
-                        <div class="deployment-header">
-                            <div class="deployment-name">${deployment.name || 'Infrastructure Deployment'}</div>
-                            <span class="deployment-status ${deployment.status}">${deployment.status}</span>
+                deploymentsList.innerHTML = deployments.slice(0, 5).map(deployment => {
+                    const statusClass = deployment.status === 'completed' || deployment.status === 'success' ? 'completed' : 
+                                       deployment.status === 'failed' || deployment.status === 'error' ? 'failed' : 'running';
+                    const statusText = statusClass === 'completed' ? 'Completed' : 
+                                      statusClass === 'failed' ? 'Failed' : 'Running';
+                    
+                    return `
+                        <div class="deployment-item">
+                            <div class="deployment-header">
+                                <div class="deployment-name">${deployment.projectName || deployment.name || 'Infrastructure Deployment'}</div>
+                                <span class="deployment-status ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="deployment-meta">
+                                <span><i class="fas fa-cube"></i> ${deployment.modules ? deployment.modules.length : 0} modules</span>
+                                <span><i class="fas fa-server"></i> ${deployment.region || deployment.awsRegion || 'us-east-1'}</span>
+                                <span><i class="fas fa-clock"></i> ${getTimeAgo(deployment.timestamp)}</span>
+                            </div>
                         </div>
-                        <div class="deployment-meta">
-                            <span><i class="fas fa-cube"></i>${deployment.modules ? deployment.modules.length : 0} modules</span>
-                            <span><i class="fas fa-server"></i>${deployment.region || 'us-east-1'}</span>
-                            <span><i class="fas fa-clock"></i>${deployment.time || 'Just now'}</span>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
+            
+            // Auto-refresh stats every 5 seconds
+            setInterval(() => {
+                const updatedDeployments = JSON.parse(localStorage.getItem('univai_deployments') || '[]');
+                if (JSON.stringify(updatedDeployments) !== JSON.stringify(deployments)) {
+                    location.reload();
+                }
+            }, 5000);
         });
+        
+        // Animate number counting
+        function animateValue(id, start, end, duration, suffix = '', isPrice = false) {
+            const element = document.getElementById(id);
+            const startTime = Date.now();
+            
+            function update() {
+                const currentTime = Date.now();
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const current = Math.floor(start + (end - start) * progress);
+                
+                if (isPrice) {
+                    element.textContent = suffix + current.toLocaleString();
+                } else if (suffix) {
+                    element.textContent = current + suffix;
+                } else {
+                    element.textContent = current;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            update();
+        }
+        
+        // Get relative time (e.g., "2 minutes ago")
+        function getTimeAgo(timestamp) {
+            if (!timestamp) return 'Just now';
+            
+            const now = Date.now();
+            const diff = now - new Date(timestamp).getTime();
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return days + 'd ago';
+            if (hours > 0) return hours + 'h ago';
+            if (minutes > 0) return minutes + 'm ago';
+            return 'Just now';
+        }
     </script>
     
     <!-- Chatbot Widget -->
