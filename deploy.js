@@ -82,6 +82,12 @@ function isDemoMode(accessKey, secretKey) {
 
 // Pricing tiers configuration
 const PRICING_TIERS = {
+    demo: {
+        name: "Demo (All Features Unlocked)",
+        modules: ["self-service-portal", "aiops", "zero-trust", "disaster-recovery", "compliance", "finops", "multi-cloud", "gitops", "service-mesh", "observability"],
+        maxModules: 10,
+        color: "#F59E0B"
+    },
     free: {
         name: "Free",
         modules: ["self-service-portal"],
@@ -172,9 +178,12 @@ const MODULES = {
     }
 };
 
-// Get tier from URL parameter
+// Get tier from URL parameter or localStorage
 const urlParams = new URLSearchParams(window.location.search);
-const currentTier = urlParams.get('tier') || 'free';
+const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
+const mode = localStorage.getItem('univai_mode');
+const isInDemoMode = mode === 'demo';
+const currentTier = isInDemoMode ? 'demo' : (urlParams.get('tier') || user.tier || 'free');
 const tierConfig = PRICING_TIERS[currentTier];
 
 // Update tier badge
@@ -208,7 +217,8 @@ Object.keys(MODULES).forEach(moduleId => {
         const checkbox = moduleOption.querySelector('input');
         checkbox.addEventListener('change', function() {
             if (this.checked) {
-                if (selectedModules.length >= tierConfig.maxModules) {
+                // Skip maxModules check for demo mode
+                if (!isInDemoMode && selectedModules.length >= tierConfig.maxModules) {
                     this.checked = false;
                     showUpgradeNotice();
                     return;
@@ -252,7 +262,12 @@ function showUpgradeNotice() {
 
 function updateUpgradeNotice() {
     const notice = document.getElementById('upgrade-notice');
-    if (selectedModules.length >= tierConfig.maxModules && currentTier !== 'ultimate') {
+    // Don't show upgrade notice in demo mode or ultimate tier
+    if (isInDemoMode || currentTier === 'ultimate') {
+        notice.style.display = 'none';
+        return;
+    }
+    if (selectedModules.length >= tierConfig.maxModules) {
         notice.style.display = 'block';
         const nextTier = currentTier === 'free' ? 'Professional' : 
                          currentTier === 'professional' ? 'Enterprise' : 'Ultimate';
