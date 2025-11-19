@@ -432,7 +432,7 @@
             color: var(--text-light);
         }
 
-        /* Workflow Visualization */
+        /* Workflow Visualization - Network Diagram Style */
         .workflow-section-inline {
             margin-top: 24px;
             padding-top: 24px;
@@ -443,280 +443,314 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .workflow-icon-inline {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #0066FF, #00C2FF);
-            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #1B2A4E, #5BA4CF);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .workflow-header-inline h3 {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--dark);
             margin: 0 0 2px 0;
         }
 
         .workflow-header-inline p {
-            font-size: 12px;
-            color: var(--text);
+            font-size: 11px;
+            color: var(--text-light);
             margin: 0;
         }
 
+        /* Network Diagram Canvas */
         .workflow-canvas {
+            background: #2A2D3E;
+            border-radius: 12px;
+            padding: 32px 20px;
             display: flex;
             align-items: center;
-            gap: 0;
-            padding: 20px 10px;
+            justify-content: center;
+            gap: 8px;
             overflow-x: auto;
-            min-height: 150px;
-            background: #F9FAFB;
-            border-radius: 12px;
+            min-height: 120px;
+            position: relative;
         }
 
+        /* Compact Network Nodes */
         .workflow-node {
             position: relative;
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            min-width: 140px;
-            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
-        .workflow-node:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary);
+        .workflow-node:hover .node-icon {
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(91, 164, 207, 0.6);
         }
 
+        /* Circular Icon Nodes */
+        .node-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4A5568, #2D3748);
+            border: 3px solid #3A4051;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Node States */
+        .workflow-node.running .node-icon {
+            background: linear-gradient(135deg, #5BA4CF, #7BB8D9);
+            border-color: #5BA4CF;
+            color: white;
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 15px rgba(91, 164, 207, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 25px rgba(91, 164, 207, 0.9);
+                transform: scale(1.05);
+            }
+        }
+
+        .workflow-node.completed .node-icon {
+            background: linear-gradient(135deg, #10B981, #059669);
+            border-color: #10B981;
+            color: white;
+        }
+
+        .workflow-node.error .node-icon {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            border-color: #EF4444;
+            color: white;
+        }
+
+        /* Special Node Colors */
         .workflow-node.start-node .node-icon {
             background: linear-gradient(135deg, #10B981, #059669);
+            border-color: #10B981;
+            color: white;
         }
 
         .workflow-node.success-node .node-icon {
             background: linear-gradient(135deg, #10B981, #059669);
-        }
-
-        .workflow-node.running {
-            border-color: #00bfff;
-            box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 191, 255, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(0, 191, 255, 0.6); }
-        }
-
-        .workflow-node.completed {
-            border-color: var(--success);
-            background: linear-gradient(180deg, rgba(16, 185, 129, 0.05), white);
-        }
-
-        .workflow-node.error {
-            border-color: var(--danger);
-            background: linear-gradient(180deg, rgba(239, 68, 68, 0.05), white);
-        }
-
-        .node-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-color: #10B981;
             color: white;
-            font-size: 20px;
         }
 
+        /* Node Labels */
         .node-content {
             text-align: center;
+            max-width: 90px;
         }
 
         .node-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--dark);
+            font-size: 11px;
+            font-weight: 600;
+            color: #E5E7EB;
             margin-bottom: 2px;
+            white-space: nowrap;
         }
 
         .node-subtitle {
-            font-size: 11px;
-            color: var(--text-light);
-            line-height: 1.3;
-        }
-
-        .node-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-        }
-
-        .node-status i {
-            font-size: 10px;
-        }
-
-        .node-status.pending {
-            background: #E5E7EB;
+            font-size: 9px;
             color: #9CA3AF;
+            line-height: 1.2;
+            display: none; /* Hidden for compact view */
         }
 
-        .node-status.running {
-            background: rgba(0, 191, 255, 0.2);
-            color: #00bfff;
-            animation: spin 2s linear infinite;
+        /* Hide node status indicator for cleaner look */
+        .node-status {
+            display: none;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .node-status.success {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-
-        .node-status.error {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
+        /* Connection Lines - Network Style */
         .workflow-connector {
-            width: 50px;
-            height: 3px;
-            background: var(--border);
+            width: 40px;
+            height: 2px;
+            background: #4A5568;
             position: relative;
             flex-shrink: 0;
             transition: all 0.3s ease;
+            margin: 0 -4px;
         }
 
         .workflow-connector.active {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            animation: flow 1.5s linear infinite;
+            background: linear-gradient(90deg, #5BA4CF, #7BB8D9);
+            box-shadow: 0 0 10px rgba(91, 164, 207, 0.5);
+            animation: flowLine 1.5s linear infinite;
         }
 
-        @keyframes flow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
+        @keyframes flowLine {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
         }
 
         .workflow-connector::after {
             content: '';
             position: absolute;
-            right: -6px;
+            right: -4px;
             top: 50%;
             transform: translateY(-50%);
             width: 0;
             height: 0;
-            border-left: 8px solid var(--border);
-            border-top: 5px solid transparent;
-            border-bottom: 5px solid transparent;
+            border-left: 6px solid #4A5568;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
             transition: all 0.3s ease;
         }
 
         .workflow-connector.active::after {
-            border-left-color: var(--secondary);
+            border-left-color: #7BB8D9;
         }
 
+        /* Compact Legend */
         .workflow-legend {
             display: flex;
             justify-content: center;
-            gap: 24px;
-            margin-top: 16px;
-            padding-top: 16px;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid var(--border);
+            flex-wrap: wrap;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text);
         }
 
         .legend-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
         }
 
         .legend-dot.pending {
-            background: #E5E7EB;
+            background: #6B7280;
         }
 
         .legend-dot.running {
-            background: #00bfff;
-            animation: blink 1s infinite;
+            background: #5BA4CF;
+            animation: blinkDot 1s infinite;
         }
 
-        @keyframes blink {
+        @keyframes blinkDot {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.4; }
         }
 
         .legend-dot.success {
-            background: var(--success);
+            background: #10B981;
         }
 
         .legend-dot.error {
-            background: var(--danger);
+            background: #EF4444;
         }
 
+        /* Mobile Responsive */
         @media (max-width: 1024px) {
             .deploy-grid {
                 grid-template-columns: 1fr;
             }
 
             .workflow-canvas {
-                padding: 20px 10px;
-            }
-
-            .workflow-node {
-                min-width: 140px;
-                padding: 16px;
-            }
-
-            .node-icon {
-                width: 48px;
-                height: 48px;
-                font-size: 20px;
+                padding: 24px 12px;
+                gap: 6px;
             }
 
             .workflow-connector {
-                width: 40px;
+                width: 30px;
+            }
+
+            .node-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .node-title {
+                font-size: 10px;
             }
         }
 
         @media (max-width: 768px) {
+            .workflow-canvas {
+                padding: 20px 10px;
+                gap: 4px;
+            }
+            
+            .workflow-connector {
+                width: 24px;
+                margin: 0 -2px;
+            }
+            
+            .node-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .node-title {
+                font-size: 9px;
+            }
+            
             .workflow-legend {
                 flex-wrap: wrap;
-                gap: 16px;
+                gap: 12px;
+            }
+            
+            .legend-item {
+                font-size: 10px;
             }
         }
 
-        @media (max-width: 1024px) {
-            .deploy-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 480px) {
+            .workflow-canvas {
+                padding: 16px 8px;
+            }
+            
+            .node-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            
+            .node-title {
+                font-size: 8px;
+            }
+            
+            .workflow-connector {
+                width: 20px;
             }
         }
     </style>
@@ -963,7 +997,7 @@
                         </div>
                     </div>
 
-                    <!-- Visual Deployment Workflow -->
+                    <!-- Visual Deployment Workflow - Network Diagram -->
                     <div class="workflow-section-inline">
                         <div class="workflow-header-inline">
                             <div class="workflow-icon-inline">
@@ -971,7 +1005,7 @@
                             </div>
                             <div>
                                 <h3>Deployment Workflow</h3>
-                                <p>Real-time visual representation</p>
+                                <p>Real-time network visualization</p>
                             </div>
                         </div>
                         
@@ -979,116 +1013,82 @@
                     <!-- Start Node -->
                     <div class="workflow-node start-node" id="node-start">
                         <div class="node-icon">
-                            <i class="fas fa-play-circle"></i>
+                            <i class="fas fa-play"></i>
                         </div>
                         <div class="node-content">
                             <div class="node-title">Start</div>
-                            <div class="node-subtitle">Initialize Deployment</div>
-                        </div>
-                        <div class="node-status pending">
-                            <i class="fas fa-circle"></i>
                         </div>
                     </div>
 
-                    <!-- Connector Line -->
                     <div class="workflow-connector" id="connector-1"></div>
 
                     <!-- Validate Node -->
                     <div class="workflow-node" id="node-validate">
-                        <div class="node-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                        <div class="node-icon">
                             <i class="fas fa-check-double"></i>
                         </div>
                         <div class="node-content">
                             <div class="node-title">Validate</div>
-                            <div class="node-subtitle">Check credentials & config</div>
-                        </div>
-                        <div class="node-status pending">
-                            <i class="fas fa-circle"></i>
                         </div>
                     </div>
 
-                    <!-- Connector Line -->
                     <div class="workflow-connector" id="connector-2"></div>
 
                     <!-- Provision Node -->
                     <div class="workflow-node" id="node-provision">
-                        <div class="node-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                        <div class="node-icon">
                             <i class="fas fa-server"></i>
                         </div>
                         <div class="node-content">
                             <div class="node-title">Provision</div>
-                            <div class="node-subtitle">Create AWS resources</div>
-                        </div>
-                        <div class="node-status pending">
-                            <i class="fas fa-circle"></i>
                         </div>
                     </div>
 
-                    <!-- Connector Line -->
                     <div class="workflow-connector" id="connector-3"></div>
 
                     <!-- Deploy Modules Node -->
                     <div class="workflow-node" id="node-modules">
-                        <div class="node-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <div class="node-icon">
                             <i class="fas fa-cubes"></i>
                         </div>
                         <div class="node-content">
-                            <div class="node-title">Deploy Modules</div>
-                            <div class="node-subtitle">Install selected modules</div>
-                        </div>
-                        <div class="node-status pending">
-                            <i class="fas fa-circle"></i>
+                            <div class="node-title">Deploy</div>
                         </div>
                     </div>
 
-                    <!-- Connector Line -->
                     <div class="workflow-connector" id="connector-4"></div>
 
                     <!-- Configure Node -->
                     <div class="workflow-node" id="node-configure">
-                        <div class="node-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                        <div class="node-icon">
                             <i class="fas fa-cog"></i>
                         </div>
                         <div class="node-content">
                             <div class="node-title">Configure</div>
-                            <div class="node-subtitle">Apply settings & policies</div>
-                        </div>
-                        <div class="node-status pending">
-                            <i class="fas fa-circle"></i>
                         </div>
                     </div>
 
-                    <!-- Connector Line -->
                     <div class="workflow-connector" id="connector-5"></div>
 
                     <!-- Test Node -->
                     <div class="workflow-node" id="node-test">
-                        <div class="node-icon" style="background: linear-gradient(135deg, #06B6D4, #0891B2);">
-                            <i class="fas fa-flask"></i>
+                        <div class="node-icon">
+                            <i class="fas fa-vial"></i>
                         </div>
                         <div class="node-content">
                             <div class="node-title">Test</div>
-                            <div class="node-subtitle">Verify deployment</div>
-                        </div>
-                        <div class="node-status pending">
-                            <i class="fas fa-circle"></i>
                         </div>
                     </div>
 
-                    <!-- Connector Line -->
                     <div class="workflow-connector" id="connector-6"></div>
 
                     <!-- Complete Node -->
                     <div class="workflow-node success-node" id="node-complete">
                         <div class="node-icon">
-                            <i class="fas fa-check-circle"></i>
+                            <i class="fas fa-check"></i>
                         </div>
                         <div class="node-content">
                             <div class="node-title">Complete</div>
-                            <div class="node-subtitle">Deployment successful</div>
-                        </div>
-                        <div class="node-status pending">
-                            <i class="fas fa-circle"></i>
                         </div>
                     </div>
 
