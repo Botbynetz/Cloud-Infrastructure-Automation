@@ -186,9 +186,9 @@ function completeGoogleLogin(token, email, name, picture, userData) {
     }));
     console.log('✓ User data stored');
     
-    // Redirect immediately without alert
-    console.log('🔄 Redirecting to index.html...');
-    window.location.href = 'index.html';
+    // Hard refresh and redirect immediately
+    console.log('🔄 Hard refresh and redirecting to index.html...');
+    window.location.replace('index.html?t=' + Date.now());
 }
 
 function registerGoogleUser(token, email, name, picture) {
@@ -296,9 +296,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }));
                     console.log('✓ User data stored');
                     
-                    // Redirect immediately without alert
-                    console.log('🔄 Redirecting to index.html...');
-                    window.location.href = 'index.html';
+                    // Hard refresh and redirect immediately
+                    console.log('🔄 Hard refresh and redirecting to index.html...');
+                    window.location.replace('index.html?t=' + Date.now());
                 } else {
                     showAlert(data.error || 'Invalid email or password', 'error');
                 }
