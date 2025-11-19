@@ -1,12 +1,3 @@
-// Pricing tiers configuration
-const PRICING_TIERS = {
-    free: {
-        name: "Free",
-        modules: ["self-service-portal"],
-        maxModules: 1,
-        color: "#6B7280"
-    },
-
 // ============================================
 // DEMO MODE - Test Credentials
 // ============================================
