@@ -1154,20 +1154,33 @@
         // Mobile Menu Toggle
         const menuBtn = document.getElementById('menuBtn');
         const sideMenu = document.getElementById('sideMenu');
+        const sideMenuClose = document.getElementById('sideMenuClose');
         
         if (menuBtn && sideMenu) {
             menuBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                sideMenu.classList.toggle('active');
+                sideMenu.classList.toggle('show');
                 menuBtn.classList.toggle('active');
+                document.body.style.overflow = sideMenu.classList.contains('show') ? 'hidden' : '';
             });
+            
+            // Close button
+            if (sideMenuClose) {
+                sideMenuClose.addEventListener('click', function() {
+                    sideMenu.classList.remove('show');
+                    menuBtn.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
             
             // Close side menu when clicking outside
             document.addEventListener('click', function(e) {
                 if (!sideMenu.contains(e.target) && !menuBtn.contains(e.target)) {
-                    sideMenu.classList.remove('active');
+                    sideMenu.classList.remove('show');
                     menuBtn.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
+            });
             });
         }
 
