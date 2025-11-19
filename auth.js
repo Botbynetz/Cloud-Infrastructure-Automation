@@ -49,7 +49,7 @@ function showAlert(message, type) {
     
     setTimeout(() => {
         hideAlert();
-    }, 5000);
+    }, 3000);
 }
 
 function hideAlert() {
@@ -183,9 +183,7 @@ function completeGoogleLogin(token, email, name, picture, userData) {
     }));
     console.log('✓ User data stored');
     
-    showAlert('Login successful!', 'success');
-    
-    // Redirect immediately
+    // Redirect immediately without alert
     console.log('🔄 Redirecting to index.html...');
     window.location.href = 'index.html';
 }
@@ -292,9 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }));
                     console.log('✓ User data stored');
                     
-                    showAlert('Login successful!', 'success');
-                    
-                    // Redirect immediately
+                    // Redirect immediately without alert
                     console.log('🔄 Redirecting to index.html...');
                     window.location.href = 'index.html';
                 } else {
