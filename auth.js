@@ -181,10 +181,8 @@ function completeGoogleLogin(token, email, name, picture, userData) {
         authMethod: 'google',
         loginTime: Date.now()
     }));
-    console.log('✓ User data stored');
     
-    // Hard refresh and redirect immediately
-    console.log('🔄 Hard refresh and redirecting to index.html...');
+    // Instant redirect without console.log delay
     window.location.replace('index.html?t=' + Date.now());
 }
 
@@ -288,10 +286,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         authMethod: 'email',
                         loginTime: Date.now()
                     }));
-                    console.log('✓ User data stored');
                     
-                    // Hard refresh and redirect immediately
-                    console.log('🔄 Hard refresh and redirecting to index.html...');
+                    // Instant redirect without console.log delay
                     window.location.replace('index.html?t=' + Date.now());
                 } else {
                     showAlert(data.error || 'Invalid email or password', 'error');
