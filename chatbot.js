@@ -169,11 +169,11 @@ class UnivAIChatbot {
         // Show typing indicator
         this.showTypingIndicator();
         
-        // Show bot answer after delay
+        // Show bot answer with faster response (300ms instead of 1000ms)
         setTimeout(() => {
             this.hideTypingIndicator();
             this.addBotMessage(qa.answer);
-        }, 1000);
+        }, 300);
     }
 
     addUserMessage(message) {
@@ -216,9 +216,10 @@ class UnivAIChatbot {
 
     scrollToBottom() {
         const messagesContainer = document.getElementById('chatbotMessages');
+        // Faster scroll with reduced delay (50ms instead of 100ms)
         setTimeout(() => {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
+        }, 50);
     }
 }
 
