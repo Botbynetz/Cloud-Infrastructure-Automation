@@ -182,8 +182,15 @@ function completeGoogleLogin(token, email, name, picture, userData) {
         loginTime: Date.now()
     }));
     
-    // Instant redirect without console.log delay
-    window.location.replace('index.html?t=' + Date.now());
+    // Check if user has already selected mode
+    const mode = localStorage.getItem('univai_mode');
+    if (!mode) {
+        // First time login - redirect to mode selection
+        window.location.replace('mode-selection.html?t=' + Date.now());
+    } else {
+        // Has mode - redirect to index
+        window.location.replace('index.html?t=' + Date.now());
+    }
 }
 
 function registerGoogleUser(token, email, name, picture) {
@@ -287,8 +294,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         loginTime: Date.now()
                     }));
                     
-                    // Instant redirect without console.log delay
-                    window.location.replace('index.html?t=' + Date.now());
+                    // Check if user has already selected mode
+                    const mode = localStorage.getItem('univai_mode');
+                    if (!mode) {
+                        // First time login - redirect to mode selection
+                        window.location.replace('mode-selection.html?t=' + Date.now());
+                    } else {
+                        // Has mode - redirect to index
+                        window.location.replace('index.html?t=' + Date.now());
+                    }
                 } else {
                     showAlert(data.error || 'Invalid email or password', 'error');
                 }

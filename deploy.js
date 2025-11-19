@@ -1,4 +1,65 @@
 // ============================================
+// MODE DETECTION & AUTO-FILL
+// ============================================
+// Check user mode on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
+    const mode = localStorage.getItem('univai_mode');
+    
+    if (mode === 'demo') {
+        // Demo Mode: Auto-fill and disable AWS credentials
+        const accessKeyField = document.getElementById('aws-access-key');
+        const secretKeyField = document.getElementById('aws-secret-key');
+        
+        if (accessKeyField && secretKeyField) {
+            accessKeyField.value = TEST_CREDENTIALS.accessKey;
+            secretKeyField.value = TEST_CREDENTIALS.secretKey;
+            accessKeyField.readOnly = true;
+            secretKeyField.readOnly = true;
+            accessKeyField.style.backgroundColor = '#F3F4F6';
+            secretKeyField.style.backgroundColor = '#F3F4F6';
+            accessKeyField.style.cursor = 'not-allowed';
+            secretKeyField.style.cursor = 'not-allowed';
+        }
+        
+        // Show demo mode indicator
+        const demoNotice = document.createElement('div');
+        demoNotice.style.cssText = 'background: #FEF3C7; border: 2px solid #F59E0B; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;';
+        demoNotice.innerHTML = '<i class="fas fa-flask" style="color: #F59E0B; font-size: 20px;"></i><div><strong style="color: #92400E;">Demo Mode Active</strong><br><span style="font-size: 13px; color: #78350F;">AWS credentials are pre-filled and locked. No real resources will be created.</span></div>';
+        
+        const form = document.getElementById('deploy-form');
+        if (form && form.firstChild) {
+            form.insertBefore(demoNotice, form.firstChild);
+        }
+        
+        // Update tier badge
+        const tierBadge = document.getElementById('tier-badge');
+        if (tierBadge) {
+            tierBadge.textContent = 'Demo (All Features Unlocked)';
+            tierBadge.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
+            tierBadge.style.color = 'white';
+        }
+    } else if (mode === 'real') {
+        // Real Mode: Check if user has selected a plan
+        if (!user.tier || user.tier === 'free') {
+            alert('⚠️ Please select a subscription plan first');
+            window.location.href = 'pricing.html';
+            return;
+        }
+        
+        // Show real mode indicator
+        const realNotice = document.createElement('div');
+        realNotice.style.cssText = 'background: #DBEAFE; border: 2px solid #3B82F6; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;';
+        realNotice.innerHTML = '<i class="fas fa-rocket" style="color: #3B82F6; font-size: 20px;"></i><div><strong style="color: #1E3A8A;">Real Mode Active</strong><br><span style="font-size: 13px; color: #1E40AF;">Enter your AWS credentials. Real infrastructure will be created.</span></div>';
+        
+        const form = document.getElementById('deploy-form');
+        if (form && form.firstChild) {
+            form.insertBefore(realNotice, form.firstChild);
+        }
+    }
+});
+
+// ============================================
 // DEMO MODE - Test Credentials
 // ============================================
 const DEMO_MODE = true; // Set false untuk production
@@ -10,11 +71,12 @@ const TEST_CREDENTIALS = {
 
 // Demo mode messages
 function isDemoMode(accessKey, secretKey) {
-    return DEMO_MODE && (
+    const mode = localStorage.getItem('univai_mode');
+    return mode === 'demo' || (DEMO_MODE && (
         accessKey === TEST_CREDENTIALS.accessKey || 
         accessKey === 'test' || 
         accessKey.includes('EXAMPLE')
-    );
+    ));
 }
 // ============================================
 

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Mode - UnivAI Cloud Platform</title>
+    
+    <link rel="icon" type="image/png" href="frontend/assets/images/univai-logo.png">
+    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="frontend/assets/brand.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #1B2A4E 0%, #2A3F6A 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .mode-selection-container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .mode-header {
+            margin-bottom: 48px;
+        }
+
+        .mode-header img {
+            height: 60px;
+            margin-bottom: 24px;
+        }
+
+        .mode-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .mode-header p {
+            font-size: 18px;
+            color: #E0F2FE;
+        }
+
+        .mode-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .mode-card {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 36px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #5BA4CF, #7BB8D9);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: #5BA4CF;
+        }
+
+        .mode-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .mode-card.demo {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        }
+
+        .mode-card.real {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        }
+
+        .mode-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+
+        .mode-card.demo .mode-icon {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+
+        .mode-card.real .mode-icon {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+        }
+
+        .mode-card h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .mode-card.demo h2 {
+            color: #92400E;
+        }
+
+        .mode-card.real h2 {
+            color: #1E3A8A;
+        }
+
+        .mode-card .mode-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .mode-card.demo .mode-badge {
+            background: #FBBF24;
+            color: #78350F;
+        }
+
+        .mode-card.real .mode-badge {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .mode-card p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            color: #374151;
+        }
+
+        .mode-features {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .mode-features li {
+            font-size: 14px;
+            color: #4B5563;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: start;
+            gap: 8px;
+        }
+
+        .mode-features li i {
+            color: #10B981;
+            margin-top: 2px;
+            font-size: 16px;
+        }
+
+        .mode-card.demo .mode-features li i {
+            color: #F59E0B;
+        }
+
+        .mode-card.real .mode-features li i {
+            color: #3B82F6;
+        }
+
+        .mode-btn {
+            width: 100%;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .mode-card.demo .mode-btn {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+
+        .mode-card.real .mode-btn {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-footer {
+            color: #E0F2FE;
+            font-size: 14px;
+        }
+
+        .mode-footer a {
+            color: #7BB8D9;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .mode-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .mode-cards {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .mode-header h1 {
+                font-size: 28px;
+            }
+
+            .mode-card {
+                padding: 32px 24px;
+            }
+
+            .mode-card h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-selection-container">
+        <div class="mode-header">
+            <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud">
+            <h1>Choose Your Experience</h1>
+            <p>Select how you want to use UnivAI Cloud Platform</p>
+        </div>
+
+        <div class="mode-cards">
+            <!-- Demo Mode -->
+            <div class="mode-card demo" onclick="selectMode('demo')">
+                <div class="mode-icon">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <span class="mode-badge">FREE TRIAL</span>
+                <h2>Demo Mode</h2>
+                <p>Try our platform with simulated deployments - perfect for exploring features</p>
+                
+                <ul class="mode-features">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Free unlimited access</strong> - No credit card required</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>All features unlocked</strong> - Try everything</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Pre-filled credentials</strong> - Auto-configured AWS test keys</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Simulated deployments</strong> - No real AWS resources</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Full workflow demo</strong> - See everything in action</span>
+                    </li>
+                </ul>
+
+                <button class="mode-btn">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Start Demo</span>
+                </button>
+            </div>
+
+            <!-- Real Mode -->
+            <div class="mode-card real" onclick="selectMode('real')">
+                <div class="mode-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <span class="mode-badge">PRODUCTION READY</span>
+                <h2>Real Mode</h2>
+                <p>Deploy actual infrastructure to AWS - requires subscription plan</p>
+                
+                <ul class="mode-features">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Real AWS deployments</strong> - Create actual resources</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Your AWS credentials</strong> - Use your own keys</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Production infrastructure</strong> - Enterprise-grade setup</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Choose your plan</strong> - Professional, Enterprise, or Ultimate</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>24/7 support</strong> - Priority assistance</span>
+                    </li>
+                </ul>
+
+                <button class="mode-btn">
+                    <i class="fas fa-crown"></i>
+                    <span>Choose Plan</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mode-footer">
+            <p>You can switch modes anytime from your <a href="profile.html">profile settings</a></p>
+        </div>
+    </div>
+
+    <script>
+        function selectMode(mode) {
+            // Save mode to localStorage
+            localStorage.setItem('univai_mode', mode);
+            
+            if (mode === 'demo') {
+                // Demo mode: Set free tier and redirect to index
+                const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
+                user.tier = 'free';
+                user.mode = 'demo';
+                localStorage.setItem('univai_user', JSON.stringify(user));
+                
+                // Show success message
+                alert('🎉 Demo Mode Activated!\n\nYou now have access to all features for free.\nAWS credentials will be auto-filled when you deploy.');
+                
+                // Redirect to homepage
+                window.location.href = 'index.html';
+            } else {
+                // Real mode: Redirect to pricing to choose plan
+                const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
+                user.mode = 'real';
+                localStorage.setItem('univai_user', JSON.stringify(user));
+                
+                // Redirect to pricing
+                window.location.href = 'pricing.html';
+            }
+        }
+
+        // Check if user already has a mode selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const mode = localStorage.getItem('univai_mode');
+            const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
+            
+            // If already has mode and coming from profile, allow change
+            const fromProfile = document.referrer.includes('profile.html');
+            
+            if (mode && !fromProfile) {
+                // Already selected, redirect accordingly
+                if (mode === 'demo') {
+                    window.location.href = 'index.html';
+                } else {
+                    // Check if has tier
+                    if (user.tier && user.tier !== 'free') {
+                        window.location.href = 'index.html';
+                    } else {
+                        window.location.href = 'pricing.html';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
