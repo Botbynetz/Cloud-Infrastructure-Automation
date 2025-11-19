@@ -6,11 +6,20 @@
 
 ## 🎖️ **Professional Badges & Certifications**
 
+### **CI/CD Pipeline Status**
+[![Terraform CI/CD](https://img.shields.io/github/actions/workflow/status/Botbynetz/Cloud-Infrastructure-Automation/terraform-cicd.yml?branch=main&label=Terraform%20CI%2FCD&logo=terraform&style=for-the-badge)](https://github.com/Botbynetz/Cloud-Infrastructure-Automation/actions/workflows/terraform-cicd.yml)
+[![OPA Policy Check](https://img.shields.io/github/actions/workflow/status/Botbynetz/Cloud-Infrastructure-Automation/opa-policy-check.yml?branch=main&label=OPA%20Policies&logo=openpolicyagent&style=for-the-badge)](https://github.com/Botbynetz/Cloud-Infrastructure-Automation/actions/workflows/opa-policy-check.yml)
+[![Terratest](https://img.shields.io/github/actions/workflow/status/Botbynetz/Cloud-Infrastructure-Automation/terratest.yml?branch=main&label=Terratest&logo=go&style=for-the-badge)](https://github.com/Botbynetz/Cloud-Infrastructure-Automation/actions/workflows/terratest.yml)
+[![Infracost](https://img.shields.io/github/actions/workflow/status/Botbynetz/Cloud-Infrastructure-Automation/infracost-estimation.yml?branch=main&label=Cost%20Estimation&logo=terraform&style=for-the-badge)](https://github.com/Botbynetz/Cloud-Infrastructure-Automation/actions/workflows/infracost-estimation.yml)
+
 ### **Core Technologies**
 [![AWS](https://img.shields.io/badge/AWS-Cloud%20Infrastructure-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![Terraform](https://img.shields.io/badge/Terraform-1.6+-623CE4?style=for-the-badge&logo=terraform&logoColor=white)](https://terraform.io/)
 [![Ansible](https://img.shields.io/badge/Ansible-2.15+-EE0000?style=for-the-badge&logo=ansible&logoColor=white)](https://ansible.com/)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![Prometheus](https://img.shields.io/badge/Prometheus-Monitoring-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)](https://prometheus.io/)
+[![Grafana](https://img.shields.io/badge/Grafana-Dashboards-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
+[![OPA](https://img.shields.io/badge/OPA-Policy%20Engine-0099E5?style=for-the-badge&logo=openpolicyagent&logoColor=white)](https://www.openpolicyagent.org/)
 
 ### **Quality & Standards**
 [![Infrastructure as Code](https://img.shields.io/badge/Infrastructure%20as%20Code-✅-brightgreen?style=for-the-badge)](.)
