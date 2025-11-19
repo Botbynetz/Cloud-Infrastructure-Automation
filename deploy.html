@@ -134,9 +134,41 @@
             margin-top: 6px;
         }
 
+        .module-header-toggle {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .module-header-toggle:hover {
+            color: var(--primary);
+        }
+
+        .toggle-icon {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .module-header-toggle.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
         .module-selector {
             display: grid;
             gap: 12px;
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .module-selector.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
         }
 
         .module-option {
@@ -854,8 +886,11 @@
 
                         <!-- Module Selection -->
                         <div class="form-section">
-                            <h3><i class="fas fa-cubes"></i> Select Modules</h3>
-                            <div class="module-selector" id="module-selector">
+                            <h3 class="module-header-toggle" id="moduleHeaderToggle">
+                                <i class="fas fa-cubes"></i> Select Modules
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </h3>
+                            <div class="module-selector collapsed" id="module-selector">
                                 <!-- Modules will be populated by JavaScript -->
                             </div>
                             <div id="upgrade-notice" style="display: none;"></div>

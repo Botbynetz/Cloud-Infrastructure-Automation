@@ -103,8 +103,18 @@ if (currentTier === 'ultimate') {
     document.getElementById('tier-badge').classList.add('enterprise');
 }
 
-// Populate module selector
+// Module selector toggle
+const moduleHeaderToggle = document.getElementById('moduleHeaderToggle');
 const moduleSelector = document.getElementById('module-selector');
+
+if (moduleHeaderToggle && moduleSelector) {
+    moduleHeaderToggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+        moduleSelector.classList.toggle('collapsed');
+    });
+}
+
+// Populate module selector
 let selectedModules = [];
 
 Object.keys(MODULES).forEach(moduleId => {
