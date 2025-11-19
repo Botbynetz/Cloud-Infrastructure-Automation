@@ -308,6 +308,50 @@
             background: var(--text-light);
         }
 
+        .pip-toggle-btn {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .pip-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .pip-toggle-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .pip-toggle-btn i {
+            font-size: 16px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .workflow-header-inline {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .console {
             background: #1e1e1e;
             border-radius: 12px;
@@ -1056,6 +1100,9 @@
                             <i class="fas fa-terminal"></i>
                         </div>
                         <h2 class="panel-title">Deployment Console</h2>
+                        <button class="pip-toggle-btn" id="consolePipBtn" title="Enable Picture-in-Picture">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
                     </div>
 
                     <!-- Progress Section -->
@@ -1117,6 +1164,9 @@
                                 <h3>Deployment Workflow</h3>
                                 <p>Real-time network visualization</p>
                             </div>
+                            <button class="pip-toggle-btn" id="workflowPipBtn" title="Enable Picture-in-Picture">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
                         </div>
                         
                         <div class="workflow-canvas" id="workflowCanvas">
@@ -1286,6 +1336,7 @@
     <script src="script.js"></script>
     <script src="deploy.js"></script>
     <script src="mode-toggle.js"></script>
+    <script src="pip-deployment.js"></script>
     
     <!-- Chatbot Widget -->
     <link rel="stylesheet" href="chatbot.css">
