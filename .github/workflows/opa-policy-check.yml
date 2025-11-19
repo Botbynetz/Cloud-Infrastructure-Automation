@@ -1,0 +1,294 @@
+name: OPA Policy Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'terraform/**'
+      - 'policies/**'
+      - '.github/workflows/opa-policy-check.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'terraform/**'
+      - 'policies/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  opa-policy-check:
+    name: OPA Policy Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: latest
+      
+      - name: Verify OPA installation
+        run: |
+          opa version
+          echo "✅ OPA installed successfully"
+      
+      - name: Validate OPA policies syntax
+        run: |
+          echo "🔍 Validating OPA policy syntax..."
+          opa check policies/*.rego
+          echo "✅ All policies are syntactically valid"
+      
+      - name: Run OPA policy tests
+        run: |
+          echo "🧪 Running OPA policy tests..."
+          opa test policies/ -v
+          echo "✅ All policy tests passed"
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+      
+      - name: Terraform Format Check
+        id: fmt
+        run: |
+          terraform fmt -check -recursive terraform/
+        continue-on-error: true
+      
+      - name: Terraform Init (Dev)
+        run: |
+          cd terraform
+          terraform init -backend=false
+      
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform validate
+      
+      - name: Generate Terraform Plan
+        id: plan
+        run: |
+          cd terraform
+          terraform plan -out=tfplan.binary -no-color
+          terraform show -json tfplan.binary > tfplan.json
+        continue-on-error: true
+      
+      - name: Run OPA Policy Evaluation
+        id: opa
+        run: |
+          echo "🔐 Evaluating Terraform plan against OPA policies..."
+          
+          # Run main security policies
+          echo "## Security Policies" >> $GITHUB_STEP_SUMMARY
+          opa eval --data policies/terraform.rego --input terraform/tfplan.json \
+            --format pretty "data.terraform.deny" | tee security_violations.txt
+          
+          # Run cost policies
+          echo "## Cost Control Policies" >> $GITHUB_STEP_SUMMARY
+          opa eval --data policies/cost.rego --input terraform/tfplan.json \
+            --format pretty "data.terraform.cost.deny" | tee cost_violations.txt
+          
+          # Run compliance policies
+          echo "## Compliance Policies" >> $GITHUB_STEP_SUMMARY
+          opa eval --data policies/compliance.rego --input terraform/tfplan.json \
+            --format pretty "data.terraform.compliance.deny" | tee compliance_violations.txt
+          
+          # Count violations
+          SECURITY_COUNT=$(grep -c "VIOLATION" security_violations.txt || echo "0")
+          COST_COUNT=$(grep -c "VIOLATION" cost_violations.txt || echo "0")
+          COMPLIANCE_COUNT=$(grep -c "VIOLATION" compliance_violations.txt || echo "0")
+          TOTAL_COUNT=$((SECURITY_COUNT + COST_COUNT + COMPLIANCE_COUNT))
+          
+          echo "total_violations=$TOTAL_COUNT" >> $GITHUB_OUTPUT
+          echo "security_violations=$SECURITY_COUNT" >> $GITHUB_OUTPUT
+          echo "cost_violations=$COST_COUNT" >> $GITHUB_OUTPUT
+          echo "compliance_violations=$COMPLIANCE_COUNT" >> $GITHUB_OUTPUT
+          
+          # Generate summary
+          echo "### Policy Evaluation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Violations |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔐 Security | $SECURITY_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "| 💰 Cost Control | $COST_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Compliance | $COMPLIANCE_COUNT |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total** | **$TOTAL_COUNT** |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $TOTAL_COUNT -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Policy violations detected. Deployment blocked.**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All policies passed. Deployment approved.**" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment PR with Policy Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const securityViolations = fs.readFileSync('security_violations.txt', 'utf8');
+            const costViolations = fs.readFileSync('cost_violations.txt', 'utf8');
+            const complianceViolations = fs.readFileSync('compliance_violations.txt', 'utf8');
+            
+            const totalCount = ${{ steps.opa.outputs.total_violations }};
+            const status = totalCount > 0 ? '❌ FAILED' : '✅ PASSED';
+            
+            const comment = `## OPA Policy Check Results ${status}
+            
+            ### Summary
+            | Category | Violations |
+            |----------|------------|
+            | 🔐 Security | ${{ steps.opa.outputs.security_violations }} |
+            | 💰 Cost Control | ${{ steps.opa.outputs.cost_violations }} |
+            | ✅ Compliance | ${{ steps.opa.outputs.compliance_violations }} |
+            | **Total** | **${{ steps.opa.outputs.total_violations }}** |
+            
+            ${totalCount > 0 ? `
+            ### Violations Details
+            
+            <details>
+            <summary>🔐 Security Violations</summary>
+            
+            \`\`\`
+            ${securityViolations}
+            \`\`\`
+            </details>
+            
+            <details>
+            <summary>💰 Cost Control Violations</summary>
+            
+            \`\`\`
+            ${costViolations}
+            \`\`\`
+            </details>
+            
+            <details>
+            <summary>✅ Compliance Violations</summary>
+            
+            \`\`\`
+            ${complianceViolations}
+            \`\`\`
+            </details>
+            
+            **❌ Policy violations must be resolved before merging.**
+            ` : '**✅ All policies passed. Ready to merge!**'}
+            
+            ---
+            *Policy validation powered by [Open Policy Agent](https://www.openpolicyagent.org/)*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+      
+      - name: Upload Policy Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opa-policy-results
+          path: |
+            security_violations.txt
+            cost_violations.txt
+            compliance_violations.txt
+            terraform/tfplan.json
+          retention-days: 30
+      
+      - name: Fail if violations detected
+        if: steps.opa.outputs.total_violations > 0
+        run: |
+          echo "❌ Policy violations detected: ${{ steps.opa.outputs.total_violations }}"
+          echo "Review the violations above and update your Terraform code."
+          exit 1
+
+  cost-estimation:
+    name: Cost Estimation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+      
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend=false
+      
+      - name: Generate Plan
+        run: |
+          cd terraform
+          terraform plan -out=tfplan.binary -no-color
+          terraform show -json tfplan.binary > tfplan.json
+      
+      - name: Estimate Costs
+        id: cost
+        run: |
+          cd terraform
+          
+          # Estimate EC2 costs
+          EC2_COST=$(opa eval --data ../policies/cost.rego --input tfplan.json \
+            --format raw "data.terraform.cost.ec2_monthly_cost")
+          
+          # Estimate RDS costs
+          RDS_COST=$(opa eval --data ../policies/cost.rego --input tfplan.json \
+            --format raw "data.terraform.cost.rds_monthly_cost")
+          
+          # Total cost
+          TOTAL_COST=$(opa eval --data ../policies/cost.rego --input tfplan.json \
+            --format raw "data.terraform.cost.total_estimated_cost")
+          
+          echo "ec2_cost=$EC2_COST" >> $GITHUB_OUTPUT
+          echo "rds_cost=$RDS_COST" >> $GITHUB_OUTPUT
+          echo "total_cost=$TOTAL_COST" >> $GITHUB_OUTPUT
+          
+          echo "### 💰 Estimated Monthly Cost" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Cost |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| EC2 Instances | \$$EC2_COST |" >> $GITHUB_STEP_SUMMARY
+          echo "| RDS Databases | \$$RDS_COST |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total** | **\$$TOTAL_COST** |" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Comment PR with Cost Estimate
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const comment = `## 💰 Estimated Monthly Cost
+            
+            | Service | Cost |
+            |---------|------|
+            | EC2 Instances | \$${{ steps.cost.outputs.ec2_cost }} |
+            | RDS Databases | \$${{ steps.cost.outputs.rds_cost }} |
+            | **Total** | **\$${{ steps.cost.outputs.total_cost }}** |
+            
+            ${parseFloat('${{ steps.cost.outputs.total_cost }}') > 500 ? 
+              '⚠️ **Cost exceeds $500/month. Manager approval required.**' : 
+              '✅ Cost is within budget.'}
+            
+            *Cost estimates are approximate and may vary based on actual usage.*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
