@@ -131,11 +131,11 @@ function updateFloatingButton() {
         floatingBtn.style.display = 'flex';
         
         // Calculate cost
-        const { totalTokens, baseCost } = calculateCost();
+        const { totalTokens, totalRupiah } = calculateCost();
         
         // Update button content
         if (btnTokens) btnTokens.textContent = totalTokens.toFixed(1);
-        if (btnRupiah) btnRupiah.textContent = formatRupiah(baseCost);
+        if (btnRupiah) btnRupiah.textContent = formatRupiah(totalRupiah);
         if (btnBadge) btnBadge.textContent = state.selectedModules.size;
     } else {
         // Hide button
@@ -428,7 +428,7 @@ function openPaymentModal() {
     }
     
     // Calculate cost
-    const { totalTokens, baseCost } = calculateCost();
+    const { totalTokens, totalRupiah } = calculateCost();
     
     // Update modal content
     const modal = document.getElementById('paymentModal');
@@ -465,7 +465,7 @@ function openPaymentModal() {
     
     // Set cost details
     if (modalTokens) modalTokens.textContent = `${totalTokens.toFixed(1)} tokens`;
-    if (modalCost) modalCost.textContent = formatRupiah(baseCost);
+    if (modalCost) modalCost.textContent = formatRupiah(totalRupiah);
     
     // Show modal
     if (modal) modal.style.display = 'flex';
@@ -489,12 +489,12 @@ function processPayment() {
     }
     
     // Prepare data for deployment
-    const { totalTokens, baseCost } = calculateCost();
+    const { totalTokens, totalRupiah } = calculateCost();
     const deploymentData = {
         modules: Array.from(state.selectedModules),
         config: state.config,
         tokens: totalTokens,
-        cost: baseCost,
+        cost: totalRupiah,
         timestamp: new Date().toISOString()
     };
     
