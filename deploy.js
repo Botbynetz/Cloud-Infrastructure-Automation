@@ -644,110 +644,172 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         return;
     }
     
+    // REAL MODE - Deploy to actual AWS
+    addConsoleLog('🚀 Starting REAL deployment to AWS...', 'info');
+    addConsoleLog('⚠️  This will create actual cloud resources and incur costs', 'warning');
+    
     // Clear previous logs
     const console = document.getElementById('console');
     console.innerHTML = '';
     document.getElementById('module-progress').innerHTML = '';
     document.getElementById('deployment-summary').classList.remove('show');
-    updateProgress(0, 'Starting deployment...');
+    updateProgress(0, 'Connecting to deployment backend...');
     
     // Initialize module statuses
     selectedModules.forEach(moduleId => {
         updateModuleStatus(moduleId, 'pending');
     });
     
-    // For now, run demo deployment for real mode too (until backend is ready)
-    addConsoleLog('🚀 Starting real deployment...', 'info');
-    addConsoleLog('⚠️  Backend integration in progress - Running simulation', 'warning');
-    await runDemoDeployment(config);
-    return;
+    // Disable deploy button
+    const deployBtn = document.getElementById('deploy-btn');
+    deployBtn.disabled = true;
+    deployBtn.classList.add('deploying');
+    deployBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Deploying...</span>';
     
-    /* TODO: Enable this when backend is ready
-    // Connect to Railway backend via WebSocket
-    const socket = io('https://cloud-infrastructure-automation-production.up.railway.app');
-    
-    // Set connection timeout
-    const connectionTimeout = setTimeout(() => {
-        addConsoleLog('⚠️  Backend connection timeout - Running local simulation', 'warning');
-        runDemoDeployment(config);
-    }, 5000);
-    
-    socket.on('connect', () => {
-        clearTimeout(connectionTimeout);
-        addConsoleLog('✅ Connected to CloudStack backend', 'success');
+    try {
+        // Check if socket.io is loaded
+        if (typeof io === 'undefined') {
+            throw new Error('Socket.IO library not loaded. Please refresh the page and try again.');
+        }
         
-        // Emit deployment request
-        socket.emit('deploy', config);
-    });
-    
-    socket.on('log', (data) => {
-        addConsoleLog(data.message, data.type);
-    });
-    
-    socket.on('progress', (data) => {
-        updateProgress(data.percent, data.status);
-    });
-    
-    socket.on('module-status', (data) => {
-        updateModuleStatus(data.moduleId, data.status);
-    });
-    
-    socket.on('complete', (data) => {
-        const minutes = Math.floor(data.duration / 60);
-        const seconds = data.duration % 60;
-        
-        const summary = document.getElementById('deployment-summary');
-        summary.classList.add('show');
-        document.getElementById('summary-time').textContent = \`\${minutes}m \${seconds}s\`;
-        document.getElementById('summary-resources').textContent = data.totalResources;
-        document.getElementById('summary-modules').textContent = data.modulesDeployed;
-        
-        // Save deployment to localStorage for dashboard
-        saveDeployment({
-            projectName: config.projectName,
-            environment: config.environment,
-            awsRegion: config.awsRegion,
-            modules: config.modules,
-            tier: config.tier,
-            status: 'completed',
-            timestamp: Date.now(),
-            duration: \`\${minutes}m \${seconds}s\`,
-            resources: data.totalResources,
-            isDemo: false
+        // Connect to Railway backend via WebSocket
+        const socket = io('https://cloud-infrastructure-automation-production.up.railway.app', {
+            timeout: 10000,
+            reconnection: false
         });
         
-        const deployBtn = document.getElementById('deploy-btn');
-        deployBtn.disabled = false;
-        deployBtn.classList.remove('deploying');
-        deployBtn.innerHTML = '<i class=\"fas fa-redo\"></i> <span>Deploy Again</span>';
-    });
-    
-    socket.on('error', (data) => {
-        addConsoleLog(\`❌ Error: \${data.message}\`, 'error');
+        // Set connection timeout
+        const connectionTimeout = setTimeout(() => {
+            socket.close();
+            throw new Error('Backend connection timeout. Please check your internet connection and try again.');
+        }, 10000);
         
-        // Save failed deployment
-        saveDeployment({
-            projectName: config.projectName,
-            environment: config.environment,
-            awsRegion: config.awsRegion,
-            modules: config.modules,
-            tier: config.tier,
-            status: 'failed',
-            timestamp: Date.now(),
-            error: data.message,
-            isDemo: false
+        socket.on('connect', () => {
+            clearTimeout(connectionTimeout);
+            addConsoleLog('✅ Connected to CloudStack deployment backend', 'success');
+            addConsoleLog('📡 Establishing secure connection to AWS...', 'info');
+            
+            // Emit deployment request
+            socket.emit('deploy', config);
         });
         
-        const deployBtn = document.getElementById('deploy-btn');
+        socket.on('connect_error', (error) => {
+            clearTimeout(connectionTimeout);
+            addConsoleLog('❌ Failed to connect to deployment backend', 'error');
+            addConsoleLog(`Error: ${error.message}`, 'error');
+            addConsoleLog('', 'error');
+            addConsoleLog('Possible causes:', 'warning');
+            addConsoleLog('• Backend server is temporarily unavailable', 'info');
+            addConsoleLog('• Your internet connection is unstable', 'info');
+            addConsoleLog('• Firewall is blocking the connection', 'info');
+            addConsoleLog('', 'info');
+            addConsoleLog('💡 Please try again in a few moments', 'info');
+            
+            updateProgress(0, 'Connection failed');
+            document.getElementById('progress-fill').style.background = '#EF4444';
+            
+            deployBtn.disabled = false;
+            deployBtn.classList.remove('deploying');
+            deployBtn.innerHTML = '<i class="fas fa-rocket"></i> <span>Start Deployment</span>';
+        });
+        
+        socket.on('log', (data) => {
+            addConsoleLog(data.message, data.type);
+        });
+        
+        socket.on('progress', (data) => {
+            updateProgress(data.percent, data.status);
+        });
+        
+        socket.on('module-status', (data) => {
+            updateModuleStatus(data.moduleId, data.status);
+        });
+        
+        socket.on('complete', (data) => {
+            const minutes = Math.floor(data.duration / 60);
+            const seconds = data.duration % 60;
+            
+            addConsoleLog('', 'success');
+            addConsoleLog('═══════════════════════════════════════', 'success');
+            addConsoleLog('🎉 DEPLOYMENT SUCCESSFUL!', 'success');
+            addConsoleLog('═══════════════════════════════════════', 'success');
+            
+            const summary = document.getElementById('deployment-summary');
+            summary.classList.add('show');
+            document.getElementById('summary-time').textContent = `${minutes}m ${seconds}s`;
+            document.getElementById('summary-resources').textContent = data.totalResources;
+            document.getElementById('summary-modules').textContent = data.modulesDeployed;
+            
+            // Save deployment to localStorage for dashboard
+            saveDeployment({
+                projectName: config.projectName,
+                environment: config.environment,
+                awsRegion: config.awsRegion,
+                modules: config.modules,
+                tier: config.tier,
+                status: 'completed',
+                timestamp: Date.now(),
+                duration: `${minutes}m ${seconds}s`,
+                resources: data.totalResources,
+                isDemo: false
+            });
+            
+            deployBtn.disabled = false;
+            deployBtn.classList.remove('deploying');
+            deployBtn.innerHTML = '<i class="fas fa-redo"></i> <span>Deploy Again</span>';
+        });
+        
+        socket.on('error', (data) => {
+            addConsoleLog('', 'error');
+            addConsoleLog('═══════════════════════════════════════', 'error');
+            addConsoleLog(`❌ DEPLOYMENT FAILED: ${data.message}`, 'error');
+            addConsoleLog('═══════════════════════════════════════', 'error');
+            
+            // Save failed deployment
+            saveDeployment({
+                projectName: config.projectName,
+                environment: config.environment,
+                awsRegion: config.awsRegion,
+                modules: config.modules,
+                tier: config.tier,
+                status: 'failed',
+                timestamp: Date.now(),
+                error: data.message,
+                isDemo: false
+            });
+            
+            updateProgress(0, 'Deployment failed');
+            document.getElementById('progress-fill').style.background = '#EF4444';
+            
+            deployBtn.disabled = false;
+            deployBtn.classList.remove('deploying');
+            deployBtn.innerHTML = '<i class="fas fa-rocket"></i> <span>Start Deployment</span>';
+        });
+        
+        socket.on('disconnect', () => {
+            addConsoleLog('⚠️  Connection to backend lost', 'warning');
+            addConsoleLog('Attempting to reconnect...', 'info');
+        });
+        
+    } catch (error) {
+        addConsoleLog('', 'error');
+        addConsoleLog('═══════════════════════════════════════', 'error');
+        addConsoleLog('❌ DEPLOYMENT INITIALIZATION FAILED', 'error');
+        addConsoleLog('═══════════════════════════════════════', 'error');
+        addConsoleLog(`Error: ${error.message}`, 'error');
+        addConsoleLog('', 'info');
+        addConsoleLog('Please check:', 'warning');
+        addConsoleLog('• Your internet connection is stable', 'info');
+        addConsoleLog('• No browser extensions are blocking connections', 'info');
+        addConsoleLog('• Try refreshing the page and deploying again', 'info');
+        
+        updateProgress(0, 'Initialization failed');
+        document.getElementById('progress-fill').style.background = '#EF4444';
+        
         deployBtn.disabled = false;
         deployBtn.classList.remove('deploying');
-        deployBtn.innerHTML = '<i class=\"fas fa-rocket\"></i> <span>Start Deployment</span>';
-    });
-    
-    socket.on('disconnect', () => {
-        addConsoleLog('⚠️  Disconnected from backend', 'warning');
-    });
-    */
+        deployBtn.innerHTML = '<i class="fas fa-rocket"></i> <span>Start Deployment</span>';
+    }
 });
 
 // Initialize
