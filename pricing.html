@@ -139,57 +139,6 @@
         <div class="btn-badge" id="floatingBtnBadge">0</div>
     </button>
 
-    <!-- Floating Cost Calculator (Sticky) -->
-    <div class="floating-calculator" id="floatingCalculator">
-        <div class="container">
-            <div class="calculator-content">
-                <div class="calculator-left">
-                    <div class="calculator-icon">
-                        <i class="fas fa-calculator"></i>
-                    </div>
-                    <div class="calculator-info">
-                        <h3>Your Deployment Cost</h3>
-                        <p id="selectedModulesText">Select modules below to calculate</p>
-                    </div>
-                </div>
-                <div class="calculator-right">
-                    <div class="cost-display">
-                        <div class="cost-tokens">
-                            <span class="cost-label">Total Cost:</span>
-                            <span class="cost-value" id="totalTokens">0</span>
-                            <span class="cost-unit">tokens</span>
-                        </div>
-                        <div class="cost-rupiah">
-                            <span class="rupiah-symbol">Rp</span>
-                            <span class="rupiah-amount" id="totalRupiah">0</span>
-                        </div>
-                    </div>
-                    <button class="btn-deploy" id="btnProceedDeploy" disabled>
-                        <i class="fas fa-rocket"></i> Proceed to Deploy
-                    </button>
-                </div>
-            </div>
-            <div class="calculator-details" id="calculatorDetails" style="display: none;">
-                <div class="details-grid">
-                    <div class="detail-column">
-                        <h4><i class="fas fa-cubes"></i> Selected Modules</h4>
-                        <ul id="selectedModulesList"></ul>
-                    </div>
-                    <div class="detail-column">
-                        <h4><i class="fas fa-sliders-h"></i> Configuration</h4>
-                        <ul id="configMultipliersList">
-                            <li>Environment: <strong id="envConfig">Development</strong></li>
-                        </ul>
-                    </div>
-                    <div class="detail-column">
-                        <h4><i class="fas fa-receipt"></i> Cost Breakdown</h4>
-                        <ul id="costBreakdownList"></ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Hero Section -->
     <section class="pricing-hero">
         <div class="container">
