@@ -1031,6 +1031,18 @@
                     </div>
 
                     <form id="deploy-form" autocomplete="off">
+                        <!-- Module Selection -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-puzzle-piece"></i> Module Selection</h3>
+                            <div class="form-group">
+                                <label>Select Modules to Deploy *</label>
+                                <select id="module-selector" multiple size="10" required>
+                                    <!-- Populated by JavaScript -->
+                                </select>
+                                <small>Hold Ctrl/Cmd to select multiple modules</small>
+                            </div>
+                        </div>
+
                         <!-- AWS Credentials -->
                         <div class="form-section">
                             <h3><i class="fab fa-aws"></i> AWS Credentials</h3>
@@ -1321,7 +1333,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="auth-guard.js"></script>
     <script src="script.js"></script>
-    <script src="deploy.js?v=4.4"></script>
+    <script src="deploy.js?v=5.0"></script>
     <script src="mode-toggle.js"></script>
     <script src="pip-deployment.js"></script>
     

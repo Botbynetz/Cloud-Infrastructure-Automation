@@ -244,40 +244,17 @@ if (pendingDeployment) {
     try {
         const deploymentData = JSON.parse(pendingDeployment);
         
-        // Auto-select modules from pricing page
+        // Auto-select modules from pricing page in the dropdown
         if (deploymentData.modules && deploymentData.modules.length > 0) {
-            deploymentData.modules.forEach(moduleId => {
-                const checkbox = document.getElementById(`module-${moduleId}`);
-                const moduleOption = checkbox?.closest('.module-option');
-                
-                if (checkbox && !checkbox.disabled) {
-                    checkbox.checked = true;
-                    selectedModules.push(moduleId);
-                    if (moduleOption) {
-                        moduleOption.classList.add('selected');
+            const moduleSelector = document.getElementById('module-selector');
+            if (moduleSelector) {
+                // Select all pre-selected modules in the dropdown
+                Array.from(moduleSelector.options).forEach(option => {
+                    if (deploymentData.modules.includes(option.value)) {
+                        option.selected = true;
+                        selectedModules.push(option.value);
                     }
-                }
-            });
-            
-            // Hide the module selector section entirely
-            const moduleSectionContainer = document.querySelector('.form-section:has(#module-selector)');
-            if (moduleSectionContainer) {
-                moduleSectionContainer.style.display = 'none';
-            }
-            
-            // Show notification that modules are pre-selected
-            const moduleHeaderToggle = document.getElementById('moduleHeaderToggle');
-            if (moduleHeaderToggle && moduleHeaderToggle.parentElement) {
-                const preSelectedNotice = document.createElement('div');
-                preSelectedNotice.style.cssText = 'background: #DBEAFE; border: 2px solid #3B82F6; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;';
-                preSelectedNotice.innerHTML = `
-                    <i class="fas fa-check-circle" style="color: #3B82F6; font-size: 20px;"></i>
-                    <div>
-                        <strong style="color: #1E40AF;">${selectedModules.length} Module(s) Selected</strong><br>
-                        <span style="font-size: 13px; color: #1E3A8A;">Ready to deploy: ${deploymentData.modules.map(id => MODULES[id]?.name).filter(Boolean).join(', ')}</span>
-                    </div>
-                `;
-                moduleHeaderToggle.parentElement.insertBefore(preSelectedNotice, moduleHeaderToggle.parentElement.firstChild);
+                });
             }
             
             console.log('✅ Auto-selected modules from pricing:', deploymentData.modules);
