@@ -237,9 +237,13 @@ document.addEventListener('DOMContentLoaded', function() {
                            ${!isAvailable ? 'disabled' : ''}>
                 </div>
                 <div class="module-icon">${module.icon}</div>
-                <div class="module-card-title">${module.name}</div>
-                <div class="module-card-desc">${module.description}</div>
-                ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
+                <div class="module-card-content">
+                    <div class="module-card-header">
+                        <div class="module-card-title">${module.name}</div>
+                        ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
+                    </div>
+                    <div class="module-card-desc">${module.description}</div>
+                </div>
             `;
             
             // Click handler for card
