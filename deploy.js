@@ -610,8 +610,11 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         tier: currentTier
     };
     
-    // Validate AWS credentials format (skip for demo credentials)
-    if (!isDemoMode(config.awsAccessKey, config.awsSecretKey)) {
+    // Get current mode
+    const currentMode = localStorage.getItem('univai_mode');
+    
+    // Validate AWS credentials format ONLY if NOT in demo mode
+    if (currentMode !== 'demo') {
         const validation = validateAWSCredentials(config.awsAccessKey, config.awsSecretKey);
         
         if (!validation.valid) {
