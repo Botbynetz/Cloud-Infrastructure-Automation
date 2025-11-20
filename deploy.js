@@ -196,47 +196,37 @@ if (currentTier === 'ultimate') {
     document.getElementById('tier-badge').classList.add('enterprise');
 }
 
-// Populate module selector
+// Populate module selector dropdown
 const moduleSelector = document.getElementById('module-selector');
 let selectedModules = [];
 
-Object.keys(MODULES).forEach(moduleId => {
-    const module = MODULES[moduleId];
-    const isAvailable = tierConfig.modules.includes(moduleId);
+if (moduleSelector) {
+    // Clear existing options
+    moduleSelector.innerHTML = '';
     
-    const moduleOption = document.createElement('div');
-    moduleOption.className = `module-option ${!isAvailable ? 'disabled' : ''}`;
-    moduleOption.innerHTML = `
-        <input type="checkbox" id="module-${moduleId}" value="${moduleId}" ${!isAvailable ? 'disabled' : ''}>
-        <div class="module-info">
-            <div class="module-name">${module.name}</div>
-            <div class="module-desc">${module.description}</div>
-        </div>
-        <div class="module-price">${module.price}</div>
-    `;
+    // Add all available modules as options
+    Object.keys(MODULES).forEach(moduleId => {
+        const module = MODULES[moduleId];
+        const isAvailable = tierConfig.modules.includes(moduleId);
+        
+        const option = document.createElement('option');
+        option.value = moduleId;
+        option.textContent = `${module.name} - ${module.description}`;
+        option.disabled = !isAvailable;
+        
+        if (!isAvailable) {
+            option.textContent += ' (Upgrade Required)';
+        }
+        
+        moduleSelector.appendChild(option);
+    });
     
-    if (isAvailable) {
-        const checkbox = moduleOption.querySelector('input');
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                // Skip maxModules check for demo mode
-                if (!isInDemoMode && selectedModules.length >= tierConfig.maxModules) {
-                    this.checked = false;
-                    showUpgradeNotice();
-                    return;
-                }
-                selectedModules.push(moduleId);
-                moduleOption.classList.add('selected');
-            } else {
-                selectedModules = selectedModules.filter(m => m !== moduleId);
-                moduleOption.classList.remove('selected');
-            }
-            updateUpgradeNotice();
-        });
-    }
-    
-    moduleSelector.appendChild(moduleOption);
-});
+    // Listen for selection changes
+    moduleSelector.addEventListener('change', function() {
+        selectedModules = Array.from(this.selectedOptions).map(opt => opt.value);
+        console.log('Selected modules:', selectedModules);
+    });
+}
 
 // Check for pending deployment from pricing page
 const pendingDeployment = sessionStorage.getItem('pendingDeployment');
