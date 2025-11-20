@@ -18,12 +18,12 @@
     position: relative;
     z-index: 900;
     transition: all 0.3s ease;
-    margin-top: 70px;
+    margin-top: 80px;
 }
 
 .floating-calculator.sticky {
     position: fixed;
-    top: 70px;
+    top: 80px;
     left: 0;
     right: 0;
     animation: slideDown 0.3s ease;

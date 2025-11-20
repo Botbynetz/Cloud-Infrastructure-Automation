@@ -11,30 +11,118 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container nav-container">
-            <div class="nav-brand">
-                <a href="index.html">
-                    <i class="fas fa-cloud" style="color: var(--primary); font-size: 32px; margin-right: 12px;"></i>
-                    <span style="font-weight: 800; font-size: 24px; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">UnivAI</span>
-                </a>
+    <!-- Skip to Main Content (Accessibility) -->
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+    
+    <!-- Clean Navigation Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Left Side: Profile + Mode Toggle -->
+            <div class="header-left">
+                <!-- Profile Button -->
+                <button class="profile-btn" id="profileBtn" aria-label="Profile">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                         alt="Profile" id="userAvatar">
+                </button>
+                
+                <!-- Mode Toggle Switch -->
+                <div class="mode-toggle" id="modeToggle">
+                    <span class="mode-label" id="modeLabel">Demo</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="modeSwitch">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
-            <ul class="nav-menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="index.html#modules">Modules</a></li>
-                <li><a href="pricing.html" class="active">Pricing</a></li>
-                <li><a href="value.html">ROI Calculator</a></li>
-                <li><a href="auth.html" class="btn btn-secondary">Login</a></li>
-                <li><a href="deploy.html" class="btn btn-primary">Deploy Now</a></li>
-            </ul>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
+            
+            <!-- Logo (Center) -->
+            <a href="index.html" class="header-logo">
+                <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 40px;">
+                <span>UnivAI Cloud</span>
+            </a>
+            
+            <!-- Right Side: Menu Button -->
+            <div class="header-right">
+                <!-- Menu Button -->
+                <button class="menu-btn" id="menuBtn" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
-    </nav>
+    </header>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-menu" id="profileMenu">
+        <div class="profile-menu-header">
+            <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                 alt="Profile" id="profileMenuAvatar">
+            <div class="profile-menu-info">
+                <div class="profile-name-badge">
+                    <h4 id="userName">Guest User</h4>
+                    <span class="plan-badge" id="planBadge" data-plan="free">
+                        <span class="badge-text">Free</span>
+                    </span>
+                </div>
+                <p id="userEmail">guest@example.com</p>
+            </div>
+        </div>
+        <div class="profile-menu-items">
+            <a href="profile.html" class="profile-menu-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="dashboard.html" class="profile-menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <button class="profile-menu-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Side Menu -->
+    <div class="side-menu" id="sideMenu">
+        <div class="side-menu-header">
+            <h3>Menu</h3>
+            <button class="side-menu-close" id="sideMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="side-menu-nav">
+            <a href="index.html" class="side-menu-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="index.html#modules" class="side-menu-item">
+                <i class="fas fa-cube"></i>
+                <span>Modules</span>
+            </a>
+            <a href="pricing.html" class="side-menu-item active">
+                <i class="fas fa-tags"></i>
+                <span>Pricing</span>
+            </a>
+            <a href="value.html" class="side-menu-item">
+                <i class="fas fa-calculator"></i>
+                <span>ROI Calculator</span>
+            </a>
+            <a href="contact.html" class="side-menu-item">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+            <a href="auth.html" class="side-menu-item">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </a>
+            <a href="deploy.html" class="side-menu-cta">
+                <i class="fas fa-rocket"></i>
+                <span>Deploy Now</span>
+            </a>
+        </nav>
+    </div>
 
     <!-- Floating Cost Calculator (Sticky) -->
     <div class="floating-calculator" id="floatingCalculator">
