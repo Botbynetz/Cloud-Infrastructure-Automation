@@ -791,6 +791,14 @@
 
         /* Collapsible Section Styles */
         .collapsible-section .section-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 191, 255, 0.05));
+            border-radius: 12px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
         }
 
@@ -798,6 +806,41 @@
             background: linear-gradient(135deg, rgba(0, 102, 255, 0.08), rgba(0, 191, 255, 0.08)) !important;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+        }
+
+        .section-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header-left h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+
+        .section-header-left i.fa-puzzle-piece {
+            color: #0066FF;
+            font-size: 18px;
+        }
+
+        .section-toggle-icon {
+            transition: transform 0.3s ease;
+            color: #0066FF;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .module-count-badge {
+            background: #0066FF;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .collapsible-section.collapsed .section-toggle-icon {
@@ -810,10 +853,6 @@
 
         .collapsible-section .section-content {
             transition: all 0.3s ease;
-        }
-
-        .module-count-badge {
-            animation: fadeIn 0.3s ease;
         }
 
         @keyframes fadeIn {
@@ -1432,11 +1471,12 @@
                     <form id="deploy-form" autocomplete="off">
                         <!-- Module Selection -->
                         <div class="form-section collapsible-section">
-                            <div class="section-header" onclick="toggleSection(this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px; background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 191, 255, 0.05)); border-radius: 12px; margin-bottom: 20px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i class="fas fa-chevron-down section-toggle-icon" style="transition: transform 0.3s ease; color: #0066FF;"></i>
-                                    <h3 style="margin: 0;"><i class="fas fa-puzzle-piece"></i> Module Selection</h3>
-                                    <span class="module-count-badge" style="background: #0066FF; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">0 selected</span>
+                            <div class="section-header" onclick="toggleSection(this)">
+                                <div class="section-header-left">
+                                    <i class="fas fa-chevron-down section-toggle-icon"></i>
+                                    <i class="fas fa-puzzle-piece"></i>
+                                    <h3>Module Selection</h3>
+                                    <span class="module-count-badge">0 selected</span>
                                 </div>
                                 <button type="button" id="select-all-btn" class="btn-select-all" onclick="event.stopPropagation();">
                                     <i class="fas fa-check-double"></i> Select All Modules
@@ -1739,7 +1779,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="auth-guard.js"></script>
     <script src="script.js"></script>
-    <script src="deploy.js?v=6.7"></script>
+    <script src="deploy.js?v=6.8"></script>
     <script src="mode-toggle.js"></script>
     <script src="pip-deployment.js"></script>
     

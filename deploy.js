@@ -199,6 +199,22 @@ const MODULES = {
     }
 };
 
+// Function to toggle section collapse
+function toggleSection(headerElement) {
+    const section = headerElement.closest('.collapsible-section');
+    section.classList.toggle('collapsed');
+}
+
+// Function to update module count badge
+function updateModuleCount() {
+    const countBadge = document.querySelector('.module-count-badge');
+    if (countBadge) {
+        const count = window.selectedModules ? window.selectedModules.length : 0;
+        countBadge.textContent = count === 0 ? '0 selected' : `${count} selected`;
+        countBadge.style.background = count > 0 ? '#10B981' : '#0066FF';
+    }
+}
+
 // Initialize modules and tier when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     // Get tier from URL parameter or localStorage
@@ -318,22 +334,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (pendingDeployment) {
         try {
             const deploymentData = JSON.parse(pendingDeployment);
-
-// Function to toggle section collapse
-function toggleSection(headerElement) {
-    const section = headerElement.closest('.collapsible-section');
-    section.classList.toggle('collapsed');
-}
-
-// Function to update module count badge
-function updateModuleCount() {
-    const countBadge = document.querySelector('.module-count-badge');
-    if (countBadge) {
-        const count = window.selectedModules.length;
-        countBadge.textContent = count === 0 ? '0 selected' : `${count} selected`;
-        countBadge.style.background = count > 0 ? '#10B981' : '#0066FF';
-    }
-}
             
             // Auto-select modules from pricing page
             if (deploymentData.modules && deploymentData.modules.length > 0) {
