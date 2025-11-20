@@ -447,3 +447,36 @@ document.addEventListener('DOMContentLoaded', () => {
         statsObserver.observe(stat);
     });
 });
+
+// ========================================
+// BACKEND KEEPALIVE - PREVENT RAILWAY COLD START
+// ========================================
+// Ping backend every 5 minutes to keep Railway server awake
+// This prevents 8-15 second login delays on free tier
+(function() {
+    const BACKEND_URL = 'https://cloud-infrastructure-automation-production.up.railway.app';
+    const PING_INTERVAL = 5 * 60 * 1000; // 5 minutes
+    
+    function keepBackendAlive() {
+        fetch(`${BACKEND_URL}/api/health`, {
+            method: 'GET',
+            cache: 'no-cache'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('✅ Backend keepalive: Server is warm');
+            }
+        })
+        .catch(error => {
+            console.log('⚠️ Backend keepalive ping failed (normal if offline)');
+        });
+    }
+    
+    // Initial ping after 10 seconds (let page load first)
+    setTimeout(keepBackendAlive, 10000);
+    
+    // Then ping every 5 minutes
+    setInterval(keepBackendAlive, PING_INTERVAL);
+    
+    console.log('🚀 Backend keepalive initialized - Railway server will stay warm');
+})();

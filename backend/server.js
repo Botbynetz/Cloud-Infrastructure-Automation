@@ -139,6 +139,16 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Alias for consistency
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
 app.get('/readiness', async (req, res) => {
     try {
         // Check email service
