@@ -211,188 +211,273 @@
         </div>
     </section>
 
-    <!-- Token Packages -->
+    <!-- Module Pricing -->
     <section class="token-packages">
         <div class="container">
             <div class="section-header">
-                <span class="section-label"><i class="fas fa-coins"></i> Token Packages</span>
-                <h2 class="section-title">Buy Deployment Tokens</h2>
-                <p class="section-description">Choose the package that fits your needs. Tokens never expire and can be used anytime.</p>
+                <span class="section-label"><i class="fas fa-cubes"></i> 10 Module Assistant</span>
+                <h2 class="section-title">Enterprise-grade modules available for your deployment</h2>
+                <p class="section-description">Click on modules to add them to your deployment calculator above</p>
             </div>
 
-            <div class="packages-grid">
-                <!-- Starter Package -->
-                <div class="package-card">
-                    <div class="package-header">
-                        <h3 class="package-name">Starter</h3>
-                        <p class="package-description">Perfect for testing</p>
+            <div class="modules-grid">
+                <!-- Self-Service Portal -->
+                <div class="module-card" data-module="self-service-portal" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="package-tokens">
-                        <span class="token-count">10</span>
-                        <span class="token-label">tokens</span>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #007BFF, #0056D6);">
+                        <i class="fas fa-desktop"></i>
                     </div>
-                    <div class="package-price">
-                        <span class="price-currency">Rp</span>
-                        <span class="price-amount">950.000</span>
+                    <h3 class="module-name">Self-Service Portal</h3>
+                    <p class="module-description">IDP with 10-min provisioning</p>
+                    <div class="module-tokens">
+                        <span class="token-value">1.0</span>
+                        <span class="token-label">token</span>
                     </div>
-                    <div class="package-per-token">
-                        <span class="per-token-price">@ Rp 95.000/token</span>
+                    <div class="module-price">
+                        <span class="price-range">$40-80K</span>
                     </div>
-                    <button class="btn-package" onclick="buyTokens('starter')">
-                        <i class="fas fa-shopping-cart"></i> Buy Now
-                    </button>
-                    <div class="package-features">
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>3-5 basic deployments</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Never expires</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Instant credit</span>
-                        </div>
+                    <div class="module-badge free-badge">FREE</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Instant provisioning</span>
+                        <span><i class="fas fa-check"></i> AWS/Azure/GCP</span>
+                        <span><i class="fas fa-check"></i> Self-service access</span>
                     </div>
                 </div>
 
-                <!-- Value Package (Popular) -->
-                <div class="package-card popular">
-                    <div class="popular-badge">⭐ MOST POPULAR</div>
-                    <div class="package-header">
-                        <h3 class="package-name">Value</h3>
-                        <p class="package-description">Best value for active teams</p>
+                <!-- AIOps -->
+                <div class="module-card" data-module="aiops" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="package-tokens">
-                        <span class="token-count">50</span>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="module-name">AIOps</h3>
+                    <p class="module-description">AI-driven operations with 70% noise reduction</p>
+                    <div class="module-tokens">
+                        <span class="token-value">3.0</span>
                         <span class="token-label">tokens</span>
                     </div>
-                    <div class="package-price">
-                        <span class="price-currency">Rp</span>
-                        <span class="price-amount">4.000.000</span>
+                    <div class="module-price">
+                        <span class="price-range">$30-60K</span>
                     </div>
-                    <div class="package-per-token">
-                        <span class="per-token-price">@ Rp 80.000/token</span>
-                        <span class="discount-badge">SAVE 16%</span>
-                    </div>
-                    <button class="btn-package primary" onclick="buyTokens('value')">
-                        <i class="fas fa-shopping-cart"></i> Buy Now
-                    </button>
-                    <div class="package-features">
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>12-15 deployments</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Save Rp 750k vs Starter</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Priority support</span>
-                        </div>
+                    <div class="module-badge ultimate-badge">ULTIMATE</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Anomaly detection</span>
+                        <span><i class="fas fa-check"></i> Auto-remediation</span>
+                        <span><i class="fas fa-check"></i> Predictive insights</span>
                     </div>
                 </div>
 
-                <!-- Scale Package -->
-                <div class="package-card">
-                    <div class="package-header">
-                        <h3 class="package-name">Scale</h3>
-                        <p class="package-description">For production workloads</p>
+                <!-- Zero Trust Security -->
+                <div class="module-card" data-module="zero-trust" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="package-tokens">
-                        <span class="token-count">150</span>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #DC2626, #991B1B);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="module-name">Zero Trust Security</h3>
+                    <p class="module-description">5-tier network segmentation</p>
+                    <div class="module-tokens">
+                        <span class="token-value">2.0</span>
                         <span class="token-label">tokens</span>
                     </div>
-                    <div class="package-price">
-                        <span class="price-currency">Rp</span>
-                        <span class="price-amount">10.500.000</span>
+                    <div class="module-price">
+                        <span class="price-range">$25-40K</span>
                     </div>
-                    <div class="package-per-token">
-                        <span class="per-token-price">@ Rp 70.000/token</span>
-                        <span class="discount-badge">SAVE 26%</span>
-                    </div>
-                    <button class="btn-package" onclick="buyTokens('scale')">
-                        <i class="fas fa-shopping-cart"></i> Buy Now
-                    </button>
-                    <div class="package-features">
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>35-40 deployments</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Save Rp 3.75 juta</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Dedicated support</span>
-                        </div>
+                    <div class="module-badge entult-badge">ENT/ULT</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Micro-segmentation</span>
+                        <span><i class="fas fa-check"></i> Identity-based access</span>
+                        <span><i class="fas fa-check"></i> Continuous verification</span>
                     </div>
                 </div>
 
-                <!-- Enterprise Package -->
-                <div class="package-card">
-                    <div class="package-header">
-                        <h3 class="package-name">Enterprise</h3>
-                        <p class="package-description">For large organizations</p>
+                <!-- Disaster Recovery -->
+                <div class="module-card" data-module="disaster-recovery" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="package-tokens">
-                        <span class="token-count">500</span>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
+                        <i class="fas fa-life-ring"></i>
+                    </div>
+                    <h3 class="module-name">Disaster Recovery</h3>
+                    <p class="module-description">15-min RTO, cross-region failover</p>
+                    <div class="module-tokens">
+                        <span class="token-value">3.0</span>
                         <span class="token-label">tokens</span>
                     </div>
-                    <div class="package-price">
-                        <span class="price-currency">Rp</span>
-                        <span class="price-amount">30.000.000</span>
+                    <div class="module-price">
+                        <span class="price-range">$15-30K</span>
                     </div>
-                    <div class="package-per-token">
-                        <span class="per-token-price">@ Rp 60.000/token</span>
-                        <span class="discount-badge">SAVE 37%</span>
-                    </div>
-                    <button class="btn-package" onclick="buyTokens('enterprise')">
-                        <i class="fas fa-shopping-cart"></i> Buy Now
-                    </button>
-                    <div class="package-features">
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>125+ deployments</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Save Rp 17.5 juta</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check"></i>
-                            <span>Premium 24/7 support</span>
-                        </div>
+                    <div class="module-badge entult-badge">ENT/ULT</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Automated backups</span>
+                        <span><i class="fas fa-check"></i> Cross-region replication</span>
+                        <span><i class="fas fa-check"></i> Fast recovery</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="unlimited-option">
-                <div class="unlimited-card">
-                    <div class="unlimited-icon">
-                        <i class="fas fa-infinity"></i>
+                <!-- Advanced Compliance -->
+                <div class="module-card" data-module="policy-governance" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="unlimited-content">
-                        <h3>Unlimited Annual Plan</h3>
-                        <p>Deploy unlimited times with all modules included. Perfect for mission-critical enterprises.</p>
-                        <div class="unlimited-features">
-                            <span><i class="fas fa-check"></i> Unlimited deployments</span>
-                            <span><i class="fas fa-check"></i> All 10 modules</span>
-                            <span><i class="fas fa-check"></i> White-label option</span>
-                            <span><i class="fas fa-check"></i> 30-min support response</span>
-                        </div>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                        <i class="fas fa-balance-scale"></i>
                     </div>
-                    <div class="unlimited-price">
-                        <div class="price-tag">
-                            <span class="price-amount">Rp 79.000.000</span>
-                            <span class="price-period">/year</span>
-                        </div>
-                        <button class="btn-unlimited" onclick="contactSales()">
-                            <i class="fas fa-comments"></i> Contact Sales
-                        </button>
+                    <h3 class="module-name">Advanced Compliance</h3>
+                    <p class="module-description">6 AWS Config rules with auto-remediation</p>
+                    <div class="module-tokens">
+                        <span class="token-value">2.0</span>
+                        <span class="token-label">tokens</span>
+                    </div>
+                    <div class="module-price">
+                        <span class="price-range">$20-35K</span>
+                    </div>
+                    <div class="module-badge entult-badge">ENT/ULT</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Policy as code</span>
+                        <span><i class="fas fa-check"></i> Compliance dashboard</span>
+                        <span><i class="fas fa-check"></i> Auto-remediation</span>
+                    </div>
+                </div>
+
+                <!-- FinOps Optimization -->
+                <div class="module-card" data-module="finops" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="module-name">FinOps Optimization</h3>
+                    <p class="module-description">ML-powered cost optimization</p>
+                    <div class="module-tokens">
+                        <span class="token-value">1.0</span>
+                        <span class="token-label">token</span>
+                    </div>
+                    <div class="module-price">
+                        <span class="price-range">$10-20K</span>
+                    </div>
+                    <div class="module-badge pro-badge">PRO+</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Cost forecasting</span>
+                        <span><i class="fas fa-check"></i> Resource optimization</span>
+                        <span><i class="fas fa-check"></i> Budget alerts</span>
+                    </div>
+                </div>
+
+                <!-- Multi-Cloud Support -->
+                <div class="module-card" data-module="multi-cloud" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3 class="module-name">Multi-Cloud Support</h3>
+                    <p class="module-description">Unified API for AWS, Azure, GCP</p>
+                    <div class="module-tokens">
+                        <span class="token-value">3.0</span>
+                        <span class="token-label">tokens</span>
+                    </div>
+                    <div class="module-price">
+                        <span class="price-range">$20-50K</span>
+                    </div>
+                    <div class="module-badge ultimate-badge">ULTIMATE</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Cloud abstraction</span>
+                        <span><i class="fas fa-check"></i> Vendor flexibility</span>
+                        <span><i class="fas fa-check"></i> Unified management</span>
+                    </div>
+                </div>
+
+                <!-- GitOps & CI/CD -->
+                <div class="module-card" data-module="gitops-cicd" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h3 class="module-name">GitOps & CI/CD</h3>
+                    <p class="module-description">Git as single source of truth</p>
+                    <div class="module-tokens">
+                        <span class="token-value">1.0</span>
+                        <span class="token-label">token</span>
+                    </div>
+                    <div class="module-price">
+                        <span class="price-range">$15-25K</span>
+                    </div>
+                    <div class="module-badge pro-badge">PRO+</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> ArgoCD/Flux</span>
+                        <span><i class="fas fa-check"></i> Auto-sync</span>
+                        <span><i class="fas fa-check"></i> Version control</span>
+                    </div>
+                </div>
+
+                <!-- Service Mesh -->
+                <div class="module-card" data-module="service-mesh" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3 class="module-name">Service Mesh</h3>
+                    <p class="module-description">AWS App Mesh with mTLS</p>
+                    <div class="module-tokens">
+                        <span class="token-value">2.0</span>
+                        <span class="token-label">tokens</span>
+                    </div>
+                    <div class="module-price">
+                        <span class="price-range">$18-30K</span>
+                    </div>
+                    <div class="module-badge entult-badge">ENT/ULT</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> Traffic management</span>
+                        <span><i class="fas fa-check"></i> Service discovery</span>
+                        <span><i class="fas fa-check"></i> Observability</span>
+                    </div>
+                </div>
+
+                <!-- Observability 2.0 -->
+                <div class="module-card" data-module="observability" onclick="toggleModule(this)">
+                    <div class="module-select">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="module-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="module-name">Observability 2.0</h3>
+                    <p class="module-description">Unified metrics, logs, traces</p>
+                    <div class="module-tokens">
+                        <span class="token-value">1.0</span>
+                        <span class="token-label">token</span>
+                    </div>
+                    <div class="module-price">
+                        <span class="price-range">$15-25K</span>
+                    </div>
+                    <div class="module-badge pro-badge">PRO+</div>
+                    <div class="module-features">
+                        <span><i class="fas fa-check"></i> OpenTelemetry</span>
+                        <span><i class="fas fa-check"></i> Distributed tracing</span>
+                        <span><i class="fas fa-check"></i> Custom dashboards</span>
                     </div>
                 </div>
             </div>
