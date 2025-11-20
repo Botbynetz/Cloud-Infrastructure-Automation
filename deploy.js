@@ -122,61 +122,71 @@ const MODULES = {
         name: "Self-Service Portal",
         description: "IDP with 10-min provisioning",
         price: "$40-80K",
-        resources: 12
+        resources: 12,
+        icon: "🎯"
     },
     "aiops": {
         name: "AIOps",
         description: "AI-driven operations with 70% noise reduction",
         price: "$30-60K",
-        resources: 18
+        resources: 18,
+        icon: "🤖"
     },
     "zero-trust": {
         name: "Zero Trust Security",
         description: "5-tier network segmentation",
         price: "$25-40K",
-        resources: 15
+        resources: 15,
+        icon: "🔒"
     },
     "disaster-recovery": {
         name: "Disaster Recovery",
         description: "15-min RTO, cross-region failover",
         price: "$15-30K",
-        resources: 22
+        resources: 22,
+        icon: "🛡️"
     },
     "compliance": {
         name: "Advanced Compliance",
         description: "6 AWS Config rules with auto-remediation",
         price: "$20-35K",
-        resources: 14
+        resources: 14,
+        icon: "✅"
     },
     "finops": {
         name: "FinOps Optimization",
         description: "ML-powered cost optimization",
         price: "$10-20K",
-        resources: 16
+        resources: 16,
+        icon: "💰"
     },
     "multi-cloud": {
         name: "Multi-Cloud Support",
         description: "Unified API for AWS, Azure, GCP",
         price: "$20-50K",
-        resources: 10
+        resources: 10,
+        icon: "☁️"
     },
     "gitops": {
         name: "GitOps & CI/CD",
         description: "Git as single source of truth",
         price: "$15-25K",
-        resources: 12
+        resources: 12,
+        icon: "🔄"
     },
     "service-mesh": {
         name: "Service Mesh",
         description: "AWS App Mesh with mTLS",
         price: "$18-30K",
-        resources: 8
+        resources: 8,
+        icon: "🕸️"
     },
     "observability": {
         name: "Observability 2.0",
         description: "Unified metrics, logs, traces",
         price: "$15-25K",
-        resources: 9
+        resources: 9,
+        icon: "📊"
     }
 };
 
@@ -216,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const option = document.createElement('option');
             option.value = moduleId;
-            option.textContent = `${module.name} - ${module.description}`;
+            option.textContent = `${module.icon} ${module.name} - ${module.description}`;
             option.disabled = !isAvailable;
             
             if (!isAvailable) {

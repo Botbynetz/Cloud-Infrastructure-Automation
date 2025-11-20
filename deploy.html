@@ -138,36 +138,49 @@
         .form-group select[multiple] {
             padding: 8px;
             height: auto;
-            min-height: 300px;
+            min-height: 320px;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #e3e8ef;
         }
 
         .form-group select[multiple] option {
-            padding: 12px 16px;
-            margin: 4px 0;
-            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 6px 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.5;
             white-space: normal;
             word-wrap: break-word;
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .form-group select[multiple] option:hover {
-            background: var(--primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            border-color: transparent;
         }
 
         .form-group select[multiple] option:checked {
-            background: linear-gradient(135deg, var(--primary), #0051cc);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            font-weight: 500;
+            font-weight: 600;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateX(2px);
         }
 
         .form-group select[multiple] option:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
-            background: var(--card);
+            background: #f3f4f6;
+            border-color: #e5e7eb;
+            box-shadow: none;
         }
 
         .form-group input:focus,
@@ -1369,7 +1382,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="auth-guard.js"></script>
     <script src="script.js"></script>
-    <script src="deploy.js?v=5.2"></script>
+    <script src="deploy.js?v=5.3"></script>
     <script src="mode-toggle.js"></script>
     <script src="pip-deployment.js"></script>
     
