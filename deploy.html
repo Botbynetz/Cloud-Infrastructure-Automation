@@ -134,6 +134,42 @@
             transition: all 0.2s ease;
         }
 
+        /* Multi-select dropdown styling */
+        .form-group select[multiple] {
+            padding: 8px;
+            height: auto;
+            min-height: 300px;
+        }
+
+        .form-group select[multiple] option {
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .form-group select[multiple] option:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .form-group select[multiple] option:checked {
+            background: linear-gradient(135deg, var(--primary), #0051cc);
+            color: white;
+            font-weight: 500;
+        }
+
+        .form-group select[multiple] option:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--card);
+        }
+
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
