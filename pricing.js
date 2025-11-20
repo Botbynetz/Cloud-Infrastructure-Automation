@@ -479,15 +479,6 @@ function closePaymentModal() {
 
 // Process payment
 function processPayment() {
-    // Check if user is logged in
-    if (!checkLoginStatus()) {
-        closePaymentModal();
-        if (confirm('Anda harus login terlebih dahulu. Redirect ke halaman login?')) {
-            window.location.href = 'auth.html';
-        }
-        return;
-    }
-    
     // Prepare data for deployment
     const { totalTokens, totalRupiah } = calculateCost();
     const deploymentData = {
@@ -501,19 +492,8 @@ function processPayment() {
     // Store in session for deploy.html
     sessionStorage.setItem('pendingDeployment', JSON.stringify(deploymentData));
     
-    // Redirect to deploy page
+    // Redirect to deploy page immediately
     window.location.href = 'deploy.html';
-    
-    // TODO: Integrate with Midtrans payment
-    // fetch('/api/payment/create', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(deploymentData)
-    // })
-    // .then(res => res.json())
-    // .then(data => {
-    //     snap.pay(data.snapToken);
-    // });
 }
 
 // Format rupiah
