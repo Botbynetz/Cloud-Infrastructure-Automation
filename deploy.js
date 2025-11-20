@@ -123,14 +123,16 @@ const MODULES = {
         description: "IDP with 10-min provisioning",
         price: "$40-80K",
         resources: 12,
-        icon: "🎯"
+        icon: "🎯",
+        features: ["Instant provisioning", "AWS/Azure/GCP", "Self-service access"]
     },
     "aiops": {
         name: "AIOps",
         description: "AI-driven operations with 70% noise reduction",
         price: "$30-60K",
         resources: 18,
-        icon: "🤖"
+        icon: "🤖",
+        features: ["Anomaly detection", "Auto-remediation", "Predictive insights"]
     },
     "zero-trust": {
         name: "Zero Trust Security",
@@ -144,49 +146,56 @@ const MODULES = {
         description: "15-min RTO, cross-region failover",
         price: "$15-30K",
         resources: 22,
-        icon: "🛡️"
+        icon: "🛡️",
+        features: ["Automated backups", "Cross-region replication", "Fast recovery"]
     },
     "compliance": {
         name: "Advanced Compliance",
         description: "6 AWS Config rules with auto-remediation",
         price: "$20-35K",
         resources: 14,
-        icon: "✅"
+        icon: "✅",
+        features: ["Policy as code", "Compliance dashboard", "Auto-remediation"]
     },
     "finops": {
         name: "FinOps Optimization",
         description: "ML-powered cost optimization",
         price: "$10-20K",
         resources: 16,
-        icon: "💰"
+        icon: "💰",
+        features: ["Cost forecasting", "Resource optimization", "Budget alerts"]
     },
     "multi-cloud": {
         name: "Multi-Cloud Support",
         description: "Unified API for AWS, Azure, GCP",
         price: "$20-50K",
         resources: 10,
-        icon: "☁️"
+        icon: "☁️",
+        features: ["Cloud abstraction", "Vendor flexibility", "Unified management"]
     },
     "gitops": {
         name: "GitOps & CI/CD",
         description: "Git as single source of truth",
         price: "$15-25K",
         resources: 12,
-        icon: "🔄"
+        icon: "🔄",
+        features: ["ArgoCD/Flux", "Auto-sync", "Version control"]
     },
     "service-mesh": {
         name: "Service Mesh",
         description: "AWS App Mesh with mTLS",
         price: "$18-30K",
         resources: 8,
-        icon: "🕸️"
+        icon: "🕸️",
+        features: ["Traffic management", "Service discovery", "Observability"]
     },
     "observability": {
         name: "Observability 2.0",
         description: "Unified metrics, logs, traces",
         price: "$15-25K",
         resources: 9,
-        icon: "📊"
+        icon: "📊",
+        features: ["OpenTelemetry", "Distributed tracing", "Custom dashboards"]
     }
 };
 
@@ -229,6 +238,10 @@ document.addEventListener('DOMContentLoaded', function() {
             card.dataset.moduleId = moduleId;
             card.setAttribute('data-module-id', moduleId);
             
+            const featuresHTML = module.features ? module.features.map(f => 
+                `<span><i class="fas fa-check"></i> ${f}</span>`
+            ).join('') : '';
+            
             card.innerHTML = `
                 <div class="module-checkbox-wrapper">
                     <input type="checkbox" 
@@ -244,6 +257,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
                     </div>
                     <div class="module-card-desc">${module.description}</div>
+                    ${featuresHTML ? `<div class="module-features">${featuresHTML}</div>` : ''}
+                    <button class="module-toggle-btn" onclick="event.stopPropagation(); this.closest('.module-card').classList.toggle('expanded');">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
                 </div>
             `;
             
