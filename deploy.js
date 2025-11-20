@@ -40,8 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
             tierBadge.style.color = 'white';
         }
     } else if (mode === 'real') {
-        // Real Mode: Check if user has selected a plan
-        if (!user.tier || user.tier === 'free') {
+        // Real Mode: Check if user has selected a plan OR coming from pricing page
+        const pendingDeployment = sessionStorage.getItem('pendingDeployment');
+        
+        if ((!user.tier || user.tier === 'free') && !pendingDeployment) {
             alert('⚠️ Please select a subscription plan first');
             window.location.href = 'pricing.html';
             return;
