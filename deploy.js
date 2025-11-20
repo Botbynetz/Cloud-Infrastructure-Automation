@@ -653,32 +653,35 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         addConsoleLog('✓ AWS credentials format validated', 'success');
     }
     
-    // Check for demo mode
-    if (isDemoMode(config.awsAccessKey, config.awsSecretKey)) {
+    // Check mode from localStorage
+    const mode = localStorage.getItem('univai_mode');
+    
+    if (mode === 'demo') {
+        // DEMO MODE - Using test credentials
         addConsoleLog('🔧 DEMO MODE ACTIVATED', 'warning');
         addConsoleLog('Using test credentials - No real AWS resources will be created', 'info');
         await runDemoDeployment(config);
         return;
+    } else {
+        // REAL MODE - Deploy to actual AWS (using simulation for now)
+        addConsoleLog('🚀 Starting REAL deployment to AWS...', 'info');
+        addConsoleLog('⚠️  Backend integration coming soon - Running simulation', 'warning');
+        
+        // Clear previous logs (but keep credentials in form)
+        const consoleEl = document.getElementById('console');
+        consoleEl.innerHTML = '';
+        document.getElementById('module-progress').innerHTML = '';
+        document.getElementById('deployment-summary').classList.remove('show');
+        updateProgress(0, 'Initializing deployment...');
+        
+        // Initialize module statuses
+        selectedModules.forEach(moduleId => {
+            updateModuleStatus(moduleId, 'pending');
+        });
+        
+        // Run demo deployment (backend integration coming soon)
+        await runDemoDeployment(config);
     }
-    
-    // REAL MODE - Deploy to actual AWS (using simulation for now)
-    addConsoleLog('🚀 Starting REAL deployment to AWS...', 'info');
-    addConsoleLog('⚠️  Backend integration coming soon - Running simulation', 'warning');
-    
-    // Clear previous logs (but keep credentials in form)
-    const consoleEl = document.getElementById('console');
-    consoleEl.innerHTML = '';
-    document.getElementById('module-progress').innerHTML = '';
-    document.getElementById('deployment-summary').classList.remove('show');
-    updateProgress(0, 'Initializing deployment...');
-    
-    // Initialize module statuses
-    selectedModules.forEach(moduleId => {
-        updateModuleStatus(moduleId, 'pending');
-    });
-    
-    // Run demo deployment (backend integration coming soon)
-    await runDemoDeployment(config);
     
     /* TODO: Enable when backend is ready
     // Disable deploy button
@@ -834,19 +837,20 @@ document.getElementById('deploy-form').addEventListener('submit', async function
     */
 });
 
-// Initialize
-addConsoleLog(`✅ Terhubung ke server penerapan`, 'success');
-addConsoleLog(`Siap untuk diterapkan. Konfigurasikan pengaturan Anda dan klik "Mulai Penerapan".`, 'info');
+// Initialize console
+addConsoleLog(`Konsol Penerapan UnivAI Cloud v2.0`, 'info');
+addConsoleLog(`Connected to CloudStack deployment platform`, 'success');
+addConsoleLog(`Your tier: ${tierConfig.name} (${tierConfig.maxModules} modules max)`, 'info');
 
 // Display pre-selected modules from pricing page
-const pendingDeployment = sessionStorage.getItem('pendingDeployment');
-if (pendingDeployment) {
+const checkPendingDeployment = sessionStorage.getItem('pendingDeployment');
+if (checkPendingDeployment) {
     try {
-        const deploymentData = JSON.parse(pendingDeployment);
+        const deploymentData = JSON.parse(checkPendingDeployment);
         if (deploymentData.modules && deploymentData.modules.length > 0) {
             addConsoleLog('', 'info');
             addConsoleLog('═══════════════════════════════════════', 'success');
-            addConsoleLog(`📦 ${deploymentData.modules.length} Module Terpilih`, 'success');
+            addConsoleLog(`📦 ${deploymentData.modules.length} Module Terpilih dari Pricing`, 'success');
             addConsoleLog('═══════════════════════════════════════', 'success');
             addConsoleLog('', 'info');
             
