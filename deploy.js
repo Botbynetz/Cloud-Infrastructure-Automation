@@ -227,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = document.createElement('div');
             card.className = `module-card ${!isAvailable ? 'disabled' : ''}`;
             card.dataset.moduleId = moduleId;
+            card.setAttribute('data-module-id', moduleId);
             
             card.innerHTML = `
                 <div class="module-checkbox-wrapper">

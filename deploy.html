@@ -554,7 +554,7 @@
         }
 
         .module-icon {
-            font-size: 32px;
+            font-size: 24px;
             width: 48px;
             height: 48px;
             flex-shrink: 0;
@@ -562,17 +562,59 @@
             align-items: center;
             justify-content: center;
             border-radius: 10px;
-            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 191, 255, 0.1));
+            color: white;
             transition: all 0.2s ease;
         }
 
+        /* Iconic colors for each module - matching pricing page */
+        .module-card[data-module-id="self-service-portal"] .module-icon {
+            background: linear-gradient(135deg, #007BFF, #0056D6);
+        }
+
+        .module-card[data-module-id="aiops"] .module-icon {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+
+        .module-card[data-module-id="zero-trust"] .module-icon {
+            background: linear-gradient(135deg, #DC2626, #991B1B);
+        }
+
+        .module-card[data-module-id="disaster-recovery"] .module-icon {
+            background: linear-gradient(135deg, #F97316, #EA580C);
+        }
+
+        .module-card[data-module-id="policy-governance"] .module-icon {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+        }
+
+        .module-card[data-module-id="finops"] .module-icon {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+
+        .module-card[data-module-id="multi-cloud"] .module-icon {
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+        }
+
+        .module-card[data-module-id="gitops-cicd"] .module-icon {
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+        }
+
+        .module-card[data-module-id="service-mesh"] .module-icon {
+            background: linear-gradient(135deg, #14B8A6, #0D9488);
+        }
+
+        .module-card[data-module-id="observability"] .module-icon {
+            background: linear-gradient(135deg, #F97316, #EA580C);
+        }
+
         .module-card:hover .module-icon {
-            background: linear-gradient(135deg, rgba(0, 102, 255, 0.15), rgba(0, 191, 255, 0.15));
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .module-card.selected .module-icon {
-            background: linear-gradient(135deg, #0066FF, #00BFFF);
-            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         }
 
         .module-card-content {
@@ -1525,7 +1567,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="auth-guard.js"></script>
     <script src="script.js"></script>
-    <script src="deploy.js?v=6.3"></script>
+    <script src="deploy.js?v=6.4"></script>
     <script src="mode-toggle.js"></script>
     <script src="pip-deployment.js"></script>
     
