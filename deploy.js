@@ -350,6 +350,16 @@ function addConsoleLog(message, type = 'info') {
     console.scrollTop = console.scrollHeight;
 }
 
+// Format rupiah
+function formatRupiah(amount) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+}
+
 // Update progress
 function updateProgress(percent, status) {
     document.getElementById('progress-fill').style.width = percent + '%';
@@ -827,6 +837,38 @@ document.getElementById('deploy-form').addEventListener('submit', async function
 // Initialize
 addConsoleLog(`Connected to CloudStack deployment platform`, 'info');
 addConsoleLog(`Your tier: ${tierConfig.name} (${tierConfig.maxModules} modules max)`, 'info');
+
+// Display pre-selected modules from pricing page
+if (pendingDeployment) {
+    try {
+        const deploymentData = JSON.parse(pendingDeployment);
+        if (deploymentData.modules && deploymentData.modules.length > 0) {
+            addConsoleLog('', 'info');
+            addConsoleLog('═══════════════════════════════════════', 'success');
+            addConsoleLog(`📦 ${deploymentData.modules.length} Module(s) Pre-Selected`, 'success');
+            addConsoleLog('═══════════════════════════════════════', 'success');
+            
+            deploymentData.modules.forEach((moduleId, index) => {
+                const module = MODULES[moduleId];
+                if (module) {
+                    addConsoleLog(`${index + 1}. ${module.name} - ${module.description}`, 'info');
+                }
+            });
+            
+            addConsoleLog('', 'info');
+            addConsoleLog('💡 Configuration:', 'info');
+            addConsoleLog(`   Environment: ${deploymentData.config?.environment || 'dev'}`, 'info');
+            addConsoleLog(`   Region: ${deploymentData.config?.region || 'single'}`, 'info');
+            addConsoleLog(`   Availability: ${deploymentData.config?.availability || 'standard'}`, 'info');
+            addConsoleLog('', 'info');
+            addConsoleLog(`💰 Total Cost: ${deploymentData.tokens?.toFixed(1) || '0'} tokens (${formatRupiah(deploymentData.cost || 0)})`, 'success');
+            addConsoleLog('', 'info');
+        }
+    } catch (error) {
+        console.error('Error displaying pending deployment:', error);
+    }
+}
+
 addConsoleLog(`Ready to deploy to AWS region of your choice`, 'success');
 
 // Workflow Visualization Functions
