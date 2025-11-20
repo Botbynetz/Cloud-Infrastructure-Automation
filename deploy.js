@@ -229,19 +229,17 @@ document.addEventListener('DOMContentLoaded', function() {
             card.dataset.moduleId = moduleId;
             
             card.innerHTML = `
-                <div class="module-card-header">
+                <div class="module-checkbox-wrapper">
                     <input type="checkbox" 
                            class="module-checkbox" 
                            id="module-${moduleId}" 
                            value="${moduleId}" 
                            ${!isAvailable ? 'disabled' : ''}>
-                    <div class="module-icon">${module.icon}</div>
-                    <div class="module-card-content">
-                        <div class="module-card-title">${module.name}</div>
-                        <div class="module-card-desc">${module.description}</div>
-                        ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
-                    </div>
                 </div>
+                <div class="module-icon">${module.icon}</div>
+                <div class="module-card-title">${module.name}</div>
+                <div class="module-card-desc">${module.description}</div>
+                ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
             `;
             
             // Click handler for card
