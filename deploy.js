@@ -835,34 +835,41 @@ document.getElementById('deploy-form').addEventListener('submit', async function
 });
 
 // Initialize
-addConsoleLog(`Connected to CloudStack deployment platform`, 'info');
-addConsoleLog(`Your tier: ${tierConfig.name} (${tierConfig.maxModules} modules max)`, 'info');
+addConsoleLog(`✅ Terhubung ke server penerapan`, 'success');
+addConsoleLog(`Siap untuk diterapkan. Konfigurasikan pengaturan Anda dan klik "Mulai Penerapan".`, 'info');
 
 // Display pre-selected modules from pricing page
+const pendingDeployment = sessionStorage.getItem('pendingDeployment');
 if (pendingDeployment) {
     try {
         const deploymentData = JSON.parse(pendingDeployment);
         if (deploymentData.modules && deploymentData.modules.length > 0) {
             addConsoleLog('', 'info');
             addConsoleLog('═══════════════════════════════════════', 'success');
-            addConsoleLog(`📦 ${deploymentData.modules.length} Module(s) Pre-Selected`, 'success');
+            addConsoleLog(`📦 ${deploymentData.modules.length} Module Terpilih`, 'success');
             addConsoleLog('═══════════════════════════════════════', 'success');
+            addConsoleLog('', 'info');
             
             deploymentData.modules.forEach((moduleId, index) => {
                 const module = MODULES[moduleId];
                 if (module) {
-                    addConsoleLog(`${index + 1}. ${module.name} - ${module.description}`, 'info');
+                    addConsoleLog(`  ${index + 1}. ${module.name}`, 'info');
+                    addConsoleLog(`     ${module.description}`, 'info');
                 }
             });
             
             addConsoleLog('', 'info');
-            addConsoleLog('💡 Configuration:', 'info');
-            addConsoleLog(`   Environment: ${deploymentData.config?.environment || 'dev'}`, 'info');
-            addConsoleLog(`   Region: ${deploymentData.config?.region || 'single'}`, 'info');
-            addConsoleLog(`   Availability: ${deploymentData.config?.availability || 'standard'}`, 'info');
+            addConsoleLog('═══════════════════════════════════════', 'info');
+            addConsoleLog('⚙️  Konfigurasi:', 'info');
+            addConsoleLog('═══════════════════════════════════════', 'info');
+            addConsoleLog(`   • Environment: ${deploymentData.config?.environment || 'dev'}`, 'info');
+            addConsoleLog(`   • Region: ${deploymentData.config?.region || 'single'}`, 'info');
+            addConsoleLog(`   • Availability: ${deploymentData.config?.availability || 'standard'}`, 'info');
             addConsoleLog('', 'info');
-            addConsoleLog(`💰 Total Cost: ${deploymentData.tokens?.toFixed(1) || '0'} tokens (${formatRupiah(deploymentData.cost || 0)})`, 'success');
-            addConsoleLog('', 'info');
+            addConsoleLog('═══════════════════════════════════════', 'success');
+            addConsoleLog(`💰 Total Biaya: ${deploymentData.tokens?.toFixed(1) || '0'} tokens`, 'success');
+            addConsoleLog(`   ${formatRupiah(deploymentData.cost || 0)}`, 'success');
+            addConsoleLog('═══════════════════════════════════════', 'success');
         }
     } catch (error) {
         console.error('Error displaying pending deployment:', error);
