@@ -656,35 +656,34 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         addConsoleLog('✓ AWS credentials format validated', 'success');
     }
     
+    // Clear previous logs (but keep credentials in form)
+    const consoleEl = document.getElementById('console');
+    consoleEl.innerHTML = '';
+    document.getElementById('module-progress').innerHTML = '';
+    document.getElementById('deployment-summary').classList.remove('show');
+    updateProgress(0, 'Initializing deployment...');
+    
+    // Initialize module statuses
+    selectedModules.forEach(moduleId => {
+        updateModuleStatus(moduleId, 'pending');
+    });
+    
     // Check mode from localStorage
     const mode = localStorage.getItem('univai_mode');
     
     if (mode === 'demo') {
-        // DEMO MODE - Using test credentials
+        // DEMO MODE - Using test credentials (free)
         addConsoleLog('🔧 DEMO MODE ACTIVATED', 'warning');
         addConsoleLog('Using test credentials - No real AWS resources will be created', 'info');
-        await runDemoDeployment(config);
-        return;
+        addConsoleLog('All features unlocked for free testing', 'info');
     } else {
-        // REAL MODE - Deploy to actual AWS (using simulation for now)
+        // REAL MODE - Deploy to actual AWS
         addConsoleLog('🚀 Starting REAL deployment to AWS...', 'info');
         addConsoleLog('⚠️  Backend integration coming soon - Running simulation', 'warning');
-        
-        // Clear previous logs (but keep credentials in form)
-        const consoleEl = document.getElementById('console');
-        consoleEl.innerHTML = '';
-        document.getElementById('module-progress').innerHTML = '';
-        document.getElementById('deployment-summary').classList.remove('show');
-        updateProgress(0, 'Initializing deployment...');
-        
-        // Initialize module statuses
-        selectedModules.forEach(moduleId => {
-            updateModuleStatus(moduleId, 'pending');
-        });
-        
-        // Run demo deployment (backend integration coming soon)
-        await runDemoDeployment(config);
     }
+    
+    // Run deployment simulation (same flow for both modes)
+    await runDemoDeployment(config);
     
     /* TODO: Enable when backend is ready
     // Disable deploy button
