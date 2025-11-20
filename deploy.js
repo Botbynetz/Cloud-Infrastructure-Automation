@@ -273,10 +273,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
                     </div>
                     <div class="module-card-desc">${module.description}</div>
-                    ${featuresHTML ? `<div class="module-features">${featuresHTML}</div>` : ''}
-                    <button class="module-toggle-btn" onclick="event.stopPropagation(); this.closest('.module-card').classList.toggle('expanded');">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
                 </div>
             `;
             
