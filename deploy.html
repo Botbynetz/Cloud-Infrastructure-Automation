@@ -789,6 +789,38 @@
             transition: transform 0.2s ease;
         }
 
+        /* Collapsible Section Styles */
+        .collapsible-section .section-header {
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-section .section-header:hover {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.08), rgba(0, 191, 255, 0.08)) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+        }
+
+        .collapsible-section.collapsed .section-toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-section.collapsed .section-content {
+            display: none !important;
+        }
+
+        .collapsible-section .section-content {
+            transition: all 0.3s ease;
+        }
+
+        .module-count-badge {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
         .btn-select-all {
             background: linear-gradient(135deg, #0066FF, #00BFFF);
             color: white;
@@ -1399,15 +1431,21 @@
 
                     <form id="deploy-form" autocomplete="off">
                         <!-- Module Selection -->
-                        <div class="form-section">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                                <h3 style="margin: 0;"><i class="fas fa-puzzle-piece"></i> Module Selection</h3>
-                                <button type="button" id="select-all-btn" class="btn-select-all">
+                        <div class="form-section collapsible-section">
+                            <div class="section-header" onclick="toggleSection(this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px; background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 191, 255, 0.05)); border-radius: 12px; margin-bottom: 20px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-chevron-down section-toggle-icon" style="transition: transform 0.3s ease; color: #0066FF;"></i>
+                                    <h3 style="margin: 0;"><i class="fas fa-puzzle-piece"></i> Module Selection</h3>
+                                    <span class="module-count-badge" style="background: #0066FF; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">0 selected</span>
+                                </div>
+                                <button type="button" id="select-all-btn" class="btn-select-all" onclick="event.stopPropagation();">
                                     <i class="fas fa-check-double"></i> Select All Modules
                                 </button>
                             </div>
-                            <div id="module-grid" class="module-grid">
-                                <!-- Populated by JavaScript -->
+                            <div class="section-content" style="display: block;">
+                                <div id="module-grid" class="module-grid">
+                                    <!-- Populated by JavaScript -->
+                                </div>
                             </div>
                         </div>
 
@@ -1701,7 +1739,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="auth-guard.js"></script>
     <script src="script.js"></script>
-    <script src="deploy.js?v=6.6"></script>
+    <script src="deploy.js?v=6.7"></script>
     <script src="mode-toggle.js"></script>
     <script src="pip-deployment.js"></script>
     
