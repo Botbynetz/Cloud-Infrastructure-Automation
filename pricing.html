@@ -1177,6 +1177,59 @@
     </section>
 
     <!-- Footer -->
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="payment-modal" style="display: none;">
+        <div class="modal-overlay" onclick="closePaymentModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💎 Konfirmasi Pembelian</h2>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="summary-section">
+                    <h3>📦 Modul Terpilih (<span id="modalModuleCount">0</span>)</h3>
+                    <div id="modalModuleList" class="module-list"></div>
+                </div>
+                
+                <div class="summary-section">
+                    <h3>⚙️ Konfigurasi</h3>
+                    <div class="config-list">
+                        <div class="config-item">
+                            <span class="config-label">Environment:</span>
+                            <span class="config-value" id="modalEnvironment">-</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">Region:</span>
+                            <span class="config-value" id="modalRegion">-</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">Availability:</span>
+                            <span class="config-value" id="modalAvailability">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="summary-section">
+                    <h3>💰 Rincian Biaya</h3>
+                    <div class="cost-breakdown">
+                        <div class="cost-item">
+                            <span class="cost-label">Total Tokens:</span>
+                            <span class="cost-value" id="modalTokens">0</span>
+                        </div>
+                        <div class="cost-item total">
+                            <span class="cost-label">Total Biaya:</span>
+                            <span class="cost-value" id="modalCost">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePaymentModal()">Batal</button>
+                <button class="btn-primary" onclick="processPayment()">💳 Bayar Sekarang</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         <div class="container">
             <div class="footer-content">

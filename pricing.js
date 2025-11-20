@@ -427,75 +427,93 @@ function openPaymentModal() {
         return;
     }
     
+    // Calculate cost
+    const { totalTokens, baseCost } = calculateCost();
+    
+    // Update modal content
+    const modal = document.getElementById('paymentModal');
+    const moduleCount = document.getElementById('modalModuleCount');
+    const moduleList = document.getElementById('modalModuleList');
+    const modalTokens = document.getElementById('modalTokens');
+    const modalCost = document.getElementById('modalCost');
+    const modalEnvironment = document.getElementById('modalEnvironment');
+    const modalRegion = document.getElementById('modalRegion');
+    const modalAvailability = document.getElementById('modalAvailability');
+    
+    // Set module count
+    if (moduleCount) moduleCount.textContent = state.selectedModules.size;
+    
+    // Build module list HTML
+    let modulesHTML = '';
+    state.selectedModules.forEach(moduleId => {
+        const module = MODULE_PRICES[moduleId];
+        if (module) {
+            modulesHTML += `
+                <div class="module-item">
+                    <span class="module-name">✓ ${module.name}</span>
+                    <span class="module-tokens">${module.tokens} tokens</span>
+                </div>
+            `;
+        }
+    });
+    if (moduleList) moduleList.innerHTML = modulesHTML;
+    
+    // Set configuration
+    if (modalEnvironment) modalEnvironment.textContent = state.config.environment.toUpperCase();
+    if (modalRegion) modalRegion.textContent = state.config.region;
+    if (modalAvailability) modalAvailability.textContent = state.config.availability;
+    
+    // Set cost details
+    if (modalTokens) modalTokens.textContent = `${totalTokens.toFixed(1)} tokens`;
+    if (modalCost) modalCost.textContent = formatRupiah(baseCost);
+    
+    // Show modal
+    if (modal) modal.style.display = 'flex';
+}
+
+// Close payment modal
+function closePaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Process payment
+function processPayment() {
     // Check if user is logged in
     if (!checkLoginStatus()) {
+        closePaymentModal();
         if (confirm('Anda harus login terlebih dahulu. Redirect ke halaman login?')) {
             window.location.href = 'auth.html';
         }
         return;
     }
     
-    // Calculate cost
+    // Prepare data for deployment
     const { totalTokens, baseCost } = calculateCost();
+    const deploymentData = {
+        modules: Array.from(state.selectedModules),
+        config: state.config,
+        tokens: totalTokens,
+        cost: baseCost,
+        timestamp: new Date().toISOString()
+    };
     
-    // Get selected modules details
-    let modulesDetails = '';
-    state.selectedModules.forEach(moduleId => {
-        const module = MODULE_PRICES[moduleId];
-        if (module) {
-            modulesDetails += `\n- ${module.name} (${module.tokens} tokens)`;
-        }
-    });
+    // Store in session for deploy.html
+    sessionStorage.setItem('pendingDeployment', JSON.stringify(deploymentData));
     
-    // Show confirmation with summary
-    const message = `
-═══════════════════════════════
-📦 RINGKASAN PEMBELIAN
-═══════════════════════════════
-
-Modul Terpilih (${state.selectedModules.size}):${modulesDetails}
-
-─────────────────────────────
-📊 Environment: ${state.config.environment.toUpperCase()}
-🌍 Region: ${state.config.region}
-🔄 Availability: ${state.config.availability}
-
-─────────────────────────────
-💎 Total Tokens: ${totalTokens.toFixed(1)}
-💰 Total Biaya: ${formatRupiah(baseCost)}
-
-═══════════════════════════════
-
-Lanjutkan ke pembayaran?
-    `.trim();
+    // Redirect to deploy page
+    window.location.href = 'deploy.html';
     
-    if (confirm(message)) {
-        // Prepare data for deployment
-        const deploymentData = {
-            modules: Array.from(state.selectedModules),
-            config: state.config,
-            tokens: totalTokens,
-            cost: baseCost,
-            timestamp: new Date().toISOString()
-        };
-        
-        // Store in session for deploy.html
-        sessionStorage.setItem('pendingDeployment', JSON.stringify(deploymentData));
-        
-        // Redirect to deploy page
-        window.location.href = 'deploy.html';
-        
-        // TODO: Integrate with Midtrans payment
-        // fetch('/api/payment/create', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(deploymentData)
-        // })
-        // .then(res => res.json())
-        // .then(data => {
-        //     snap.pay(data.snapToken);
-        // });
-    }
+    // TODO: Integrate with Midtrans payment
+    // fetch('/api/payment/create', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(deploymentData)
+    // })
+    // .then(res => res.json())
+    // .then(data => {
+    //     snap.pay(data.snapToken);
+    // });
 }
 
 // Format rupiah
