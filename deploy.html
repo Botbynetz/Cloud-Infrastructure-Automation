@@ -496,6 +496,120 @@
             color: var(--danger);
         }
 
+        /* Module Grid Styles */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .module-card {
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .module-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .module-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 191, 255, 0.05));
+        }
+
+        .module-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #F9FAFB;
+        }
+
+        .module-card.disabled:hover {
+            border-color: #E5E7EB;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .module-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .module-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .module-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 191, 255, 0.1));
+        }
+
+        .module-card-content {
+            flex: 1;
+        }
+
+        .module-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .module-card-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        .module-card-badge {
+            display: inline-block;
+            background: #FEF3C7;
+            color: #92400E;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .btn-select-all {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-select-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        }
+
         .deployment-summary {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
             border: 2px solid var(--success);
@@ -1082,13 +1196,14 @@
                     <form id="deploy-form" autocomplete="off">
                         <!-- Module Selection -->
                         <div class="form-section">
-                            <h3><i class="fas fa-puzzle-piece"></i> Module Selection</h3>
-                            <div class="form-group">
-                                <label>Select Modules to Deploy *</label>
-                                <select id="module-selector" multiple size="10" required>
-                                    <!-- Populated by JavaScript -->
-                                </select>
-                                <small>Hold Ctrl/Cmd to select multiple modules</small>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="margin: 0;"><i class="fas fa-puzzle-piece"></i> Module Selection</h3>
+                                <button type="button" id="select-all-btn" class="btn-select-all">
+                                    <i class="fas fa-check-double"></i> Select All Modules
+                                </button>
+                            </div>
+                            <div id="module-grid" class="module-grid">
+                                <!-- Populated by JavaScript -->
                             </div>
                         </div>
 
@@ -1382,7 +1497,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="auth-guard.js"></script>
     <script src="script.js"></script>
-    <script src="deploy.js?v=5.3"></script>
+    <script src="deploy.js?v=6.0"></script>
     <script src="mode-toggle.js"></script>
     <script src="pip-deployment.js"></script>
     

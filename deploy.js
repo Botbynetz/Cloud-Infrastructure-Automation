@@ -211,35 +211,84 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Populate module selector dropdown
-    const moduleSelector = document.getElementById('module-selector');
+    // Populate module grid with cards
+    const moduleGrid = document.getElementById('module-grid');
     window.selectedModules = [];
 
-    if (moduleSelector) {
-        // Clear existing options
-        moduleSelector.innerHTML = '';
+    if (moduleGrid) {
+        // Clear existing content
+        moduleGrid.innerHTML = '';
         
-        // Add all available modules as options
+        // Add all modules as cards
         Object.keys(MODULES).forEach(moduleId => {
             const module = MODULES[moduleId];
             const isAvailable = tierConfig.modules.includes(moduleId);
             
-            const option = document.createElement('option');
-            option.value = moduleId;
-            option.textContent = `${module.icon} ${module.name} - ${module.description}`;
-            option.disabled = !isAvailable;
+            const card = document.createElement('div');
+            card.className = `module-card ${!isAvailable ? 'disabled' : ''}`;
+            card.dataset.moduleId = moduleId;
             
-            if (!isAvailable) {
-                option.textContent += ' (Upgrade Required)';
+            card.innerHTML = `
+                <div class="module-card-header">
+                    <input type="checkbox" 
+                           class="module-checkbox" 
+                           id="module-${moduleId}" 
+                           value="${moduleId}" 
+                           ${!isAvailable ? 'disabled' : ''}>
+                    <div class="module-icon">${module.icon}</div>
+                    <div class="module-card-content">
+                        <div class="module-card-title">${module.name}</div>
+                        <div class="module-card-desc">${module.description}</div>
+                        ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Click handler for card
+            if (isAvailable) {
+                card.addEventListener('click', function(e) {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = this.querySelector('.module-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+                
+                // Checkbox change handler
+                const checkbox = card.querySelector('.module-checkbox');
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        card.classList.add('selected');
+                        if (!window.selectedModules.includes(moduleId)) {
+                            window.selectedModules.push(moduleId);
+                        }
+                    } else {
+                        card.classList.remove('selected');
+                        window.selectedModules = window.selectedModules.filter(m => m !== moduleId);
+                    }
+                    console.log('Selected modules:', window.selectedModules);
+                });
             }
             
-            moduleSelector.appendChild(option);
+            moduleGrid.appendChild(card);
         });
-        
-        // Listen for selection changes
-        moduleSelector.addEventListener('change', function() {
-            window.selectedModules = Array.from(this.selectedOptions).map(opt => opt.value);
-            console.log('Selected modules:', window.selectedModules);
+    }
+    
+    // Select All button handler
+    const selectAllBtn = document.getElementById('select-all-btn');
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+            const allCheckboxes = document.querySelectorAll('.module-checkbox:not(:disabled)');
+            const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+            
+            allCheckboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+                checkbox.dispatchEvent(new Event('change'));
+            });
+            
+            this.innerHTML = allChecked 
+                ? '<i class="fas fa-check-double"></i> Select All Modules'
+                : '<i class="fas fa-times"></i> Deselect All';
         });
     }
 
@@ -249,13 +298,13 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const deploymentData = JSON.parse(pendingDeployment);
             
-            // Auto-select modules from pricing page in the dropdown
-            if (deploymentData.modules && deploymentData.modules.length > 0 && moduleSelector) {
-                // Select all pre-selected modules in the dropdown
-                Array.from(moduleSelector.options).forEach(option => {
-                    if (deploymentData.modules.includes(option.value)) {
-                        option.selected = true;
-                        window.selectedModules.push(option.value);
+            // Auto-select modules from pricing page
+            if (deploymentData.modules && deploymentData.modules.length > 0) {
+                deploymentData.modules.forEach(moduleId => {
+                    const checkbox = document.getElementById(`module-${moduleId}`);
+                    if (checkbox && !checkbox.disabled) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change'));
                     }
                 });
                 
