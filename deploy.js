@@ -583,12 +583,19 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         return;
     }
     
+    // Store credentials before clearing console
+    const awsAccessKey = document.getElementById('aws-access-key').value;
+    const awsSecretKey = document.getElementById('aws-secret-key').value;
+    const awsRegion = document.getElementById('aws-region').value;
+    const projectName = document.getElementById('project-name').value;
+    const environment = document.getElementById('environment').value;
+    
     const config = {
-        awsAccessKey: document.getElementById('aws-access-key').value,
-        awsSecretKey: document.getElementById('aws-secret-key').value,
-        awsRegion: document.getElementById('aws-region').value,
-        projectName: document.getElementById('project-name').value,
-        environment: document.getElementById('environment').value,
+        awsAccessKey: awsAccessKey,
+        awsSecretKey: awsSecretKey,
+        awsRegion: awsRegion,
+        projectName: projectName,
+        environment: environment,
         modules: selectedModules,
         tier: currentTier
     };
@@ -644,22 +651,26 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         return;
     }
     
-    // REAL MODE - Deploy to actual AWS
+    // REAL MODE - Deploy to actual AWS (using simulation for now)
     addConsoleLog('🚀 Starting REAL deployment to AWS...', 'info');
-    addConsoleLog('⚠️  This will create actual cloud resources and incur costs', 'warning');
+    addConsoleLog('⚠️  Backend integration coming soon - Running simulation', 'warning');
     
-    // Clear previous logs
-    const console = document.getElementById('console');
-    console.innerHTML = '';
+    // Clear previous logs (but keep credentials in form)
+    const consoleEl = document.getElementById('console');
+    consoleEl.innerHTML = '';
     document.getElementById('module-progress').innerHTML = '';
     document.getElementById('deployment-summary').classList.remove('show');
-    updateProgress(0, 'Connecting to deployment backend...');
+    updateProgress(0, 'Initializing deployment...');
     
     // Initialize module statuses
     selectedModules.forEach(moduleId => {
         updateModuleStatus(moduleId, 'pending');
     });
     
+    // Run demo deployment (backend integration coming soon)
+    await runDemoDeployment(config);
+    
+    /* TODO: Enable when backend is ready
     // Disable deploy button
     const deployBtn = document.getElementById('deploy-btn');
     deployBtn.disabled = true;
@@ -810,6 +821,7 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         deployBtn.classList.remove('deploying');
         deployBtn.innerHTML = '<i class="fas fa-rocket"></i> <span>Start Deployment</span>';
     }
+    */
 });
 
 // Initialize
