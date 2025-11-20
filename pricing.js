@@ -114,6 +114,33 @@ function toggleModule(element) {
     }
     
     updateCalculator();
+    updateFloatingButton();
+}
+
+// Update floating Pay & Deploy button
+function updateFloatingButton() {
+    const floatingBtn = document.getElementById('floatingDeployBtn');
+    const btnTokens = document.getElementById('floatingBtnTokens');
+    const btnRupiah = document.getElementById('floatingBtnRupiah');
+    const btnBadge = document.getElementById('floatingBtnBadge');
+    
+    if (!floatingBtn) return;
+    
+    if (state.selectedModules.size > 0) {
+        // Show button with animation
+        floatingBtn.style.display = 'flex';
+        
+        // Calculate cost
+        const { totalTokens, baseCost } = calculateCost();
+        
+        // Update button content
+        if (btnTokens) btnTokens.textContent = totalTokens.toFixed(1);
+        if (btnRupiah) btnRupiah.textContent = formatRupiah(baseCost);
+        if (btnBadge) btnBadge.textContent = state.selectedModules.size;
+    } else {
+        // Hide button
+        floatingBtn.style.display = 'none';
+    }
 }
 
 // Update multipliers display
@@ -391,6 +418,84 @@ function checkLoginStatus() {
     // Check if user token exists in session storage
     const userToken = sessionStorage.getItem('userToken');
     return !!userToken;
+}
+
+// Open payment modal from floating button
+function openPaymentModal() {
+    if (state.selectedModules.size === 0) {
+        alert('Pilih minimal 1 modul untuk melanjutkan!');
+        return;
+    }
+    
+    // Check if user is logged in
+    if (!checkLoginStatus()) {
+        if (confirm('Anda harus login terlebih dahulu. Redirect ke halaman login?')) {
+            window.location.href = 'auth.html';
+        }
+        return;
+    }
+    
+    // Calculate cost
+    const { totalTokens, baseCost } = calculateCost();
+    
+    // Get selected modules details
+    let modulesDetails = '';
+    state.selectedModules.forEach(moduleId => {
+        const module = MODULE_PRICES[moduleId];
+        if (module) {
+            modulesDetails += `\n- ${module.name} (${module.tokens} tokens)`;
+        }
+    });
+    
+    // Show confirmation with summary
+    const message = `
+═══════════════════════════════
+📦 RINGKASAN PEMBELIAN
+═══════════════════════════════
+
+Modul Terpilih (${state.selectedModules.size}):${modulesDetails}
+
+─────────────────────────────
+📊 Environment: ${state.config.environment.toUpperCase()}
+🌍 Region: ${state.config.region}
+🔄 Availability: ${state.config.availability}
+
+─────────────────────────────
+💎 Total Tokens: ${totalTokens.toFixed(1)}
+💰 Total Biaya: ${formatRupiah(baseCost)}
+
+═══════════════════════════════
+
+Lanjutkan ke pembayaran?
+    `.trim();
+    
+    if (confirm(message)) {
+        // Prepare data for deployment
+        const deploymentData = {
+            modules: Array.from(state.selectedModules),
+            config: state.config,
+            tokens: totalTokens,
+            cost: baseCost,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Store in session for deploy.html
+        sessionStorage.setItem('pendingDeployment', JSON.stringify(deploymentData));
+        
+        // Redirect to deploy page
+        window.location.href = 'deploy.html';
+        
+        // TODO: Integrate with Midtrans payment
+        // fetch('/api/payment/create', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(deploymentData)
+        // })
+        // .then(res => res.json())
+        // .then(data => {
+        //     snap.pay(data.snapToken);
+        // });
+    }
 }
 
 // Format rupiah

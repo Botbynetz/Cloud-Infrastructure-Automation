@@ -124,6 +124,21 @@
         </nav>
     </div>
 
+    <!-- Floating Pay & Deploy Button (Chatbot Style) -->
+    <button class="floating-deploy-btn" id="floatingDeployBtn" onclick="openPaymentModal()" style="display: none;">
+        <div class="btn-icon">
+            <i class="fas fa-rocket"></i>
+        </div>
+        <div class="btn-content">
+            <div class="btn-label">Pay & Deploy</div>
+            <div class="btn-cost">
+                <span id="floatingBtnTokens">0</span> tokens • 
+                <span id="floatingBtnRupiah">Rp 0</span>
+            </div>
+        </div>
+        <div class="btn-badge" id="floatingBtnBadge">0</div>
+    </button>
+
     <!-- Floating Cost Calculator (Sticky) -->
     <div class="floating-calculator" id="floatingCalculator">
         <div class="container">
