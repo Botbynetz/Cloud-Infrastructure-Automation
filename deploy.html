@@ -517,6 +517,47 @@
             gap: 14px;
         }
 
+        /* Colorful backgrounds based on module specialty */
+        .module-card[data-module-id="self-service-portal"] {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.03), rgba(0, 86, 214, 0.05));
+        }
+
+        .module-card[data-module-id="aiops"] {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(5, 150, 105, 0.05));
+        }
+
+        .module-card[data-module-id="zero-trust"] {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.03), rgba(153, 27, 27, 0.05));
+        }
+
+        .module-card[data-module-id="disaster-recovery"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.03), rgba(234, 88, 12, 0.05));
+        }
+
+        .module-card[data-module-id="policy-governance"] {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(124, 58, 237, 0.05));
+        }
+
+        .module-card[data-module-id="finops"] {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(5, 150, 105, 0.05));
+        }
+
+        .module-card[data-module-id="multi-cloud"] {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(79, 70, 229, 0.05));
+        }
+
+        .module-card[data-module-id="gitops-cicd"] {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(79, 70, 229, 0.05));
+        }
+
+        .module-card[data-module-id="service-mesh"] {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.03), rgba(13, 148, 136, 0.05));
+        }
+
+        .module-card[data-module-id="observability"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.03), rgba(234, 88, 12, 0.05));
+        }
+
         .module-card:hover {
             border-color: #0066FF;
             box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
@@ -525,8 +566,48 @@
 
         .module-card.selected {
             border-color: #0066FF;
-            background: linear-gradient(135deg, rgba(0, 102, 255, 0.03), rgba(0, 191, 255, 0.03));
             box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+        }
+
+        /* Enhanced background on selected state */
+        .module-card[data-module-id="self-service-portal"].selected {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.08), rgba(0, 86, 214, 0.12));
+        }
+
+        .module-card[data-module-id="aiops"].selected {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.12));
+        }
+
+        .module-card[data-module-id="zero-trust"].selected {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), rgba(153, 27, 27, 0.12));
+        }
+
+        .module-card[data-module-id="disaster-recovery"].selected {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(234, 88, 12, 0.12));
+        }
+
+        .module-card[data-module-id="policy-governance"].selected {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(124, 58, 237, 0.12));
+        }
+
+        .module-card[data-module-id="finops"].selected {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.12));
+        }
+
+        .module-card[data-module-id="multi-cloud"].selected {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(79, 70, 229, 0.12));
+        }
+
+        .module-card[data-module-id="gitops-cicd"].selected {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(79, 70, 229, 0.12));
+        }
+
+        .module-card[data-module-id="service-mesh"].selected {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(13, 148, 136, 0.12));
+        }
+
+        .module-card[data-module-id="observability"].selected {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(234, 88, 12, 0.12));
         }
 
         .module-card.disabled {
@@ -1567,7 +1648,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="auth-guard.js"></script>
     <script src="script.js"></script>
-    <script src="deploy.js?v=6.4"></script>
+    <script src="deploy.js?v=6.5"></script>
     <script src="mode-toggle.js"></script>
     <script src="pip-deployment.js"></script>
     
