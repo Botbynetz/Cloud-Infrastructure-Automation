@@ -709,7 +709,142 @@ img {
     transform: translateY(-1px);
 }
 
-/* Legacy navbar styles removed - using new clean header */
+/* Navbar */
+.navbar {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+}
+
+.nav-brand {
+    flex-shrink: 0;
+}
+
+.nav-brand a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 0;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu li a {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.nav-menu li a:hover {
+    color: var(--primary);
+    background: var(--bg-light);
+}
+
+.nav-menu li a.active {
+    color: var(--primary);
+    background: var(--bg-light);
+    font-weight: 600;
+}
+
+.nav-menu li a.btn {
+    color: white;
+    padding: 10px 24px;
+}
+
+.nav-menu li a.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.nav-menu li a.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.nav-menu li a.btn-secondary {
+    background: var(--dark);
+}
+
+.nav-menu li a.btn-secondary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.hamburger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: var(--dark);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+    
+    .nav-menu {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 70px);
+        background: white;
+        flex-direction: column;
+        padding: 24px;
+        gap: 8px;
+        transition: left 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-menu.active {
+        left: 0;
+    }
+    
+    .nav-menu li {
+        width: 100%;
+    }
+    
+    .nav-menu li a {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+    }
+}
 
 /* Hero Section */
 .hero {
