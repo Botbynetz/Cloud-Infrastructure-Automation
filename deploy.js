@@ -656,10 +656,24 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         updateModuleStatus(moduleId, 'pending');
     });
     
+    // For now, run demo deployment for real mode too (until backend is ready)
+    addConsoleLog('🚀 Starting real deployment...', 'info');
+    addConsoleLog('⚠️  Backend integration in progress - Running simulation', 'warning');
+    await runDemoDeployment(config);
+    return;
+    
+    /* TODO: Enable this when backend is ready
     // Connect to Railway backend via WebSocket
     const socket = io('https://cloud-infrastructure-automation-production.up.railway.app');
     
+    // Set connection timeout
+    const connectionTimeout = setTimeout(() => {
+        addConsoleLog('⚠️  Backend connection timeout - Running local simulation', 'warning');
+        runDemoDeployment(config);
+    }, 5000);
+    
     socket.on('connect', () => {
+        clearTimeout(connectionTimeout);
         addConsoleLog('✅ Connected to CloudStack backend', 'success');
         
         // Emit deployment request
@@ -684,7 +698,7 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         
         const summary = document.getElementById('deployment-summary');
         summary.classList.add('show');
-        document.getElementById('summary-time').textContent = `${minutes}m ${seconds}s`;
+        document.getElementById('summary-time').textContent = \`\${minutes}m \${seconds}s\`;
         document.getElementById('summary-resources').textContent = data.totalResources;
         document.getElementById('summary-modules').textContent = data.modulesDeployed;
         
@@ -697,7 +711,7 @@ document.getElementById('deploy-form').addEventListener('submit', async function
             tier: config.tier,
             status: 'completed',
             timestamp: Date.now(),
-            duration: `${minutes}m ${seconds}s`,
+            duration: \`\${minutes}m \${seconds}s\`,
             resources: data.totalResources,
             isDemo: false
         });
@@ -705,11 +719,11 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         const deployBtn = document.getElementById('deploy-btn');
         deployBtn.disabled = false;
         deployBtn.classList.remove('deploying');
-        deployBtn.innerHTML = '<i class="fas fa-redo"></i> <span>Deploy Again</span>';
+        deployBtn.innerHTML = '<i class=\"fas fa-redo\"></i> <span>Deploy Again</span>';
     });
     
     socket.on('error', (data) => {
-        addConsoleLog(`❌ Error: ${data.message}`, 'error');
+        addConsoleLog(\`❌ Error: \${data.message}\`, 'error');
         
         // Save failed deployment
         saveDeployment({
@@ -727,12 +741,13 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         const deployBtn = document.getElementById('deploy-btn');
         deployBtn.disabled = false;
         deployBtn.classList.remove('deploying');
-        deployBtn.innerHTML = '<i class="fas fa-rocket"></i> <span>Start Deployment</span>';
+        deployBtn.innerHTML = '<i class=\"fas fa-rocket\"></i> <span>Start Deployment</span>';
     });
     
     socket.on('disconnect', () => {
         addConsoleLog('⚠️  Disconnected from backend', 'warning');
     });
+    */
 });
 
 // Initialize
