@@ -266,7 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
                            value="${moduleId}" 
                            ${!isAvailable ? 'disabled' : ''}>
                 </div>
-                <div class="module-icon">${module.icon}</div>
                 <div class="module-card-content">
                     <div class="module-card-header">
                         <div class="module-card-title">${module.name}</div>
