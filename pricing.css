@@ -1,23 +1,24 @@
 /* Pricing Page Specific Styles */
 /* Token-based pricing with floating calculator */
+/* Additional variables for pricing page */
 
 :root {
-    --calculator-bg: #ffffff;
-    --calculator-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    --calculator-border: #e5e7eb;
     --token-color: #f59e0b;
     --rupiah-color: #10b981;
+    --gray: #9CA3AF;
+    --text-secondary: #6B7280;
 }
 
 /* Floating Calculator */
 .floating-calculator {
-    background: var(--calculator-bg);
-    border-bottom: 2px solid var(--calculator-border);
-    box-shadow: var(--calculator-shadow);
+    background: #ffffff;
+    border-bottom: 2px solid #e5e7eb;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     padding: 20px 0;
     position: relative;
     z-index: 900;
     transition: all 0.3s ease;
+    margin-top: 70px;
 }
 
 .floating-calculator.sticky {
@@ -106,13 +107,13 @@
 .cost-value {
     font-size: 32px;
     font-weight: 800;
-    color: var(--token-color);
+    color: #f59e0b;
     line-height: 1;
 }
 
 .cost-unit {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #6B7280;
     font-weight: 600;
 }
 
@@ -132,12 +133,12 @@
 .rupiah-amount {
     font-size: 20px;
     font-weight: 700;
-    color: var(--rupiah-color);
+    color: #10b981;
 }
 
 .btn-deploy {
     padding: 14px 28px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, #1B2A4E, #5BA4CF);
     color: white;
     border: none;
     border-radius: 12px;
@@ -152,7 +153,7 @@
 }
 
 .btn-deploy:disabled {
-    background: var(--gray);
+    background: #9CA3AF;
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -179,7 +180,7 @@
 .calculator-details {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid var(--calculator-border);
+    border-top: 1px solid #e5e7eb;
     overflow: hidden;
     transition: max-height 0.3s ease, opacity 0.3s ease;
 }
@@ -193,7 +194,7 @@
 .detail-column h4 {
     font-size: 14px;
     font-weight: 600;
-    color: var(--dark);
+    color: #0A0E27;
     margin: 0 0 12px 0;
     display: flex;
     align-items: center;
@@ -201,7 +202,7 @@
 }
 
 .detail-column h4 i {
-    color: var(--primary);
+    color: #1B2A4E;
 }
 
 .detail-column ul {
