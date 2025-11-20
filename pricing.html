@@ -3,12 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing - Pay Only for What You Deploy | UnivAI Cloud</title>
-    <meta name="description" content="Transparent token-based pricing. Deploy infrastructure modules starting at 1 token (Rp 80k). No subscriptions, no hidden fees.">
-    <link rel="stylesheet" href="styles.css?v=2.0">
-    <link rel="stylesheet" href="pricing.css?v=2.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Pricing Plans - UnivAI Cloud</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="UnivAI Cloud Platform Pricing - Choose from Lite, Basic, Pro, or Enterprise plans. Flexible monthly and annual subscriptions with all modules included.">
+    <meta name="keywords" content="cloud pricing, infrastructure pricing, UnivAI Cloud pricing, enterprise plans, subscription plans">
+    <meta name="author" content="UnivAI Generation">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://univaicloud.com/pricing">
+    <meta property="og:title" content="Pricing Plans - UnivAI Cloud">
+    <meta property="og:description" content="Flexible pricing plans for every team size. From Lite to Enterprise, choose the plan that fits your needs.">
+    <meta property="og:image" content="https://univaicloud.com/frontend/assets/images/univai-logo.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://univaicloud.com/pricing">
+    <meta name="twitter:title" content="Pricing Plans - UnivAI Cloud">
+    <meta name="twitter:description" content="Flexible pricing plans for every team size. From Lite to Enterprise, choose the plan that fits your needs.">
+    <meta name="twitter:image" content="https://univaicloud.com/frontend/assets/images/univai-logo.png">
+    
+    <link rel="icon" type="image/png" href="frontend/assets/images/univai-logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="frontend/assets/brand.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="auth-guard.js"></script>
+    
+    <style>
+        /* Pricing Page Specific Styles */
+        .pricing-hero {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
+            padding: 80px 20px 60px;
+            text-align: center;
+            color: white;
+        }
+        
+        .pricing-hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .pricing-hero p {
+            font-size: 20px;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        
+        /* Billing Toggle */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 32px;
+        }
+        
+        .billing-toggle label {
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        .billing-toggle label.inactive {
+            opacity: 0.6;
+        }
+        
+        .billing-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .billing-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s;
+        }
+        
+        .billing-switch.annual::after {
+            transform: translateX(28px);
+        }
+        
+        .savings-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* Pricing Container */
+        .pricing-container {
+            max-width: 1400px;
+            margin: -40px auto 80px;
+            padding: 0 20px;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        /* Pricing Card */
+        .pricing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+        
+        .pricing-card.featured {
+            border-color: #0066FF;
+            transform: scale(1.05);
+        }
+        
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .plan-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .plan-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .plan-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .plan-price {
+            font-size: 48px;
+            font-weight: 800;
+            color: #0066FF;
+            margin-bottom: 8px;
+        }
+        
+        .plan-price small {
+            font-size: 18px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .plan-billing {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 24px;
+        }
+        
+        .plan-cta {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 32px;
+        }
+        
+        .plan-cta.primary {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
+            color: white;
+        }
+        
+        .plan-cta.primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0, 102, 255, 0.3);
+        }
+        
+        .plan-cta.secondary {
+            background: white;
+            color: #0066FF;
+            border: 2px solid #0066FF;
+        }
+        
+        .plan-cta.secondary:hover {
+            background: #f0f7ff;
+        }
+        
+        .plan-features {
+            margin-bottom: 24px;
+        }
+        
+        .plan-features h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .feature-item i {
+            color: #0066FF;
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .modules-list {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+        }
+        
+        .modules-list h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .module-badge {
+            display: inline-block;
+            background: #f0f7ff;
+            color: #0066FF;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 4px 4px 4px 0;
+        }
+        
+        /* Comparison Section */
+        .comparison-section {
+            max-width: 1400px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+        
+        .comparison-section h2 {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 48px;
+            color: #1a1a1a;
+        }
+        
+        .comparison-table {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .comparison-table td:first-child {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .comparison-table td {
+            text-align: center;
+        }
+        
+        .comparison-table td:first-child {
+            text-align: left;
+        }
+        
+        .check-icon {
+            color: #0066FF;
+            font-size: 20px;
+        }
+        
+        .cross-icon {
+            color: #ccc;
+            font-size: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pricing-hero h1 {
+                font-size: 36px;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+            
+            .comparison-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Skip to Main Content (Accessibility) -->
@@ -65,1162 +429,529 @@
                         <span class="badge-text">Free</span>
                     </span>
                 </div>
-                <p id="userEmail">guest@example.com</p>
+                <p id="userEmail">guest@univaicloud.com</p>
             </div>
         </div>
-        <div class="profile-menu-items">
-            <a href="profile.html" class="profile-menu-item">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
-            </a>
-            <a href="dashboard.html" class="profile-menu-item">
-                <i class="fas fa-chart-line"></i>
-                <span>Dashboard</span>
-            </a>
-            <button class="profile-menu-item" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
-        </div>
+        <div class="profile-menu-divider"></div>
+        <a href="dashboard.html" class="profile-menu-item" aria-label="Dashboard">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="profile.html" class="profile-menu-item" aria-label="Profile Settings">
+            <i class="fas fa-user-cog"></i>
+            <span>Profile Settings</span>
+        </a>
+        <a href="pricing.html" class="profile-menu-item pricing-menu-item" aria-label="Upgrade Plan">
+            <i class="fas fa-crown"></i>
+            <span>Upgrade Plan</span>
+        </a>
+        <div class="profile-menu-divider"></div>
+        <a href="contact.html" class="profile-menu-item" aria-label="Contact Support">
+            <i class="fas fa-envelope"></i>
+            <span>Contact & Support</span>
+        </a>
+        <div class="profile-menu-divider"></div>
+        <a href="#" class="profile-menu-item" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
     </div>
 
-    <!-- Side Menu -->
-    <div class="side-menu" id="sideMenu">
+    <!-- Side Navigation Menu -->
+    <div class="side-menu-overlay" id="sideMenuOverlay"></div>
+    <nav class="side-menu" id="sideMenu">
         <div class="side-menu-header">
-            <h3>Menu</h3>
+            <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 35px;">
+            <span>UnivAI Cloud</span>
             <button class="side-menu-close" id="sideMenuClose">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <nav class="side-menu-nav">
-            <a href="index.html" class="side-menu-item">
+        <div class="side-menu-content">
+            <a href="index.html" class="side-menu-item" aria-label="Home">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="index.html#modules" class="side-menu-item">
-                <i class="fas fa-cube"></i>
+            <a href="value.html" class="side-menu-item" aria-label="Value Proposition">
+                <i class="fas fa-chart-line"></i>
+                <span>Value Proposition</span>
+            </a>
+            <a href="modules.html" class="side-menu-item" aria-label="Modules">
+                <i class="fas fa-box"></i>
                 <span>Modules</span>
             </a>
-            <a href="pricing.html" class="side-menu-item active">
-                <i class="fas fa-tags"></i>
-                <span>Pricing</span>
-            </a>
-            <a href="value.html" class="side-menu-item">
+            <a href="roi.html" class="side-menu-item" aria-label="ROI Calculator">
                 <i class="fas fa-calculator"></i>
                 <span>ROI Calculator</span>
             </a>
-            <a href="contact.html" class="side-menu-item">
+            <a href="pricing.html" class="side-menu-item pricing-menu-item active" aria-label="Pricing">
+                <i class="fas fa-tag"></i>
+                <span>Pricing</span>
+            </a>
+            <a href="deploy.html" class="side-menu-item" aria-label="Deploy">
+                <i class="fas fa-rocket"></i>
+                <span>Deploy</span>
+            </a>
+            <a href="dashboard.html" class="side-menu-item" aria-label="Dashboard">
+                <i class="fas fa-chart-bar"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="contact.html" class="side-menu-item" aria-label="Contact">
                 <i class="fas fa-envelope"></i>
                 <span>Contact</span>
             </a>
-            <a href="auth.html" class="side-menu-item">
-                <i class="fas fa-sign-in-alt"></i>
-                <span>Login</span>
-            </a>
-            <a href="deploy.html" class="side-menu-cta">
-                <i class="fas fa-rocket"></i>
-                <span>Deploy Now</span>
-            </a>
-        </nav>
-    </div>
-
-    <!-- Floating Pay & Deploy Button (Chatbot Style) -->
-    <button class="floating-deploy-btn" id="floatingDeployBtn" onclick="openPaymentModal()" style="display: none;">
-        <div class="btn-icon">
-            <i class="fas fa-rocket"></i>
         </div>
-        <div class="btn-content">
-            <div class="btn-label">Pay & Deploy</div>
-            <div class="btn-cost">
-                <span id="floatingBtnTokens">0</span> tokens • 
-                <span id="floatingBtnRupiah">Rp 0</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="pricing-hero">
+            <h1>Simple, Transparent Pricing</h1>
+            <p>Choose the plan that fits your team size and infrastructure needs. All plans include core features with no hidden fees.</p>
+            
+            <!-- Billing Toggle -->
+            <div class="billing-toggle">
+                <label id="monthlyLabel" class="active">Monthly</label>
+                <div class="billing-switch" id="billingSwitch"></div>
+                <label id="annualLabel" class="inactive">Annual</label>
+                <span class="savings-badge">Save 2 months</span>
             </div>
-        </div>
-        <div class="btn-badge" id="floatingBtnBadge">0</div>
-    </button>
+        </section>
 
-    <!-- Hero Section -->
-    <section class="pricing-hero">
-        <div class="container">
-            <div class="hero-content">
-                <span class="hero-badge"><i class="fas fa-coins"></i> Token-Based Pricing</span>
-                <h1 class="hero-title">Pay Only for What You Deploy</h1>
-                <p class="hero-description">No subscriptions, no hidden fees, no surprises. Buy tokens, deploy modules, and pay only for successful deployments.</p>
-                <div class="hero-features">
-                    <div class="hero-feature">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Tokens never expire</span>
+        <!-- Pricing Cards -->
+        <section class="pricing-container">
+            <div class="pricing-grid">
+                <!-- Lite Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <div class="plan-icon">🌟</div>
+                        <h3 class="plan-name">Lite</h3>
+                        <p class="plan-subtitle">For startups & small teams</p>
+                        <div class="plan-price">
+                            <span class="price-value" data-monthly="2500" data-annual="25000">$2,500</span>
+                            <small>/mo</small>
+                        </div>
+                        <p class="plan-billing billing-info">Billed monthly</p>
                     </div>
-                    <div class="hero-feature">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Refunded if deployment fails</span>
-                    </div>
-                    <div class="hero-feature">
-                        <i class="fas fa-calculator"></i>
-                        <span>Transparent cost calculation</span>
-                    </div>
-                </div>
-                <div class="hero-pricing">
-                    <div class="base-price">
-                        <span class="price-label">Base Price:</span>
-                        <span class="price-value">Rp 80.000</span>
-                        <span class="price-unit">/ token</span>
-                    </div>
-                    <div class="price-note">
-                        <i class="fas fa-info-circle"></i>
-                        <span>Buy in bulk to get up to 37% discount</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Module Pricing -->
-    <section class="token-packages">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label"><i class="fas fa-cubes"></i> 10 Module Assistant</span>
-                <h2 class="section-title">Enterprise-grade modules available for your deployment</h2>
-                <p class="section-description">Click on modules to add them to your deployment calculator</p>
-            </div>
-
-            <div class="modules-grid">
-                <!-- Self-Service Portal -->
-                <div class="module-card" data-module="self-service-portal" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #007BFF, #0056D6);">
-                        <i class="fas fa-desktop"></i>
-                    </div>
-                    <h3 class="module-name">Self-Service Portal</h3>
-                    <p class="module-description">IDP with 10-min provisioning</p>
-                    <div class="module-tokens">
-                        <span class="token-value">1.0</span>
-                        <span class="token-label">token</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$40-80K</span>
-                    </div>
-                    <div class="module-badge free-badge">FREE</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Instant provisioning</span>
-                        <span><i class="fas fa-check"></i> AWS/Azure/GCP</span>
-                        <span><i class="fas fa-check"></i> Self-service access</span>
-                    </div>
-                </div>
-
-                <!-- AIOps -->
-                <div class="module-card" data-module="aiops" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3 class="module-name">AIOps</h3>
-                    <p class="module-description">AI-driven operations with 70% noise reduction</p>
-                    <div class="module-tokens">
-                        <span class="token-value">3.0</span>
-                        <span class="token-label">tokens</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$30-60K</span>
-                    </div>
-                    <div class="module-badge ultimate-badge">ULTIMATE</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Anomaly detection</span>
-                        <span><i class="fas fa-check"></i> Auto-remediation</span>
-                        <span><i class="fas fa-check"></i> Predictive insights</span>
-                    </div>
-                </div>
-
-                <!-- Zero Trust Security -->
-                <div class="module-card" data-module="zero-trust" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #DC2626, #991B1B);">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3 class="module-name">Zero Trust Security</h3>
-                    <p class="module-description">5-tier network segmentation</p>
-                    <div class="module-tokens">
-                        <span class="token-value">2.0</span>
-                        <span class="token-label">tokens</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$25-40K</span>
-                    </div>
-                    <div class="module-badge entult-badge">ENT/ULT</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Micro-segmentation</span>
-                        <span><i class="fas fa-check"></i> Identity-based access</span>
-                        <span><i class="fas fa-check"></i> Continuous verification</span>
-                    </div>
-                </div>
-
-                <!-- Disaster Recovery -->
-                <div class="module-card" data-module="disaster-recovery" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
-                        <i class="fas fa-life-ring"></i>
-                    </div>
-                    <h3 class="module-name">Disaster Recovery</h3>
-                    <p class="module-description">15-min RTO, cross-region failover</p>
-                    <div class="module-tokens">
-                        <span class="token-value">3.0</span>
-                        <span class="token-label">tokens</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$15-30K</span>
-                    </div>
-                    <div class="module-badge entult-badge">ENT/ULT</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Automated backups</span>
-                        <span><i class="fas fa-check"></i> Cross-region replication</span>
-                        <span><i class="fas fa-check"></i> Fast recovery</span>
-                    </div>
-                </div>
-
-                <!-- Advanced Compliance -->
-                <div class="module-card" data-module="policy-governance" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                        <i class="fas fa-balance-scale"></i>
-                    </div>
-                    <h3 class="module-name">Advanced Compliance</h3>
-                    <p class="module-description">6 AWS Config rules with auto-remediation</p>
-                    <div class="module-tokens">
-                        <span class="token-value">2.0</span>
-                        <span class="token-label">tokens</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$20-35K</span>
-                    </div>
-                    <div class="module-badge entult-badge">ENT/ULT</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Policy as code</span>
-                        <span><i class="fas fa-check"></i> Compliance dashboard</span>
-                        <span><i class="fas fa-check"></i> Auto-remediation</span>
-                    </div>
-                </div>
-
-                <!-- FinOps Optimization -->
-                <div class="module-card" data-module="finops" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="module-name">FinOps Optimization</h3>
-                    <p class="module-description">ML-powered cost optimization</p>
-                    <div class="module-tokens">
-                        <span class="token-value">1.0</span>
-                        <span class="token-label">token</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$10-20K</span>
-                    </div>
-                    <div class="module-badge pro-badge">PRO+</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Cost forecasting</span>
-                        <span><i class="fas fa-check"></i> Resource optimization</span>
-                        <span><i class="fas fa-check"></i> Budget alerts</span>
-                    </div>
-                </div>
-
-                <!-- Multi-Cloud Support -->
-                <div class="module-card" data-module="multi-cloud" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <h3 class="module-name">Multi-Cloud Support</h3>
-                    <p class="module-description">Unified API for AWS, Azure, GCP</p>
-                    <div class="module-tokens">
-                        <span class="token-value">3.0</span>
-                        <span class="token-label">tokens</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$20-50K</span>
-                    </div>
-                    <div class="module-badge ultimate-badge">ULTIMATE</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Cloud abstraction</span>
-                        <span><i class="fas fa-check"></i> Vendor flexibility</span>
-                        <span><i class="fas fa-check"></i> Unified management</span>
-                    </div>
-                </div>
-
-                <!-- GitOps & CI/CD -->
-                <div class="module-card" data-module="gitops-cicd" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
-                        <i class="fas fa-code-branch"></i>
-                    </div>
-                    <h3 class="module-name">GitOps & CI/CD</h3>
-                    <p class="module-description">Git as single source of truth</p>
-                    <div class="module-tokens">
-                        <span class="token-value">1.0</span>
-                        <span class="token-label">token</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$15-25K</span>
-                    </div>
-                    <div class="module-badge pro-badge">PRO+</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> ArgoCD/Flux</span>
-                        <span><i class="fas fa-check"></i> Auto-sync</span>
-                        <span><i class="fas fa-check"></i> Version control</span>
-                    </div>
-                </div>
-
-                <!-- Service Mesh -->
-                <div class="module-card" data-module="service-mesh" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);">
-                        <i class="fas fa-project-diagram"></i>
-                    </div>
-                    <h3 class="module-name">Service Mesh</h3>
-                    <p class="module-description">AWS App Mesh with mTLS</p>
-                    <div class="module-tokens">
-                        <span class="token-value">2.0</span>
-                        <span class="token-label">tokens</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$18-30K</span>
-                    </div>
-                    <div class="module-badge entult-badge">ENT/ULT</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> Traffic management</span>
-                        <span><i class="fas fa-check"></i> Service discovery</span>
-                        <span><i class="fas fa-check"></i> Observability</span>
-                    </div>
-                </div>
-
-                <!-- Observability 2.0 -->
-                <div class="module-card" data-module="observability" onclick="toggleModule(this)">
-                    <div class="module-select">
-                        <i class="far fa-circle"></i>
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="module-icon" style="background: linear-gradient(135deg, #F97316, #EA580C);">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <h3 class="module-name">Observability 2.0</h3>
-                    <p class="module-description">Unified metrics, logs, traces</p>
-                    <div class="module-tokens">
-                        <span class="token-value">1.0</span>
-                        <span class="token-label">token</span>
-                    </div>
-                    <div class="module-price">
-                        <span class="price-range">$15-25K</span>
-                    </div>
-                    <div class="module-badge pro-badge">PRO+</div>
-                    <div class="module-features">
-                        <span><i class="fas fa-check"></i> OpenTelemetry</span>
-                        <span><i class="fas fa-check"></i> Distributed tracing</span>
-                        <span><i class="fas fa-check"></i> Custom dashboards</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Module Pricing -->
-    <section class="module-pricing">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label"><i class="fas fa-cubes"></i> Module Pricing</span>
-                <h2 class="section-title">Choose Your Modules</h2>
-                <p class="section-description">Click on modules to add them to your cost calculator. Each module has different token requirements based on complexity.</p>
-            </div>
-
-            <!-- Basic Modules -->
-            <div class="module-category">
-                <div class="category-header">
-                    <h3><i class="fas fa-layer-group"></i> Basic Modules</h3>
-                    <span class="category-badge">1.0 token base</span>
-                </div>
-                <div class="modules-grid">
-                    <!-- Self-Service Portal -->
-                    <div class="module-card" data-module="self-service-portal" data-tokens="1.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
+                    
+                    <button class="plan-cta secondary" onclick="selectPlan('lite')">Get Started</button>
+                    
+                    <div class="plan-features">
+                        <h4>Perfect for:</h4>
+                        <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
+                            <span>5-20 engineers</span>
                         </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <i class="fas fa-desktop"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Cost monitoring & alerts</span>
                         </div>
-                        <h4 class="module-name">Self-Service Portal</h4>
-                        <p class="module-description">Web-based infrastructure deployment interface</p>
-                        <div class="module-tokens">
-                            <span class="token-value">1.0</span>
-                            <span class="token-label">tokens</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Basic metrics & logs</span>
                         </div>
-                        <div class="module-price">
-                            <span>Rp 80.000</span>
-                            <span class="price-note">(dev)</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Email support</span>
                         </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Drag-and-drop UI</span>
-                            <span><i class="fas fa-check"></i> Real-time logs</span>
-                            <span><i class="fas fa-check"></i> Dashboard</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Community access</span>
                         </div>
                     </div>
+                    
+                    <div class="modules-list">
+                        <h4>2 Modules Included:</h4>
+                        <span class="module-badge">💰 FinOps</span>
+                        <span class="module-badge">📊 Observability</span>
+                    </div>
+                </div>
 
-                    <!-- Observability -->
-                    <div class="module-card" data-module="observability" data-tokens="1.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
+                <!-- Basic Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <div class="plan-icon">💼</div>
+                        <h3 class="plan-name">Basic</h3>
+                        <p class="plan-subtitle">For growing companies</p>
+                        <div class="plan-price">
+                            <span class="price-value" data-monthly="6000" data-annual="60000">$6,000</span>
+                            <small>/mo</small>
+                        </div>
+                        <p class="plan-billing billing-info">Billed monthly</p>
+                    </div>
+                    
+                    <button class="plan-cta secondary" onclick="selectPlan('basic')">Get Started</button>
+                    
+                    <div class="plan-features">
+                        <h4>Everything in Lite, plus:</h4>
+                        <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
+                            <span>20-50 engineers</span>
                         </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                            <i class="fas fa-chart-line"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>CI/CD automation</span>
                         </div>
-                        <h4 class="module-name">Observability 2.0</h4>
-                        <p class="module-description">Prometheus + Grafana with 60+ alerts</p>
-                        <div class="module-tokens">
-                            <span class="token-value">1.0</span>
-                            <span class="token-label">tokens</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Backup & recovery</span>
                         </div>
-                        <div class="module-price">
-                            <span>Rp 80.000</span>
-                            <span class="price-note">(dev)</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Service mesh networking</span>
                         </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Real-time metrics</span>
-                            <span><i class="fas fa-check"></i> Custom dashboards</span>
-                            <span><i class="fas fa-check"></i> Smart alerts</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Priority support (4h response)</span>
                         </div>
                     </div>
+                    
+                    <div class="modules-list">
+                        <h4>5 Modules Included:</h4>
+                        <span class="module-badge">💰 FinOps</span>
+                        <span class="module-badge">📊 Observability</span>
+                        <span class="module-badge">🔄 GitOps</span>
+                        <span class="module-badge">🛡️ Disaster Recovery</span>
+                        <span class="module-badge">🕸️ Service Mesh</span>
+                    </div>
+                </div>
 
-                    <!-- GitOps CI/CD -->
-                    <div class="module-card" data-module="gitops-cicd" data-tokens="1.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
+                <!-- Pro Plan (Featured) -->
+                <div class="pricing-card featured">
+                    <div class="plan-header">
+                        <div class="plan-icon">🚀</div>
+                        <h3 class="plan-name">Pro</h3>
+                        <p class="plan-subtitle">For mid-large enterprises</p>
+                        <div class="plan-price">
+                            <span class="price-value" data-monthly="12000" data-annual="120000">$12,000</span>
+                            <small>/mo</small>
+                        </div>
+                        <p class="plan-billing billing-info">Billed monthly</p>
+                    </div>
+                    
+                    <button class="plan-cta primary" onclick="selectPlan('pro')">Get Started</button>
+                    
+                    <div class="plan-features">
+                        <h4>Everything in Basic, plus:</h4>
+                        <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
+                            <span>50-200 engineers</span>
                         </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                            <i class="fas fa-code-branch"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Advanced compliance</span>
                         </div>
-                        <h4 class="module-name">GitOps CI/CD</h4>
-                        <p class="module-description">Automated deployment pipeline with Git</p>
-                        <div class="module-tokens">
-                            <span class="token-value">1.0</span>
-                            <span class="token-label">tokens</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Multi-cloud management</span>
                         </div>
-                        <div class="module-price">
-                            <span>Rp 80.000</span>
-                            <span class="price-note">(dev)</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Zero trust security</span>
                         </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> GitHub Actions</span>
-                            <span><i class="fas fa-check"></i> Auto-deployment</span>
-                            <span><i class="fas fa-check"></i> Rollback support</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Dedicated support (2h response)</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Quarterly business reviews</span>
                         </div>
                     </div>
+                    
+                    <div class="modules-list">
+                        <h4>8 Modules Included:</h4>
+                        <span class="module-badge">💰 FinOps</span>
+                        <span class="module-badge">📊 Observability</span>
+                        <span class="module-badge">🔄 GitOps</span>
+                        <span class="module-badge">🛡️ Disaster Recovery</span>
+                        <span class="module-badge">🕸️ Service Mesh</span>
+                        <span class="module-badge">✅ Compliance</span>
+                        <span class="module-badge">☁️ Multi-Cloud</span>
+                        <span class="module-badge">🔒 Zero Trust</span>
+                    </div>
+                </div>
 
-                    <!-- Auto-Scaling -->
-                    <div class="module-card" data-module="autoscaling" data-tokens="1.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
+                <!-- Enterprise Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <div class="plan-icon">🏆</div>
+                        <h3 class="plan-name">Enterprise</h3>
+                        <p class="plan-subtitle">For large enterprises</p>
+                        <div class="plan-price">
+                            <span class="price-value" data-monthly="20000" data-annual="200000">$20,000</span>
+                            <small>/mo</small>
+                        </div>
+                        <p class="plan-billing billing-info">Billed monthly</p>
+                    </div>
+                    
+                    <button class="plan-cta secondary" onclick="selectPlan('enterprise')">Contact Sales</button>
+                    
+                    <div class="plan-features">
+                        <h4>Everything in Pro, plus:</h4>
+                        <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
+                            <span>200+ engineers</span>
                         </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                            <i class="fas fa-expand-arrows-alt"></i>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>AI-powered operations</span>
                         </div>
-                        <h4 class="module-name">Auto-Scaling</h4>
-                        <p class="module-description">Intelligent resource auto-scaling</p>
-                        <div class="module-tokens">
-                            <span class="token-value">1.0</span>
-                            <span class="token-label">tokens</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Full IDP portal</span>
                         </div>
-                        <div class="module-price">
-                            <span>Rp 80.000</span>
-                            <span class="price-note">(dev)</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Custom integrations</span>
                         </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> CPU-based scaling</span>
-                            <span><i class="fas fa-check"></i> Memory-based scaling</span>
-                            <span><i class="fas fa-check"></i> Custom metrics</span>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>24/7 phone support (30min response)</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Dedicated account manager</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Custom SLA & on-site training</span>
                         </div>
                     </div>
-
-                    <!-- FinOps -->
-                    <div class="module-card" data-module="finops" data-tokens="1.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <h4 class="module-name">FinOps Optimization</h4>
-                        <p class="module-description">Cost monitoring and optimization</p>
-                        <div class="module-tokens">
-                            <span class="token-value">1.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 80.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Cost forecasting</span>
-                            <span><i class="fas fa-check"></i> Budget alerts</span>
-                            <span><i class="fas fa-check"></i> Recommendations</span>
-                        </div>
+                    
+                    <div class="modules-list">
+                        <h4>All 10 Modules Included:</h4>
+                        <span class="module-badge">💰 FinOps</span>
+                        <span class="module-badge">📊 Observability</span>
+                        <span class="module-badge">🔄 GitOps</span>
+                        <span class="module-badge">🛡️ Disaster Recovery</span>
+                        <span class="module-badge">🕸️ Service Mesh</span>
+                        <span class="module-badge">✅ Compliance</span>
+                        <span class="module-badge">☁️ Multi-Cloud</span>
+                        <span class="module-badge">🔒 Zero Trust</span>
+                        <span class="module-badge">🤖 AIOps</span>
+                        <span class="module-badge">🎯 IDP Portal</span>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Advanced Modules -->
-            <div class="module-category">
-                <div class="category-header">
-                    <h3><i class="fas fa-rocket"></i> Advanced Modules</h3>
-                    <span class="category-badge">2.0 tokens base</span>
-                </div>
-                <div class="modules-grid">
-                    <!-- Kubernetes/EKS -->
-                    <div class="module-card advanced" data-module="kubernetes" data-tokens="2.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #4158D0 0%, #C850C0 100%);">
-                            <i class="fas fa-dharmachakra"></i>
-                        </div>
-                        <h4 class="module-name">Kubernetes/EKS</h4>
-                        <p class="module-description">Managed Kubernetes cluster deployment</p>
-                        <div class="module-tokens">
-                            <span class="token-value">2.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 160.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Multi-node cluster</span>
-                            <span><i class="fas fa-check"></i> Auto-healing</span>
-                            <span><i class="fas fa-check"></i> Load balancing</span>
-                        </div>
-                    </div>
-
-                    <!-- Zero Trust Security -->
-                    <div class="module-card advanced" data-module="zero-trust" data-tokens="2.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h4 class="module-name">Zero Trust Security</h4>
-                        <p class="module-description">Advanced security with zero-trust model</p>
-                        <div class="module-tokens">
-                            <span class="token-value">2.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 160.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> mTLS encryption</span>
-                            <span><i class="fas fa-check"></i> Identity-based access</span>
-                            <span><i class="fas fa-check"></i> Threat detection</span>
-                        </div>
-                    </div>
-
-                    <!-- Service Mesh -->
-                    <div class="module-card advanced" data-module="service-mesh" data-tokens="2.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <h4 class="module-name">Service Mesh (Istio)</h4>
-                        <p class="module-description">Microservices communication layer</p>
-                        <div class="module-tokens">
-                            <span class="token-value">2.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 160.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Traffic management</span>
-                            <span><i class="fas fa-check"></i> Circuit breakers</span>
-                            <span><i class="fas fa-check"></i> Observability</span>
-                        </div>
-                    </div>
-
-                    <!-- Policy as Code -->
-                    <div class="module-card advanced" data-module="policy-governance" data-tokens="2.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #834d9b 0%, #d04ed6 100%);">
-                            <i class="fas fa-gavel"></i>
-                        </div>
-                        <h4 class="module-name">Policy-as-Code (OPA)</h4>
-                        <p class="module-description">Automated compliance and governance</p>
-                        <div class="module-tokens">
-                            <span class="token-value">2.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 160.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Security policies</span>
-                            <span><i class="fas fa-check"></i> Cost policies</span>
-                            <span><i class="fas fa-check"></i> Compliance checks</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- Comparison Table -->
+        <section class="comparison-section">
+            <h2>Compare All Plans</h2>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Lite</th>
+                            <th>Basic</th>
+                            <th>Pro</th>
+                            <th>Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Team Size</td>
+                            <td>5-20</td>
+                            <td>20-50</td>
+                            <td>50-200</td>
+                            <td>200+</td>
+                        </tr>
+                        <tr>
+                            <td>Modules Included</td>
+                            <td>2</td>
+                            <td>5</td>
+                            <td>8</td>
+                            <td>10 (All)</td>
+                        </tr>
+                        <tr>
+                            <td>Cost Optimization</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Monitoring & Observability</td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>CI/CD Automation</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Disaster Recovery</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Service Mesh</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Advanced Compliance</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Multi-Cloud Support</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Zero Trust Security</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>AIOps Platform</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Self-Service Portal</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Support Response Time</td>
+                            <td>24h</td>
+                            <td>4h</td>
+                            <td>2h</td>
+                            <td>30min</td>
+                        </tr>
+                        <tr>
+                            <td>Dedicated Account Manager</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Custom SLA</td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-times cross-icon"></i></td>
+                            <td><i class="fas fa-check check-icon"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- Complex Modules -->
-            <div class="module-category">
-                <div class="category-header">
-                    <h3><i class="fas fa-fire"></i> Complex Modules</h3>
-                    <span class="category-badge">3.0 tokens base</span>
-                </div>
-                <div class="modules-grid">
-                    <!-- AIOps -->
-                    <div class="module-card complex" data-module="aiops" data-tokens="3.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <h4 class="module-name">AIOps Intelligence</h4>
-                        <p class="module-description">AI-powered operations and auto-healing</p>
-                        <div class="module-tokens">
-                            <span class="token-value">3.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 240.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Anomaly detection</span>
-                            <span><i class="fas fa-check"></i> Predictive scaling</span>
-                            <span><i class="fas fa-check"></i> Auto-remediation</span>
-                        </div>
-                    </div>
-
-                    <!-- Disaster Recovery -->
-                    <div class="module-card complex" data-module="disaster-recovery" data-tokens="3.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #0575E6 0%, #021B79 100%);">
-                            <i class="fas fa-life-ring"></i>
-                        </div>
-                        <h4 class="module-name">Disaster Recovery</h4>
-                        <p class="module-description">Multi-region backup and failover</p>
-                        <div class="module-tokens">
-                            <span class="token-value">3.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 240.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> Auto-backup</span>
-                            <span><i class="fas fa-check"></i> Multi-AZ failover</span>
-                            <span><i class="fas fa-check"></i> RPO &lt;1 min</span>
-                        </div>
-                    </div>
-
-                    <!-- Multi-Cloud -->
-                    <div class="module-card complex" data-module="multi-cloud" data-tokens="3.0" onclick="toggleModule(this)">
-                        <div class="module-select">
-                            <i class="fas fa-circle"></i>
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="module-icon" style="background: linear-gradient(135deg, #f46b45 0%, #eea849 100%);">
-                            <i class="fas fa-cloud"></i>
-                        </div>
-                        <h4 class="module-name">Multi-Cloud</h4>
-                        <p class="module-description">Deploy across AWS, Azure, and GCP</p>
-                        <div class="module-tokens">
-                            <span class="token-value">3.0</span>
-                            <span class="token-label">tokens</span>
-                        </div>
-                        <div class="module-price">
-                            <span>Rp 240.000</span>
-                            <span class="price-note">(dev)</span>
-                        </div>
-                        <div class="module-features">
-                            <span><i class="fas fa-check"></i> AWS + Azure + GCP</span>
-                            <span><i class="fas fa-check"></i> Unified management</span>
-                            <span><i class="fas fa-check"></i> Cross-cloud networking</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Configuration Multipliers -->
-    <section class="multipliers-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label"><i class="fas fa-sliders-h"></i> Configuration Options</span>
-                <h2 class="section-title">Deployment Multipliers</h2>
-                <p class="section-description">Select your deployment configuration to see how it affects the final cost.</p>
-            </div>
-
-            <div class="multipliers-grid">
-                <!-- Environment Multiplier -->
-                <div class="multiplier-card">
-                    <div class="multiplier-header">
-                        <h3><i class="fas fa-server"></i> Environment</h3>
-                        <span class="multiplier-value" id="envMultiplierDisplay">+0%</span>
-                    </div>
-                    <p class="multiplier-description">Production deployments include additional safeguards and monitoring</p>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="environment" value="dev" checked onchange="updateMultipliers()">
-                            <span class="radio-label">
-                                <strong>Development</strong>
-                                <span class="radio-detail">No additional cost</span>
-                            </span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="environment" value="prod" onchange="updateMultipliers()">
-                            <span class="radio-label">
-                                <strong>Production</strong>
-                                <span class="radio-detail">+20% tokens</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Region Multiplier -->
-                <div class="multiplier-card">
-                    <div class="multiplier-header">
-                        <h3><i class="fas fa-globe"></i> Regions</h3>
-                        <span class="multiplier-value" id="regionMultiplierDisplay">+0%</span>
-                    </div>
-                    <p class="multiplier-description">Multi-region provides geographic redundancy and lower latency</p>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="region" value="single" checked onchange="updateMultipliers()">
-                            <span class="radio-label">
-                                <strong>Single Region</strong>
-                                <span class="radio-detail">No additional cost</span>
-                            </span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="region" value="multi" onchange="updateMultipliers()">
-                            <span class="radio-label">
-                                <strong>Multi-Region</strong>
-                                <span class="radio-detail">+50% tokens</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Availability Multiplier -->
-                <div class="multiplier-card">
-                    <div class="multiplier-header">
-                        <h3><i class="fas fa-shield-alt"></i> Availability</h3>
-                        <span class="multiplier-value" id="availMultiplierDisplay">+0%</span>
-                    </div>
-                    <p class="multiplier-description">High availability setup with auto-failover and redundancy</p>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="availability" value="standard" checked onchange="updateMultipliers()">
-                            <span class="radio-label">
-                                <strong>Standard</strong>
-                                <span class="radio-detail">No additional cost</span>
-                            </span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="availability" value="ha" onchange="updateMultipliers()">
-                            <span class="radio-label">
-                                <strong>High Availability</strong>
-                                <span class="radio-detail">+30% tokens</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Example Calculations -->
-            <div class="examples-section">
-                <h3><i class="fas fa-calculator"></i> Pricing Examples</h3>
-                <div class="examples-grid">
-                    <div class="example-card">
-                        <h4>💡 Basic Development</h4>
-                        <div class="example-modules">
-                            <span>Portal</span>
-                            <span>Observability</span>
-                        </div>
-                        <div class="example-config">
-                            <span>Dev • Single Region • Standard</span>
-                        </div>
-                        <div class="example-calc">
-                            <span>1.0 + 1.0 = 2.0 tokens</span>
-                        </div>
-                        <div class="example-price">
-                            <strong>Rp 160.000</strong>
-                        </div>
-                    </div>
-
-                    <div class="example-card">
-                        <h4>🚀 Production Deployment</h4>
-                        <div class="example-modules">
-                            <span>Kubernetes</span>
-                            <span>Observability</span>
-                            <span>GitOps</span>
-                        </div>
-                        <div class="example-config">
-                            <span>Prod • Single Region • Standard</span>
-                        </div>
-                        <div class="example-calc">
-                            <span>(2.0 + 1.0 + 1.0) × 1.2 = 4.8 tokens</span>
-                        </div>
-                        <div class="example-price">
-                            <strong>Rp 384.000</strong>
-                        </div>
-                    </div>
-
-                    <div class="example-card highlighted">
-                        <h4>🏢 Enterprise Production</h4>
-                        <div class="example-modules">
-                            <span>K8s</span>
-                            <span>Security</span>
-                            <span>DR</span>
-                            <span>AIOps</span>
-                        </div>
-                        <div class="example-config">
-                            <span>Prod • Multi-Region • HA</span>
-                        </div>
-                        <div class="example-calc">
-                            <span>(2.0 + 2.0 + 3.0 + 3.0) × 1.2 × 1.5 × 1.3 = 23.4 tokens</span>
-                        </div>
-                        <div class="example-price">
-                            <strong>Rp 1.872.000</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="faq-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label"><i class="fas fa-question-circle"></i> FAQ</span>
-                <h2 class="section-title">Frequently Asked Questions</h2>
-            </div>
-
-            <div class="faq-grid">
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>How does token-based pricing work?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>You buy tokens upfront, then use them to deploy infrastructure modules. Each module costs a certain number of tokens based on complexity (1.0, 2.0, or 3.0 tokens). Configuration like production environment, multi-region, or high availability adds multipliers to the base cost.</p>
-                        <p><strong>Example:</strong> Kubernetes (2.0) + Observability (1.0) in production (+20%) = 3.6 tokens = Rp 288.000</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>Do tokens expire?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p><strong>No, tokens never expire!</strong> Buy them once and use them anytime. There's no time limit or pressure to use them quickly. This gives you complete flexibility to deploy at your own pace.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>What happens if my deployment fails?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p><strong>You don't pay for failed deployments!</strong> We only charge tokens when your deployment is successful and passes all health checks. If something goes wrong (AWS quota, configuration error, infrastructure failure), your tokens are automatically refunded.</p>
-                        <p>This is our "Success Guarantee" - you only pay for working infrastructure.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>When do I pay for deployments?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>The deployment process works like this:</p>
-                        <ol>
-                            <li><strong>Configure & Start:</strong> Select modules and configuration - deployment begins immediately</li>
-                            <li><strong>Deploy & Test:</strong> Infrastructure is provisioned and tested automatically</li>
-                            <li><strong>Payment Gate:</strong> System pauses and shows final cost - you must pay to activate</li>
-                            <li><strong>Activate:</strong> After payment, deployment goes live and becomes accessible</li>
-                        </ol>
-                        <p>You have 7 days to complete payment. If you don't pay, the deployment is saved as draft and resources are suspended (no charge).</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>Can I buy more tokens later?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes! Buy tokens anytime through:</p>
-                        <ul>
-                            <li><strong>Credit Card:</strong> Instant credit via Midtrans payment gateway</li>
-                            <li><strong>Bank Transfer:</strong> Credited within 1-2 hours after confirmation</li>
-                            <li><strong>E-wallet:</strong> GoPay, OVO, Dana, ShopeePay - instant credit</li>
-                        </ul>
-                        <p>Tokens are added to your balance immediately and can be used right away.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>Which package should I choose?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p><strong>Starter (10 tokens):</strong> Perfect for testing or 1-2 simple deployments</p>
-                        <p><strong>Value (50 tokens):</strong> Best for active development teams deploying 10-15 times/month</p>
-                        <p><strong>Scale (150 tokens):</strong> For production workloads with frequent updates</p>
-                        <p><strong>Enterprise (500 tokens):</strong> Large organizations with multiple projects</p>
-                        <p>💡 <strong>Tip:</strong> Start with Starter package to test, then upgrade to Value for better per-token pricing (16% savings).</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>What about the Unlimited Annual plan?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>The Unlimited Annual plan (Rp 79 juta/year) is best for:</p>
-                        <ul>
-                            <li>Mission-critical enterprises deploying 40+ times/month</li>
-                            <li>Organizations needing all 10 modules</li>
-                            <li>White-label requirements</li>
-                            <li>24/7 premium support with 30-min response</li>
-                        </ul>
-                        <p><strong>Break-even point:</strong> If you deploy more than 1,300 tokens/year, unlimited becomes more cost-effective.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>Can I get a refund on unused tokens?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Unused tokens cannot be refunded for cash, but:</p>
-                        <ul>
-                            <li>✅ Tokens never expire - use them anytime</li>
-                            <li>✅ Failed deployments are automatically refunded</li>
-                            <li>✅ You can transfer tokens to team members (Enterprise only)</li>
-                        </ul>
-                        <p>We recommend starting with a smaller package and buying more as needed.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>How do multipliers work?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Multipliers are applied based on your deployment configuration:</p>
-                        <ul>
-                            <li><strong>Production (+20%):</strong> Additional monitoring, safeguards, and validation</li>
-                            <li><strong>Multi-Region (+50%):</strong> Deployment across multiple AWS regions for redundancy</li>
-                            <li><strong>High Availability (+30%):</strong> Auto-failover, redundant resources, enhanced reliability</li>
-                        </ul>
-                        <p><strong>Example:</strong> 4.0 base tokens × 1.2 (prod) × 1.5 (multi-region) × 1.3 (HA) = 9.36 tokens</p>
-                        <p>Use the calculator above to see real-time cost adjustments!</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                    <div class="faq-question">
-                        <span>What payment methods do you accept?</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>We accept all major Indonesian payment methods via Midtrans:</p>
-                        <ul>
-                            <li><strong>Credit/Debit Cards:</strong> Visa, Mastercard, JCB, Amex</li>
-                            <li><strong>Bank Transfer:</strong> BCA, Mandiri, BNI, BRI, Permata</li>
-                            <li><strong>E-wallets:</strong> GoPay, OVO, Dana, ShopeePay, LinkAja</li>
-                            <li><strong>Retail:</strong> Indomaret, Alfamart</li>
-                            <li><strong>Installments:</strong> Credit card installments available (3, 6, 12 months)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="container">
-            <div class="cta-content">
-                <h2>Ready to Get Started?</h2>
-                <p>Buy tokens now and deploy your infrastructure in minutes. No subscriptions, no commitments.</p>
-                <div class="cta-buttons">
-                    <button class="btn btn-primary btn-large" onclick="window.location.href='#token-packages'">
-                        <i class="fas fa-shopping-cart"></i> Buy Tokens
-                    </button>
-                    <button class="btn btn-secondary btn-large" onclick="window.location.href='deploy.html'">
-                        <i class="fas fa-rocket"></i> Start Deploying
-                    </button>
-                </div>
-                <p class="cta-note">
-                    <i class="fas fa-shield-alt"></i> 7-day money-back guarantee • Tokens never expire • Free on failure
-                </p>
-            </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <!-- Footer -->
-    <!-- Payment Modal -->
-    <div id="paymentModal" class="payment-modal" style="display: none;">
-        <div class="modal-overlay" onclick="closePaymentModal()"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>💎 Konfirmasi Pembelian</h2>
-                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="summary-section">
-                    <h3>📦 Modul Terpilih (<span id="modalModuleCount">0</span>)</h3>
-                    <div id="modalModuleList" class="module-list"></div>
+    <footer style="background: #1a1a1a; color: white; padding: 60px 20px 30px; text-align: center;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; text-align: left;">
+                <div>
+                    <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 40px; margin-bottom: 16px;">
+                    <p style="color: #999; font-size: 14px;">Enterprise infrastructure automation platform. Deploy in minutes, not months.</p>
                 </div>
-                
-                <div class="summary-section">
-                    <h3>⚙️ Konfigurasi</h3>
-                    <div class="config-list">
-                        <div class="config-item">
-                            <span class="config-label">Environment:</span>
-                            <span class="config-value" id="modalEnvironment">-</span>
-                        </div>
-                        <div class="config-item">
-                            <span class="config-label">Region:</span>
-                            <span class="config-value" id="modalRegion">-</span>
-                        </div>
-                        <div class="config-item">
-                            <span class="config-label">Availability:</span>
-                            <span class="config-value" id="modalAvailability">-</span>
-                        </div>
-                    </div>
+                <div>
+                    <h4 style="margin-bottom: 16px;">Product</h4>
+                    <a href="modules.html" style="display: block; color: #999; text-decoration: none; margin-bottom: 8px; font-size: 14px;">Modules</a>
+                    <a href="pricing.html" style="display: block; color: #999; text-decoration: none; margin-bottom: 8px; font-size: 14px;">Pricing</a>
+                    <a href="deploy.html" style="display: block; color: #999; text-decoration: none; margin-bottom: 8px; font-size: 14px;">Deploy</a>
                 </div>
-                
-                <div class="summary-section">
-                    <h3>💰 Rincian Biaya</h3>
-                    <div class="cost-breakdown">
-                        <div class="cost-item">
-                            <span class="cost-label">Total Tokens:</span>
-                            <span class="cost-value" id="modalTokens">0</span>
-                        </div>
-                        <div class="cost-item total">
-                            <span class="cost-label">Total Biaya:</span>
-                            <span class="cost-value" id="modalCost">Rp 0</span>
-                        </div>
-                    </div>
+                <div>
+                    <h4 style="margin-bottom: 16px;">Company</h4>
+                    <a href="contact.html" style="display: block; color: #999; text-decoration: none; margin-bottom: 8px; font-size: 14px;">Contact</a>
+                    <a href="dashboard.html" style="display: block; color: #999; text-decoration: none; margin-bottom: 8px; font-size: 14px;">Dashboard</a>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 16px;">Legal</h4>
+                    <a href="#" style="display: block; color: #999; text-decoration: none; margin-bottom: 8px; font-size: 14px;">Privacy Policy</a>
+                    <a href="#" style="display: block; color: #999; text-decoration: none; margin-bottom: 8px; font-size: 14px;">Terms of Service</a>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closePaymentModal()">Batal</button>
-                <button class="btn-primary" onclick="processPayment()">💳 Bayar Sekarang</button>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>UnivAI Cloud</h4>
-                    <p>Enterprise-grade cloud infrastructure automation platform. Deploy production-ready infrastructure in 10 minutes.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Product</h4>
-                    <ul>
-                        <li><a href="index.html#modules">Modules</a></li>
-                        <li><a href="pricing.html">Pricing</a></li>
-                        <li><a href="value.html">ROI Calculator</a></li>
-                        <li><a href="deploy.html">Deploy</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="docs/">Documentation</a></li>
-                        <li><a href="https://github.com/Botbynetz/Cloud-Infrastructure-Automation">GitHub</a></li>
-                        <li><a href="ROADMAP.md">Roadmap</a></li>
-                        <li><a href="CHANGELOG.md">Changelog</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Company</h4>
-                    <ul>
-                        <li><a href="contact.html">Contact</a></li>
-                        <li><a href="SECURITY.md">Security</a></li>
-                        <li><a href="LICENSE">License</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 UnivAI Cloud. All rights reserved.</p>
+            <div style="border-top: 1px solid #333; padding-top: 20px; color: #666; font-size: 14px;">
+                <p>&copy; 2024 UnivAI Generation. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script src="script.js"></script>
-    <script src="mode-toggle.js"></script>
-    <script src="pricing.js"></script>
+    <script>
+        // Billing Toggle Functionality
+        const billingSwitch = document.getElementById('billingSwitch');
+        const monthlyLabel = document.getElementById('monthlyLabel');
+        const annualLabel = document.getElementById('annualLabel');
+        const priceValues = document.querySelectorAll('.price-value');
+        const billingInfos = document.querySelectorAll('.billing-info');
+        
+        let isAnnual = false;
+        
+        billingSwitch.addEventListener('click', function() {
+            isAnnual = !isAnnual;
+            billingSwitch.classList.toggle('annual');
+            
+            if (isAnnual) {
+                monthlyLabel.classList.add('inactive');
+                monthlyLabel.classList.remove('active');
+                annualLabel.classList.add('active');
+                annualLabel.classList.remove('inactive');
+            } else {
+                monthlyLabel.classList.add('active');
+                monthlyLabel.classList.remove('inactive');
+                annualLabel.classList.add('inactive');
+                annualLabel.classList.remove('active');
+            }
+            
+            // Update prices
+            priceValues.forEach(el => {
+                const monthly = parseInt(el.dataset.monthly);
+                const annual = parseInt(el.dataset.annual);
+                
+                if (isAnnual) {
+                    el.textContent = '$' + annual.toLocaleString();
+                } else {
+                    el.textContent = '$' + monthly.toLocaleString();
+                }
+            });
+            
+            // Update billing info text
+            billingInfos.forEach(el => {
+                if (isAnnual) {
+                    el.textContent = 'Billed annually (save 2 months)';
+                } else {
+                    el.textContent = 'Billed monthly';
+                }
+            });
+        });
+        
+        // Plan Selection
+        function selectPlan(plan) {
+            // Store selected plan
+            sessionStorage.setItem('selectedPlan', plan);
+            sessionStorage.setItem('billingCycle', isAnnual ? 'annual' : 'monthly');
+            
+            // Redirect to deploy page
+            window.location.href = 'deploy.html';
+        }
+    </script>
 </body>
 </html>

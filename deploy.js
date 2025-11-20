@@ -116,7 +116,7 @@ const PRICING_TIERS = {
     }
 };
 
-// Module definitions
+// Module definitions (ordered from basic to advanced)
 const MODULES = {
     "self-service-portal": {
         name: "Self-Service Portal",
@@ -124,38 +124,8 @@ const MODULES = {
         price: "$40-80K",
         resources: 12,
         icon: "🎯",
-        features: ["Instant provisioning", "AWS/Azure/GCP", "Self-service access"]
-    },
-    "aiops": {
-        name: "AIOps",
-        description: "AI-driven operations with 70% noise reduction",
-        price: "$30-60K",
-        resources: 18,
-        icon: "🤖",
-        features: ["Anomaly detection", "Auto-remediation", "Predictive insights"]
-    },
-    "zero-trust": {
-        name: "Zero Trust Security",
-        description: "5-tier network segmentation",
-        price: "$25-40K",
-        resources: 15,
-        icon: "🔒"
-    },
-    "disaster-recovery": {
-        name: "Disaster Recovery",
-        description: "15-min RTO, cross-region failover",
-        price: "$15-30K",
-        resources: 22,
-        icon: "🛡️",
-        features: ["Automated backups", "Cross-region replication", "Fast recovery"]
-    },
-    "compliance": {
-        name: "Advanced Compliance",
-        description: "6 AWS Config rules with auto-remediation",
-        price: "$20-35K",
-        resources: 14,
-        icon: "✅",
-        features: ["Policy as code", "Compliance dashboard", "Auto-remediation"]
+        features: ["Instant provisioning", "AWS/Azure/GCP", "Self-service access"],
+        level: 1
     },
     "finops": {
         name: "FinOps Optimization",
@@ -163,31 +133,8 @@ const MODULES = {
         price: "$10-20K",
         resources: 16,
         icon: "💰",
-        features: ["Cost forecasting", "Resource optimization", "Budget alerts"]
-    },
-    "multi-cloud": {
-        name: "Multi-Cloud Support",
-        description: "Unified API for AWS, Azure, GCP",
-        price: "$20-50K",
-        resources: 10,
-        icon: "☁️",
-        features: ["Cloud abstraction", "Vendor flexibility", "Unified management"]
-    },
-    "gitops": {
-        name: "GitOps & CI/CD",
-        description: "Git as single source of truth",
-        price: "$15-25K",
-        resources: 12,
-        icon: "🔄",
-        features: ["ArgoCD/Flux", "Auto-sync", "Version control"]
-    },
-    "service-mesh": {
-        name: "Service Mesh",
-        description: "AWS App Mesh with mTLS",
-        price: "$18-30K",
-        resources: 8,
-        icon: "🕸️",
-        features: ["Traffic management", "Service discovery", "Observability"]
+        features: ["Cost forecasting", "Resource optimization", "Budget alerts"],
+        level: 2
     },
     "observability": {
         name: "Observability 2.0",
@@ -195,7 +142,71 @@ const MODULES = {
         price: "$15-25K",
         resources: 9,
         icon: "📊",
-        features: ["OpenTelemetry", "Distributed tracing", "Custom dashboards"]
+        features: ["OpenTelemetry", "Distributed tracing", "Custom dashboards"],
+        level: 3
+    },
+    "gitops": {
+        name: "GitOps & CI/CD",
+        description: "Git as single source of truth",
+        price: "$15-25K",
+        resources: 12,
+        icon: "🔄",
+        features: ["ArgoCD/Flux", "Auto-sync", "Version control"],
+        level: 4
+    },
+    "disaster-recovery": {
+        name: "Disaster Recovery",
+        description: "15-min RTO, cross-region failover",
+        price: "$15-30K",
+        resources: 22,
+        icon: "🛡️",
+        features: ["Automated backups", "Cross-region replication", "Fast recovery"],
+        level: 5
+    },
+    "service-mesh": {
+        name: "Service Mesh",
+        description: "AWS App Mesh with mTLS",
+        price: "$18-30K",
+        resources: 8,
+        icon: "🕸️",
+        features: ["Traffic management", "Service discovery", "Observability"],
+        level: 6
+    },
+    "compliance": {
+        name: "Advanced Compliance",
+        description: "6 AWS Config rules with auto-remediation",
+        price: "$20-35K",
+        resources: 14,
+        icon: "✅",
+        features: ["Policy as code", "Compliance dashboard", "Auto-remediation"],
+        level: 7
+    },
+    "multi-cloud": {
+        name: "Multi-Cloud Support",
+        description: "Unified API for AWS, Azure, GCP",
+        price: "$20-50K",
+        resources: 10,
+        icon: "☁️",
+        features: ["Cloud abstraction", "Vendor flexibility", "Unified management"],
+        level: 8
+    },
+    "zero-trust": {
+        name: "Zero Trust Security",
+        description: "5-tier network segmentation",
+        price: "$25-40K",
+        resources: 15,
+        icon: "🔒",
+        features: ["Micro-segmentation", "Identity-based access", "Continuous verification"],
+        level: 9
+    },
+    "aiops": {
+        name: "AIOps",
+        description: "AI-driven operations with 70% noise reduction",
+        price: "$30-60K",
+        resources: 18,
+        icon: "🤖",
+        features: ["Anomaly detection", "Auto-remediation", "Predictive insights"],
+        level: 10
     }
 };
 
