@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${!isAvailable ? '<span class="module-card-badge">Upgrade Required</span>' : ''}
                     </div>
                     <div class="module-card-desc">${module.description}</div>
+                    <div class="module-card-price">${module.price}</div>
                 </div>
             `;
             
