@@ -180,79 +180,82 @@ const MODULES = {
     }
 };
 
-// Get tier from URL parameter or localStorage
-const urlParams = new URLSearchParams(window.location.search);
-const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
-const mode = localStorage.getItem('univai_mode');
-const isInDemoMode = mode === 'demo';
-const currentTier = isInDemoMode ? 'demo' : (urlParams.get('tier') || user.tier || 'free');
-const tierConfig = PRICING_TIERS[currentTier];
+// Initialize modules and tier when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Get tier from URL parameter or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
+    const mode = localStorage.getItem('univai_mode');
+    const isInDemoMode = mode === 'demo';
+    const currentTier = isInDemoMode ? 'demo' : (urlParams.get('tier') || user.tier || 'free');
+    const tierConfig = PRICING_TIERS[currentTier];
 
-// Update tier badge
-document.getElementById('tier-badge').textContent = tierConfig.name;
-if (currentTier === 'ultimate') {
-    document.getElementById('tier-badge').classList.add('ultimate');
-} else if (currentTier === 'enterprise') {
-    document.getElementById('tier-badge').classList.add('enterprise');
-}
-
-// Populate module selector dropdown
-const moduleSelector = document.getElementById('module-selector');
-let selectedModules = [];
-
-if (moduleSelector) {
-    // Clear existing options
-    moduleSelector.innerHTML = '';
-    
-    // Add all available modules as options
-    Object.keys(MODULES).forEach(moduleId => {
-        const module = MODULES[moduleId];
-        const isAvailable = tierConfig.modules.includes(moduleId);
-        
-        const option = document.createElement('option');
-        option.value = moduleId;
-        option.textContent = `${module.name} - ${module.description}`;
-        option.disabled = !isAvailable;
-        
-        if (!isAvailable) {
-            option.textContent += ' (Upgrade Required)';
+    // Update tier badge
+    const tierBadge = document.getElementById('tier-badge');
+    if (tierBadge) {
+        tierBadge.textContent = tierConfig.name;
+        if (currentTier === 'ultimate') {
+            tierBadge.classList.add('ultimate');
+        } else if (currentTier === 'enterprise') {
+            tierBadge.classList.add('enterprise');
         }
-        
-        moduleSelector.appendChild(option);
-    });
-    
-    // Listen for selection changes
-    moduleSelector.addEventListener('change', function() {
-        selectedModules = Array.from(this.selectedOptions).map(opt => opt.value);
-        console.log('Selected modules:', selectedModules);
-    });
-}
+    }
 
-// Check for pending deployment from pricing page
-const pendingDeployment = sessionStorage.getItem('pendingDeployment');
-if (pendingDeployment) {
-    try {
-        const deploymentData = JSON.parse(pendingDeployment);
+    // Populate module selector dropdown
+    const moduleSelector = document.getElementById('module-selector');
+    window.selectedModules = [];
+
+    if (moduleSelector) {
+        // Clear existing options
+        moduleSelector.innerHTML = '';
         
-        // Auto-select modules from pricing page in the dropdown
-        if (deploymentData.modules && deploymentData.modules.length > 0) {
-            const moduleSelector = document.getElementById('module-selector');
-            if (moduleSelector) {
+        // Add all available modules as options
+        Object.keys(MODULES).forEach(moduleId => {
+            const module = MODULES[moduleId];
+            const isAvailable = tierConfig.modules.includes(moduleId);
+            
+            const option = document.createElement('option');
+            option.value = moduleId;
+            option.textContent = `${module.name} - ${module.description}`;
+            option.disabled = !isAvailable;
+            
+            if (!isAvailable) {
+                option.textContent += ' (Upgrade Required)';
+            }
+            
+            moduleSelector.appendChild(option);
+        });
+        
+        // Listen for selection changes
+        moduleSelector.addEventListener('change', function() {
+            window.selectedModules = Array.from(this.selectedOptions).map(opt => opt.value);
+            console.log('Selected modules:', window.selectedModules);
+        });
+    }
+
+    // Check for pending deployment from pricing page
+    const pendingDeployment = sessionStorage.getItem('pendingDeployment');
+    if (pendingDeployment) {
+        try {
+            const deploymentData = JSON.parse(pendingDeployment);
+            
+            // Auto-select modules from pricing page in the dropdown
+            if (deploymentData.modules && deploymentData.modules.length > 0 && moduleSelector) {
                 // Select all pre-selected modules in the dropdown
                 Array.from(moduleSelector.options).forEach(option => {
                     if (deploymentData.modules.includes(option.value)) {
                         option.selected = true;
-                        selectedModules.push(option.value);
+                        window.selectedModules.push(option.value);
                     }
                 });
+                
+                console.log('✅ Auto-selected modules from pricing:', deploymentData.modules);
             }
-            
-            console.log('✅ Auto-selected modules from pricing:', deploymentData.modules);
+        } catch (error) {
+            console.error('Error loading pending deployment:', error);
         }
-    } catch (error) {
-        console.error('Error loading pending deployment:', error);
     }
-}
+});
 
 // Module selector toggle - set after modules are populated
 const moduleHeaderToggle = document.getElementById('moduleHeaderToggle');
@@ -555,7 +558,7 @@ function showCredentialError(validation) {
 document.getElementById('deploy-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    if (selectedModules.length === 0) {
+    if (!window.selectedModules || window.selectedModules.length === 0) {
         addConsoleLog('❌ Please select at least one module to deploy', 'error');
         return;
     }
@@ -573,8 +576,8 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         awsRegion: awsRegion,
         projectName: projectName,
         environment: environment,
-        modules: selectedModules,
-        tier: currentTier
+        modules: window.selectedModules,
+        tier: localStorage.getItem('univai_mode') === 'demo' ? 'demo' : 'free'
     };
     
     // Get current mode
@@ -631,7 +634,7 @@ document.getElementById('deploy-form').addEventListener('submit', async function
     updateProgress(0, 'Initializing deployment...');
     
     // Initialize module statuses
-    selectedModules.forEach(moduleId => {
+    window.selectedModules.forEach(moduleId => {
         updateModuleStatus(moduleId, 'pending');
     });
     
