@@ -497,6 +497,83 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Play buzzer sound
+function playBuzzer(duration = 3000) {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800; // Buzzer frequency
+    oscillator.type = 'square'; // Square wave for buzzer sound
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration / 1000);
+}
+
+// Validate AWS credentials format
+function validateAWSCredentials(accessKey, secretKey) {
+    // AWS Access Key ID format: 20 characters, starts with AKIA
+    const accessKeyPattern = /^AKIA[0-9A-Z]{16}$/;
+    
+    // AWS Secret Access Key format: 40 characters, base64-like
+    const secretKeyPattern = /^[A-Za-z0-9/+=]{40}$/;
+    
+    const isAccessKeyValid = accessKeyPattern.test(accessKey);
+    const isSecretKeyValid = secretKeyPattern.test(secretKey);
+    
+    return {
+        valid: isAccessKeyValid && isSecretKeyValid,
+        accessKeyValid: isAccessKeyValid,
+        secretKeyValid: isSecretKeyValid
+    };
+}
+
+// Show credential error in workflow
+function showCredentialError(validation) {
+    const moduleProgress = document.getElementById('module-progress');
+    
+    // Clear existing status
+    moduleProgress.innerHTML = '';
+    
+    // Create error indicator
+    const errorIndicator = document.createElement('div');
+    errorIndicator.className = 'module-status error';
+    errorIndicator.style.cssText = 'animation: shake 0.5s; background: #FEE2E2; border-left: 4px solid #EF4444; padding: 12px; margin-bottom: 8px; border-radius: 8px;';
+    
+    let errorMessage = '<i class="fas fa-times-circle" style="color: #EF4444;"></i> <strong>AWS Credentials Invalid</strong><br>';
+    
+    if (!validation.accessKeyValid) {
+        errorMessage += '<small style="color: #991B1B;">• Access Key ID format is invalid (must be 20 chars starting with AKIA)</small><br>';
+    }
+    
+    if (!validation.secretKeyValid) {
+        errorMessage += '<small style="color: #991B1B;">• Secret Access Key format is invalid (must be 40 chars)</small>';
+    }
+    
+    errorIndicator.innerHTML = errorMessage;
+    moduleProgress.appendChild(errorIndicator);
+    
+    // Add shake animation if not exists
+    if (!document.getElementById('shake-animation')) {
+        const style = document.createElement('style');
+        style.id = 'shake-animation';
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                20%, 40%, 60%, 80% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
 // Form submission
 document.getElementById('deploy-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -515,6 +592,49 @@ document.getElementById('deploy-form').addEventListener('submit', async function
         modules: selectedModules,
         tier: currentTier
     };
+    
+    // Validate AWS credentials format (skip for demo credentials)
+    if (!isDemoMode(config.awsAccessKey, config.awsSecretKey)) {
+        const validation = validateAWSCredentials(config.awsAccessKey, config.awsSecretKey);
+        
+        if (!validation.valid) {
+            // Show error in console
+            addConsoleLog('═══════════════════════════════════════', 'error');
+            addConsoleLog('❌ AWS CREDENTIALS VALIDATION FAILED', 'error');
+            addConsoleLog('═══════════════════════════════════════', 'error');
+            
+            if (!validation.accessKeyValid) {
+                addConsoleLog('✗ AWS Access Key ID format is invalid', 'error');
+                addConsoleLog('  Expected: 20 characters starting with "AKIA"', 'info');
+                addConsoleLog('  Example: AKIAIOSFODNN7EXAMPLE', 'info');
+            }
+            
+            if (!validation.secretKeyValid) {
+                addConsoleLog('✗ AWS Secret Access Key format is invalid', 'error');
+                addConsoleLog('  Expected: 40 characters (base64-like)', 'info');
+                addConsoleLog('  Example: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY', 'info');
+            }
+            
+            addConsoleLog('', 'error');
+            addConsoleLog('⚠️  Please check your AWS credentials and try again', 'warning');
+            addConsoleLog('💡 Tip: You can find your credentials in AWS IAM Console', 'info');
+            
+            // Show error indicator in workflow
+            showCredentialError(validation);
+            
+            // Play buzzer sound for 3 seconds
+            playBuzzer(3000);
+            
+            // Update progress to error state
+            updateProgress(0, 'Credential validation failed');
+            document.getElementById('progress-fill').style.background = '#EF4444';
+            
+            return;
+        }
+        
+        // If valid, show success message
+        addConsoleLog('✓ AWS credentials format validated', 'success');
+    }
     
     // Check for demo mode
     if (isDemoMode(config.awsAccessKey, config.awsSecretKey)) {
