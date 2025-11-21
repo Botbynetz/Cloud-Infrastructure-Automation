@@ -1150,14 +1150,23 @@
             });
         });
         
-        // Plan Selection - Show Payment Modal
+        // Plan Selection - Check Mode First
         function selectPlan(plan) {
+            const mode = localStorage.getItem('univai_mode');
+            
             // Store selected plan temporarily
             sessionStorage.setItem('selectedPlan', plan);
             sessionStorage.setItem('billingCycle', isAnnual ? 'annual' : 'monthly');
             
-            // Show payment modal
-            showPaymentModal(plan, isAnnual);
+            // Check mode
+            if (mode === 'demo') {
+                // Demo mode - skip payment, go directly to deploy
+                localStorage.setItem('userPlan', plan.toLowerCase());
+                window.location.href = 'deploy.html';
+            } else {
+                // Real mode - show payment modal
+                showPaymentModal(plan, isAnnual);
+            }
         }
 
         // Payment Modal Functions
