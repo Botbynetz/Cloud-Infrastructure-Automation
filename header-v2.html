@@ -1,0 +1,111 @@
+<!-- ============================================
+     HEADER V2 - TWO ROW LAYOUT COMPONENT
+     Copy this code to replace old header
+============================================ -->
+
+<!-- ROW 1: LOGO CENTERED -->
+<header class="header-row-1">
+    <div class="logo-container">
+        <h1 class="main-logo">UnivAI Cloud</h1>
+        <p class="tagline">Transform Your Cloud Infrastructure in Minutes</p>
+    </div>
+</header>
+
+<!-- ROW 2: HAMBURGER + MODE BADGE + PROFILE -->
+<header class="header-row-2">
+    <!-- Left: Hamburger Menu -->
+    <div class="header-left">
+        <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
+            <span class="icon">☰</span>
+            <span class="text">Menu</span>
+        </button>
+    </div>
+    
+    <!-- Center: Mode Badge -->
+    <div class="header-center">
+        <button class="mode-badge demo-badge" id="modeBadge" onclick="showModeModal()">
+            <span class="emoji">🧪</span>
+            <span class="mode-text">DEMO MODE</span>
+        </button>
+    </div>
+    
+    <!-- Right: Profile with Plan Badge -->
+    <div class="header-right">
+        <button class="profile-btn" onclick="toggleProfile()" aria-label="Profile Menu">
+            <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" alt="User Avatar" class="avatar">
+            <span class="username">User</span>
+            <span class="plan-badge free-badge" id="planBadge">🆓 FREE</span>
+            <span class="dropdown-arrow">▼</span>
+        </button>
+        
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown-header">
+                <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" alt="User Avatar">
+                <h4 id="userName">User</h4>
+                <p id="userEmail">user@example.com</p>
+                <div class="profile-dropdown-plan">
+                    <span class="plan-badge free-badge" id="planBadgeDropdown">🆓 FREE PLAN</span>
+                </div>
+            </div>
+            <nav>
+                <a href="dashboard.html">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html">
+                    <span class="icon">👤</span>
+                    <span>Profile Settings</span>
+                </a>
+                <a href="pricing.html">
+                    <span class="icon">💳</span>
+                    <span>Billing & Plans</span>
+                </a>
+                <div class="sidebar-divider"></div>
+                <a href="#" onclick="logout(); return false;">
+                    <span class="icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- SIDEBAR NAVIGATION -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h3>Navigation</h3>
+        <button class="sidebar-close" onclick="closeSidebar()" aria-label="Close Menu">×</button>
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
+        <li><a href="deploy.html"><span class="icon">🚀</span> Deploy</a></li>
+        <li><a href="modules.html"><span class="icon">📦</span> Modules</a></li>
+        <li><a href="pricing.html"><span class="icon">💰</span> Pricing</a></li>
+        <li><a href="profile.html"><span class="icon">👤</span> Profile</a></li>
+        <li><a href="contact.html"><span class="icon">📞</span> Contact</a></li>
+        <div class="sidebar-divider"></div>
+        <li><a href="#" onclick="logout(); return false;"><span class="icon">🚪</span> Logout</a></li>
+    </ul>
+</aside>
+
+<!-- MODE MODAL -->
+<div class="mode-modal" id="modeModal" onclick="if(event.target === this) closeModeModal()">
+    <div class="mode-modal-content">
+        <h3 id="modalTitle">You're in Demo Mode</h3>
+        <div id="modalDescription">
+            <p style="font-size: 16px; margin: 20px 0;">🆓 <strong>Free access to all features</strong></p>
+            <p>In Demo Mode, you can explore the platform without any charges.</p>
+            <p>Ready to deploy real infrastructure?</p>
+        </div>
+        <div class="mode-modal-actions">
+            <button class="mode-modal-primary" id="modalPrimaryBtn">Upgrade to Real Mode →</button>
+            <button class="mode-modal-secondary" id="modalSecondaryBtn" onclick="closeModeModal()">Stay in Demo</button>
+        </div>
+    </div>
+</div>
+
+<!-- Include Header Styles & Scripts -->
+<link rel="stylesheet" href="header-v2.css">
+<script src="header-v2.js"></script>
