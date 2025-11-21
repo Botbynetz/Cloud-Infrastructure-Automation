@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('univai_user');
             localStorage.removeItem('univai_token');
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('userPlan');
             window.location.href = 'auth.html';
         });
     }
@@ -114,6 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // User Authentication
     function updateUserProfile() {
         const userStr = localStorage.getItem('univai_user');
+        const userPlan = localStorage.getItem('userPlan') || 'free';
+        
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
@@ -134,8 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (userName) userName.textContent = user.name || user.email.split('@')[0];
                 if (userEmail) userEmail.textContent = user.email || '';
                 
-                // Update plan badge
-                updatePlanBadge(user.plan || 'free');
+                // Update plan badge from localStorage
+                updatePlanBadge(userPlan);
                 
                 // Update auth button
                 const authAction = document.getElementById('authAction');
@@ -162,28 +165,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!planBadge) return;
         
         // Normalize plan name
-        plan = plan.toLowerCase();
+        plan = plan ? plan.toLowerCase() : 'free';
         
         // Set data attribute
         planBadge.setAttribute('data-plan', plan);
         
         // Update badge content based on plan
         switch(plan) {
-            case 'free':
-                planBadge.innerHTML = '<span class=\"badge-text\">Free</span>';
+            case 'lite':
+                planBadge.innerHTML = '<img src="frontend/assets/images/badges/lite.png" alt="Lite" style="width: 20px; height: 20px;">';
+                break;
+            case 'basic':
+                planBadge.innerHTML = '<img src="frontend/assets/images/badges/basic.png" alt="Basic" style="width: 20px; height: 20px;">';
                 break;
             case 'professional':
             case 'pro':
-                planBadge.innerHTML = '<span class=\"badge-text\">Pro</span>';
+                planBadge.innerHTML = '<img src="frontend/assets/images/badges/pro.png" alt="Pro" style="width: 20px; height: 20px;">';
                 break;
             case 'enterprise':
-                planBadge.innerHTML = '<span class=\"badge-text\">Enterprise</span>';
+                planBadge.innerHTML = '<img src="frontend/assets/images/badges/enterprise.png" alt="Enterprise" style="width: 20px; height: 20px;">';
                 break;
-            case 'ultimate':
-                planBadge.innerHTML = '<span class=\"badge-text\">Ultimate</span>';
-                break;
+            case 'free':
             default:
-                planBadge.innerHTML = '<span class=\"badge-text\">Free</span>';
+                planBadge.innerHTML = '<span class="badge-text">Free</span>';
                 planBadge.setAttribute('data-plan', 'free');
         }
     }

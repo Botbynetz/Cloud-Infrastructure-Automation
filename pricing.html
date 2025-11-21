@@ -988,6 +988,9 @@
             sessionStorage.setItem('selectedPlan', plan);
             sessionStorage.setItem('billingCycle', isAnnual ? 'annual' : 'monthly');
             
+            // Store user plan for badge display
+            localStorage.setItem('userPlan', plan.toLowerCase());
+            
             // Redirect to deploy page
             window.location.href = 'deploy.html';
         }
