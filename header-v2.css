@@ -35,38 +35,36 @@
 /* ============ ROW 2: ACTIONS ============ */
 .header-row-2 {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 12px 24px;
+    padding: 12px 32px;
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
-}
-
-.header-left,
-.header-center,
-.header-right {
-    display: flex;
-    align-items: center;
-}
-
-.header-left {
-    justify-content: flex-start;
-    padding-left: 0;
-}
-
-.header-center {
-    justify-content: center;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
 .header-right {
-    justify-content: flex-end;
-    padding-right: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 0 0 auto;
     position: relative;
-    margin-left: 20px;
 }
 
 /* ============ HAMBURGER MENU ============ */
