@@ -950,6 +950,8 @@
             }
             
             // Update prices
+            const priceSmalls = document.querySelectorAll('.plan-price small');
+            
             priceValues.forEach(el => {
                 const monthly = parseInt(el.dataset.monthly);
                 const annual = parseInt(el.dataset.annual);
@@ -958,6 +960,15 @@
                     el.textContent = '$' + annual.toLocaleString();
                 } else {
                     el.textContent = '$' + monthly.toLocaleString();
+                }
+            });
+            
+            // Update /mo to /yr for annual
+            priceSmalls.forEach(el => {
+                if (isAnnual) {
+                    el.textContent = '/yr';
+                } else {
+                    el.textContent = '/mo';
                 }
             });
             
