@@ -40,17 +40,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (confirm('🚀 Switch to Real Mode?\n\nYou will need a subscription plan to use your own AWS credentials.')) {
                     localStorage.setItem('univai_mode', 'real');
                     
-                    // Redirect to real mode version
-                    if (currentPage === 'index.html') {
-                        window.location.href = 'index-real.html';
-                    } else if (currentPage === 'dashboard.html') {
-                        window.location.href = 'dashboard-real.html';
-                    } else if (currentPage === 'deploy.html') {
-                        window.location.href = 'pricing.html'; // Must select plan first
-                    } else if (currentPage === 'pricing.html') {
-                        location.reload(); // Already on pricing
+                    // Check if user already has a plan
+                    const userPlan = localStorage.getItem('userPlan');
+                    
+                    if (!userPlan || userPlan === 'free') {
+                        // No plan - redirect to pricing first
+                        window.location.href = 'pricing.html';
                     } else {
-                        window.location.href = 'index-real.html'; // Default to real home
+                        // Has plan - redirect to real mode version
+                        if (currentPage === 'index.html') {
+                            window.location.href = 'index-real.html';
+                        } else if (currentPage === 'dashboard.html') {
+                            window.location.href = 'dashboard-real.html';
+                        } else if (currentPage === 'deploy.html') {
+                            window.location.href = 'deploy-real.html';
+                        } else if (currentPage === 'pricing.html') {
+                            location.reload(); // Already on pricing
+                        } else {
+                            window.location.href = 'index-real.html'; // Default to real home
+                        }
                     }
                 } else {
                     // User cancelled, revert switch
