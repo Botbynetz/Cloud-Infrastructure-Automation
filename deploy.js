@@ -41,9 +41,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     } else if (mode === 'real') {
         // Real Mode: Check if user has selected a plan OR coming from pricing page
-        const pendingDeployment = sessionStorage.getItem('pendingDeployment');
+        const selectedPlan = sessionStorage.getItem('selectedPlan');
+        const userPlan = localStorage.getItem('userPlan');
         
-        if ((!user.tier || user.tier === 'free') && !pendingDeployment) {
+        if ((!userPlan || userPlan === 'free') && !selectedPlan) {
             alert('⚠️ Please select a subscription plan first');
             window.location.href = 'pricing.html';
             return;
