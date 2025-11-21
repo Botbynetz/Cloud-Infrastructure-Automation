@@ -413,6 +413,173 @@
                 overflow-x: auto;
             }
         }
+
+        /* Payment Modal Styles */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .payment-modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .payment-panel {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .payment-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-close:hover {
+            color: #000;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .payment-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .payment-header .plan-info {
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .payment-header .plan-price {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0066FF;
+            margin-top: 12px;
+        }
+
+        .payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #0066FF;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+        }
+
+        .pay-button {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .pay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .pay-button:active {
+            transform: translateY(0);
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .secure-badge i {
+            color: #10b981;
+        }
     </style>
 </head>
 <body>
@@ -982,18 +1149,156 @@
             });
         });
         
-        // Plan Selection
+        // Plan Selection - Show Payment Modal
         function selectPlan(plan) {
-            // Store selected plan
+            // Store selected plan temporarily
             sessionStorage.setItem('selectedPlan', plan);
             sessionStorage.setItem('billingCycle', isAnnual ? 'annual' : 'monthly');
             
-            // Store user plan for badge display
-            localStorage.setItem('userPlan', plan.toLowerCase());
+            // Show payment modal
+            showPaymentModal(plan, isAnnual);
+        }
+
+        // Payment Modal Functions
+        function showPaymentModal(plan, annual) {
+            const modal = document.getElementById('paymentModal');
+            const planNameEl = document.getElementById('paymentPlanName');
+            const planPriceEl = document.getElementById('paymentPlanPrice');
+            
+            // Set plan details
+            planNameEl.textContent = plan + ' Plan';
+            
+            // Calculate price
+            const prices = {
+                'Lite': { monthly: 2500, annual: 25000 },
+                'Basic': { monthly: 6000, annual: 60000 },
+                'Pro': { monthly: 12000, annual: 120000 },
+                'Enterprise': { monthly: 20000, annual: 200000 }
+            };
+            
+            const price = annual ? prices[plan].annual : prices[plan].monthly;
+            const cycle = annual ? '/yr' : '/mo';
+            planPriceEl.textContent = '$' + price.toLocaleString() + cycle;
+            
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePaymentModal() {
+            const modal = document.getElementById('paymentModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function processPayment(event) {
+            event.preventDefault();
+            
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardName = document.getElementById('cardName').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvv = document.getElementById('cvv').value;
+            
+            // Basic validation
+            if (!cardNumber || !cardName || !expiry || !cvv) {
+                alert('Please fill in all payment details');
+                return;
+            }
+            
+            // Store user plan
+            const selectedPlan = sessionStorage.getItem('selectedPlan');
+            localStorage.setItem('userPlan', selectedPlan.toLowerCase());
+            
+            // Close modal and redirect
+            closePaymentModal();
+            
+            // Show success message
+            alert('✅ Payment successful! Redirecting to deployment...');
             
             // Redirect to deploy page
-            window.location.href = 'deploy.html';
+            setTimeout(() => {
+                window.location.href = 'deploy.html';
+            }, 500);
         }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('paymentModal');
+            if (event.target === modal) {
+                closePaymentModal();
+            }
+        });
     </script>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="payment-modal">
+        <div class="payment-panel">
+            <button class="payment-close" onclick="closePaymentModal()">×</button>
+            
+            <div class="payment-header">
+                <h2>Complete Payment</h2>
+                <div class="plan-info">
+                    <div id="paymentPlanName">Pro Plan</div>
+                    <div id="paymentPlanPrice" class="plan-price">$12,000/mo</div>
+                </div>
+            </div>
+
+            <form class="payment-form" onsubmit="processPayment(event)">
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <input 
+                        type="text" 
+                        id="cardNumber" 
+                        placeholder="1234 5678 9012 3456"
+                        maxlength="19"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="cardName">Cardholder Name</label>
+                    <input 
+                        type="text" 
+                        id="cardName" 
+                        placeholder="John Doe"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiry">Expiry Date</label>
+                        <input 
+                            type="text" 
+                            id="expiry" 
+                            placeholder="MM/YY"
+                            maxlength="5"
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input 
+                            type="text" 
+                            id="cvv" 
+                            placeholder="123"
+                            maxlength="4"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" class="pay-button">
+                    <i class="fas fa-lock"></i> PAY NOW
+                </button>
+
+                <div class="secure-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure payment powered by Stripe</span>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
+
