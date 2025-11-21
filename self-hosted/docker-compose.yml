@@ -1,0 +1,127 @@
+# Self-Hosted Cloud Platform Stack
+# Run your own cloud infrastructure like AWS/Cloudflare
+
+version: '3.8'
+
+services:
+  # Reverse Proxy (SSL Termination, Load Balancing)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Frontend Web App (Your HTML/CSS/JS)
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ../:/usr/share/nginx/html
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Backend API (Auth, Payment, Deploy Management)
+  api:
+    build: ../backend
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/univai
+      - JWT_SECRET=your-secret-key-change-this
+      - STRIPE_SECRET_KEY=sk_test_xxx
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Database (User accounts, subscriptions, deployments)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=univai
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Cache & Session Store
+  redis:
+    image: redis:7-alpine
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Object Storage (S3-compatible)
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password123
+    volumes:
+      - minio-data:/data
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Container Orchestration (User deployments)
+  portainer:
+    image: portainer/portainer-ce
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Monitoring (Prometheus)
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+  # Dashboards (Grafana)
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - cloud-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  minio-data:
+  portainer-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  cloud-network:
+    driver: bridge
