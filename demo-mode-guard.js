@@ -1,9 +1,11 @@
 // Demo Mode Guard - Disable pricing links in demo mode
 document.addEventListener('DOMContentLoaded', function() {
     const mode = localStorage.getItem('univai_mode');
+    const currentPage = window.location.pathname.split('/').pop();
+    const isDemoPage = !currentPage.includes('-real.html');
     
-    // Only run in demo mode
-    if (mode === 'demo') {
+    // Only run in demo mode AND on demo pages (not real mode pages)
+    if (mode === 'demo' && isDemoPage) {
         // Find all links to pricing.html
         const pricingLinks = document.querySelectorAll('a[href="pricing.html"]');
         
