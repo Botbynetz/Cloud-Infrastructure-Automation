@@ -39,25 +39,28 @@ document.addEventListener('DOMContentLoaded', function() {
             tierBadge.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
             tierBadge.style.color = 'white';
         }
-    } else if (mode === 'real') {
-        // Real Mode: Check if user has selected a plan OR coming from pricing page
+    } else {
+        // Check if user has selected a plan OR coming from pricing page
         const selectedPlan = sessionStorage.getItem('selectedPlan');
         const userPlan = localStorage.getItem('userPlan');
         
-        if ((!userPlan || userPlan === 'free') && !selectedPlan) {
+        // Only validate plan for real mode (not demo mode)
+        if (mode === 'real' && (!userPlan || userPlan === 'free') && !selectedPlan) {
             alert('⚠️ Please select a subscription plan first');
             window.location.href = 'pricing.html';
             return;
         }
         
-        // Show real mode indicator
-        const realNotice = document.createElement('div');
-        realNotice.style.cssText = 'background: #DBEAFE; border: 2px solid #3B82F6; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;';
-        realNotice.innerHTML = '<i class="fas fa-rocket" style="color: #3B82F6; font-size: 20px;"></i><div><strong style="color: #1E3A8A;">Real Mode Active</strong><br><span style="font-size: 13px; color: #1E40AF;">Enter your AWS credentials. Real infrastructure will be created.</span></div>';
-        
-        const form = document.getElementById('deploy-form');
-        if (form && form.firstChild) {
-            form.insertBefore(realNotice, form.firstChild);
+        // Show real mode indicator if in real mode
+        if (mode === 'real') {
+            const realNotice = document.createElement('div');
+            realNotice.style.cssText = 'background: #DBEAFE; border: 2px solid #3B82F6; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;';
+            realNotice.innerHTML = '<i class="fas fa-rocket" style="color: #3B82F6; font-size: 20px;"></i><div><strong style="color: #1E3A8A;">Real Mode Active</strong><br><span style="font-size: 13px; color: #1E40AF;">Enter your AWS credentials. Real infrastructure will be created.</span></div>';
+            
+            const form = document.getElementById('deploy-form');
+            if (form && form.firstChild) {
+                form.insertBefore(realNotice, form.firstChild);
+            }
         }
     }
 });
