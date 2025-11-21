@@ -1,6 +1,13 @@
 // Mode Toggle Logic - Reusable across all pages
 document.addEventListener('DOMContentLoaded', function() {
-    const mode = localStorage.getItem('univai_mode');
+    let mode = localStorage.getItem('univai_mode');
+    
+    // Set default mode to demo if not set
+    if (!mode) {
+        mode = 'demo';
+        localStorage.setItem('univai_mode', 'demo');
+    }
+    
     const modeSwitch = document.getElementById('modeSwitch');
     const modeLabel = document.getElementById('modeLabel');
     const pricingMenuItems = document.querySelectorAll('.pricing-menu-item');
