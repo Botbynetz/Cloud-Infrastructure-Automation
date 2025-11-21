@@ -16,6 +16,21 @@
         return;
     }
     
+    // LOCALHOST BYPASS - Auto-login for development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        if (!localStorage.getItem('univai_user')) {
+            localStorage.setItem('univai_user', JSON.stringify({
+                email: 'dev@localhost.com',
+                name: 'Dev User',
+                tier: 'demo'
+            }));
+            localStorage.setItem('univai_token', 'dev-token-localhost');
+            localStorage.setItem('univai_mode', 'demo');
+            console.log('🔧 Localhost: Auto-login enabled');
+        }
+        return;
+    }
+    
     // Check if user is logged in
     const currentUser = localStorage.getItem('univai_user');
     const token = localStorage.getItem('univai_token');

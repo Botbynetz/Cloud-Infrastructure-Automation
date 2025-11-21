@@ -1,5 +1,11 @@
 // Demo Mode Guard - Disable pricing links in demo mode
 document.addEventListener('DOMContentLoaded', function() {
+    // LOCALHOST BYPASS - Skip demo guard on localhost
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('🔧 Localhost: Demo guard bypassed');
+        return;
+    }
+    
     const mode = localStorage.getItem('univai_mode');
     const currentPage = window.location.pathname.split('/').pop();
     const isDemoPage = !currentPage.includes('-real.html');

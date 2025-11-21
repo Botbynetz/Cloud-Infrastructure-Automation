@@ -1,6 +1,12 @@
 // Plan Guard for Real Mode Pages
 // Checks if user has selected a plan, redirects to pricing if not
 (function() {
+    // LOCALHOST BYPASS - Skip plan check on localhost
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('🔧 Localhost: Plan guard bypassed');
+        return;
+    }
+    
     const mode = localStorage.getItem('univai_mode');
     const userPlan = localStorage.getItem('userPlan');
     const currentPage = window.location.pathname.split('/').pop();
