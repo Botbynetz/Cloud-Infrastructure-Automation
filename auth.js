@@ -188,8 +188,12 @@ function completeGoogleLogin(token, email, name, picture, userData) {
         // First time login - redirect to mode selection
         window.location.replace('mode-selection.html?t=' + Date.now());
     } else {
-        // Has mode - redirect to index
-        window.location.replace('index.html?t=' + Date.now());
+        // Has mode - redirect to correct house
+        if (mode === 'real') {
+            window.location.replace('index-real.html?t=' + Date.now());
+        } else {
+            window.location.replace('index.html?t=' + Date.now());
+        }
     }
 }
 
@@ -300,8 +304,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         // First time login - redirect to mode selection
                         window.location.replace('mode-selection.html?t=' + Date.now());
                     } else {
-                        // Has mode - redirect to index
-                        window.location.replace('index.html?t=' + Date.now());
+                        // Has mode - redirect to correct house
+                        if (mode === 'real') {
+                            window.location.replace('index-real.html?t=' + Date.now());
+                        } else {
+                            window.location.replace('index.html?t=' + Date.now());
+                        }
                     }
                 } else {
                     showAlert(data.error || 'Invalid email or password', 'error');
