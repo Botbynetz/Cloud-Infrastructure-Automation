@@ -129,22 +129,61 @@
         /* Pricing Card */
         .pricing-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 40px 32px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
             position: relative;
-            border: 2px solid transparent;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #64748b 0%, #94a3b8 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
         .pricing-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-color: #cbd5e1;
+        }
+        
+        .pricing-card:hover::before {
+            opacity: 1;
+        }
+        
+        .pricing-card:nth-child(1)::before {
+            background: linear-gradient(90deg, #64748b 0%, #94a3b8 100%);
+        }
+        
+        .pricing-card:nth-child(2)::before {
+            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+        }
+        
+        .pricing-card:nth-child(3)::before {
+            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+        }
+        
+        .pricing-card:nth-child(4)::before {
+            background: linear-gradient(90deg, #a855f7 0%, #c084fc 100%);
         }
         
         .pricing-card.featured {
             border-color: #0066FF;
             transform: scale(1.05);
+            box-shadow: 0 8px 32px rgba(0, 102, 255, 0.15);
+        }
+        
+        .pricing-card.featured::before {
+            opacity: 1;
         }
         
         .pricing-card.featured::before {
@@ -265,30 +304,27 @@
             flex-shrink: 0;
         }
         
-        .modules-list {
+        .module-count {
             margin-top: 24px;
             padding-top: 24px;
             border-top: 1px solid #eee;
+            text-align: center;
         }
         
-        .modules-list h4 {
+        .module-count-text {
             font-size: 14px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
-        .module-badge {
-            display: inline-block;
-            background: #f0f7ff;
+        .module-count-number {
+            font-size: 24px;
+            font-weight: 800;
             color: #0066FF;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            margin: 4px 4px 4px 0;
         }
         
         /* Comparison Section */
@@ -561,10 +597,11 @@
                         </div>
                     </div>
                     
-                    <div class="modules-list">
-                        <h4>2 Modules Included:</h4>
-                        <span class="module-badge">💰 FinOps</span>
-                        <span class="module-badge">📊 Observability</span>
+                    <div class="module-count">
+                        <div class="module-count-text">
+                            <span class="module-count-number">2</span>
+                            <span>Modules Included</span>
+                        </div>
                     </div>
                 </div>
 
@@ -607,13 +644,11 @@
                         </div>
                     </div>
                     
-                    <div class="modules-list">
-                        <h4>5 Modules Included:</h4>
-                        <span class="module-badge">💰 FinOps</span>
-                        <span class="module-badge">📊 Observability</span>
-                        <span class="module-badge">🔄 GitOps</span>
-                        <span class="module-badge">🛡️ Disaster Recovery</span>
-                        <span class="module-badge">🕸️ Service Mesh</span>
+                    <div class="module-count">
+                        <div class="module-count-text">
+                            <span class="module-count-number">5</span>
+                            <span>Modules Included</span>
+                        </div>
                     </div>
                 </div>
 
@@ -660,16 +695,11 @@
                         </div>
                     </div>
                     
-                    <div class="modules-list">
-                        <h4>8 Modules Included:</h4>
-                        <span class="module-badge">💰 FinOps</span>
-                        <span class="module-badge">📊 Observability</span>
-                        <span class="module-badge">🔄 GitOps</span>
-                        <span class="module-badge">🛡️ Disaster Recovery</span>
-                        <span class="module-badge">🕸️ Service Mesh</span>
-                        <span class="module-badge">✅ Compliance</span>
-                        <span class="module-badge">☁️ Multi-Cloud</span>
-                        <span class="module-badge">🔒 Zero Trust</span>
+                    <div class="module-count">
+                        <div class="module-count-text">
+                            <span class="module-count-number">8</span>
+                            <span>Modules Included</span>
+                        </div>
                     </div>
                 </div>
 
@@ -720,18 +750,11 @@
                         </div>
                     </div>
                     
-                    <div class="modules-list">
-                        <h4>All 10 Modules Included:</h4>
-                        <span class="module-badge">💰 FinOps</span>
-                        <span class="module-badge">📊 Observability</span>
-                        <span class="module-badge">🔄 GitOps</span>
-                        <span class="module-badge">🛡️ Disaster Recovery</span>
-                        <span class="module-badge">🕸️ Service Mesh</span>
-                        <span class="module-badge">✅ Compliance</span>
-                        <span class="module-badge">☁️ Multi-Cloud</span>
-                        <span class="module-badge">🔒 Zero Trust</span>
-                        <span class="module-badge">🤖 AIOps</span>
-                        <span class="module-badge">🎯 IDP Portal</span>
+                    <div class="module-count">
+                        <div class="module-count-text">
+                            <span class="module-count-number">10</span>
+                            <span>All Modules Included</span>
+                        </div>
                     </div>
                 </div>
             </div>
