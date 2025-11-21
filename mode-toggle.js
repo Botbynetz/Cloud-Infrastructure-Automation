@@ -38,12 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentMode === 'demo' || !currentMode) {
                 if (confirm('🚀 Switch to Real Mode?\n\nYou will need a subscription plan to use your own AWS credentials.')) {
                     localStorage.setItem('univai_mode', 'real');
-                    modeLabel.textContent = 'Real';
-                    modeLabel.style.color = '#0066FF';
-                    pricingMenuItems.forEach(item => {
-                        item.classList.remove('hidden');
-                    });
-                    // No reload, just update UI
+                    // Reload to apply changes across the page
+                    location.reload();
                 } else {
                     // User cancelled, revert switch
                     this.checked = false;
@@ -54,12 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentMode === 'real') {
                 if (confirm('🧪 Switch to Demo Mode?\n\nYou will get access to all features for free with test credentials. Your current plan will remain active.')) {
                     localStorage.setItem('univai_mode', 'demo');
-                    modeLabel.textContent = 'Demo';
-                    modeLabel.style.color = '#F59E0B';
-                    pricingMenuItems.forEach(item => {
-                        item.classList.add('hidden');
-                    });
-                    // No reload, just update UI
+                    // Reload to apply changes across the page
+                    location.reload();
                 } else {
                     // User cancelled, revert switch
                     this.checked = true;
