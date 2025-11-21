@@ -27,8 +27,69 @@
     
     <link rel="icon" type="image/png" href="frontend/assets/images/univai-logo.png">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="header-v2.css">
+    <link rel="stylesheet" href="chatbot.css">
     <link rel="stylesheet" href="frontend/assets/brand.css">
+    
+    <!-- Header Row 1 Logo Styles -->
+    <style>
+        .header-row-1 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 0;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .logo-container {
+            text-align: center;
+            color: white;
+        }
+        
+        .main-logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            color: white;
+        }
+        
+        .tagline {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+        
+        /* Adjust main-header position (Row 2) */
+        .main-header {
+            top: 90px !important; /* Space for Row 1 */
+        }
+        
+        /* Adjust body padding */
+        body {
+            padding-top: 150px !important; /* Row 1 (90px) + Row 2 (60px) */
+        }
+        
+        @media (max-width: 768px) {
+            .header-row-1 {
+                padding: 12px 0;
+            }
+            .main-logo {
+                font-size: 24px;
+            }
+            .tagline {
+                font-size: 12px;
+            }
+            .main-header {
+                top: 80px !important;
+            }
+            body {
+                padding-top: 140px !important;
+            }
+        }
+    </style>
     
     <!-- Service Worker -->
     <script>
@@ -50,8 +111,7 @@
     <!-- Skip to Main Content (Accessibility) -->
     <a href="#main-content" class="skip-to-content">Skip to main content</a>
     
-    <!-- HEADER V2 - TWO ROW LAYOUT -->
-    <!-- ROW 1: LOGO CENTERED -->
+    <!-- HEADER ROW 1: LOGO CENTERED (NEW) -->
     <header class="header-row-1">
         <div class="logo-container">
             <h1 class="main-logo">UnivAI Cloud</h1>
@@ -59,101 +119,132 @@
         </div>
     </header>
 
-    <!-- ROW 2: HAMBURGER + MODE BADGE + PROFILE -->
-    <header class="header-row-2">
-        <!-- Left: Hamburger Menu -->
-        <div class="header-left">
-            <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
-                <span class="icon">☰</span>
-                <span class="text">Menu</span>
-            </button>
-        </div>
-        
-        <!-- Center: Mode Badge -->
-        <div class="header-center">
-            <button class="mode-badge demo-badge" id="modeBadge" onclick="showModeModal()">
-                <span class="emoji">🧪</span>
-                <span class="mode-text">DEMO MODE</span>
-            </button>
-        </div>
-        
-        <!-- Right: Profile with Plan Badge -->
-        <div class="header-right">
-            <button class="profile-btn" onclick="toggleProfile()" aria-label="Profile Menu">
-                <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" alt="User Avatar" class="avatar">
-                <span class="username">User</span>
-                <span class="plan-badge free-badge" id="planBadge">🆓 FREE</span>
-                <span class="dropdown-arrow">▼</span>
-            </button>
-            
-            <!-- Profile Dropdown -->
-            <div class="profile-dropdown" id="profileDropdown">
-                <div class="profile-dropdown-header">
-                    <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" alt="User Avatar">
-                    <h4 id="userName">User</h4>
-                    <p id="userEmail">user@example.com</p>
-                    <div class="profile-dropdown-plan">
-                        <span class="plan-badge free-badge" id="planBadgeDropdown">🆓 FREE PLAN</span>
-                    </div>
+    <!-- HEADER ROW 2: ORIGINAL HEADER (KEEP AS IS) -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Left Side: Profile + Mode Toggle -->
+            <div class="header-left">
+                <!-- Profile Button -->
+                <button class="profile-btn" id="profileBtn" aria-label="Profile">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                         alt="Profile" id="userAvatar">
+                </button>
+                
+                <!-- Mode Toggle Switch -->
+                <div class="mode-toggle" id="modeToggle">
+                    <span class="mode-label" id="modeLabel">Demo</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="modeSwitch">
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
-                <nav>
-                    <a href="dashboard.html">
-                        <span class="icon">📊</span>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="profile.html">
-                        <span class="icon">👤</span>
-                        <span>Profile Settings</span>
-                    </a>
-                    <a href="pricing.html">
-                        <span class="icon">💳</span>
-                        <span>Billing & Plans</span>
-                    </a>
-                    <div class="sidebar-divider"></div>
-                    <a href="#" onclick="logout(); return false;">
-                        <span class="icon">🚪</span>
-                        <span>Logout</span>
-                    </a>
-                </nav>
+            </div>
+            
+            <!-- Logo (Center) - HIDDEN, using Row 1 instead -->
+            
+            <!-- Right Side: Menu Button -->
+            <div class="header-right">
+                <!-- Menu Button -->
+                <button class="menu-btn" id="menuBtn" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- SIDEBAR NAVIGATION -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3>Navigation</h3>
-            <button class="sidebar-close" onclick="closeSidebar()" aria-label="Close Menu">×</button>
-        </div>
-        <ul class="sidebar-nav">
-            <li><a href="index.html"><span class="icon">🏠</span> Home</a></li>
-            <li><a href="dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
-            <li><a href="deploy.html"><span class="icon">🚀</span> Deploy</a></li>
-            <li><a href="modules.html"><span class="icon">📦</span> Modules</a></li>
-            <li><a href="pricing.html"><span class="icon">💰</span> Pricing</a></li>
-            <li><a href="profile.html"><span class="icon">👤</span> Profile</a></li>
-            <li><a href="contact.html"><span class="icon">📞</span> Contact</a></li>
-            <div class="sidebar-divider"></div>
-            <li><a href="#" onclick="logout(); return false;"><span class="icon">🚪</span> Logout</a></li>
-        </ul>
-    </aside>
-
-    <!-- MODE MODAL -->
-    <div class="mode-modal" id="modeModal" onclick="if(event.target === this) closeModeModal()">
-        <div class="mode-modal-content">
-            <h3 id="modalTitle">You're in Demo Mode</h3>
-            <div id="modalDescription">
-                <p style="font-size: 16px; margin: 20px 0;">🆓 <strong>Free access to all features</strong></p>
-                <p>In Demo Mode, you can explore the platform without any charges.</p>
-                <p>Ready to deploy real infrastructure?</p>
-            </div>
-            <div class="mode-modal-actions">
-                <button class="mode-modal-primary" id="modalPrimaryBtn">Upgrade to Real Mode →</button>
-                <button class="mode-modal-secondary" id="modalSecondaryBtn" onclick="closeModeModal()">Stay in Demo</button>
+    <!-- Profile Dropdown -->
+    <div class="profile-menu" id="profileMenu">
+        <div class="profile-menu-header">
+            <img src="https://ui-avatars.com/api/?name=User&background=0066FF&color=fff&size=128" 
+                 alt="Profile" id="profileMenuAvatar">
+            <div class="profile-menu-info">
+                <div class="profile-name-badge">
+                    <h4 id="userName">Guest User</h4>
+                    <span class="plan-badge" id="planBadge" data-plan="free">
+                        <span class="badge-text">Free</span>
+                    </span>
+                </div>
+                <p id="userEmail">guest@univaicloud.com</p>
             </div>
         </div>
+        <div class="profile-menu-divider"></div>
+        <a href="dashboard.html" class="profile-menu-item" aria-label="Dashboard">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="profile.html" class="profile-menu-item" aria-label="Profile Settings">
+            <i class="fas fa-user-cog"></i>
+            <span>Profile Settings</span>
+        </a>
+        <a href="pricing.html" class="profile-menu-item pricing-menu-item" aria-label="Upgrade Plan">
+            <i class="fas fa-crown"></i>
+            <span>Upgrade Plan</span>
+        </a>
+        <div class="profile-menu-divider"></div>
+        <a href="contact.html" class="profile-menu-item" aria-label="Contact Support">
+            <i class="fas fa-envelope"></i>
+            <span>Contact & Support</span>
+        </a>
+        <div class="profile-menu-divider"></div>
+        <a href="#" class="profile-menu-item" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
     </div>
+
+    <!-- Side Navigation Menu -->
+    <div class="side-menu-overlay" id="sideMenuOverlay"></div>
+    <nav class="side-menu" id="sideMenu">
+        <div class="side-menu-header">
+            <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" style="height: 35px;">
+            <span>UnivAI Cloud</span>
+            <button class="side-menu-close" id="sideMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="side-menu-content">
+            <a href="index.html" class="side-menu-item" aria-label="Home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="value.html" class="side-menu-item" aria-label="Value Proposition">
+                <i class="fas fa-chart-line"></i>
+                <span>Value Proposition</span>
+            </a>
+            <a href="modules.html" class="side-menu-item" aria-label="Modules">
+                <i class="fas fa-box"></i>
+                <span>Modules</span>
+            </a>
+            <a href="roi.html" class="side-menu-item" aria-label="ROI Calculator">
+                <i class="fas fa-calculator"></i>
+                <span>ROI Calculator</span>
+            </a>
+            <a href="pricing.html" class="side-menu-item pricing-menu-item" aria-label="Pricing">
+                <i class="fas fa-tag"></i>
+                <span>Pricing</span>
+            </a>
+            <a href="dashboard.html" class="side-menu-item" aria-label="Dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="contact.html" class="side-menu-item" aria-label="Contact">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+            <a href="contact.html" class="side-menu-item" aria-label="Help and Support">
+                <i class="fas fa-question-circle"></i>
+                <span>Help & Support</span>
+            </a>
+        </div>
+        <div class="side-menu-footer">
+            <a href="pricing.html" class="side-menu-cta">
+                <i class="fas fa-rocket"></i>
+                <span>Get Started</span>
+            </a>
+        </div>
+    </nav>
 
     <!-- Hero Section -->
     <main id="main-content">
@@ -1182,8 +1273,6 @@
     </main>
 
     <script src="script.js"></script>
-    <script src="header-v2.js"></script>
-    <link rel="stylesheet" href="header-v2.css">
     
     <!-- Chatbot Widget -->
     <link rel="stylesheet" href="chatbot.css">
