@@ -35,11 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (this.checked) {
             // Switching to Real mode
-            if (currentMode === 'demo') {
-                // Redirect to pricing to select plan
-                if (confirm('🚀 Switch to Real Mode?\n\nYou will be redirected to select a subscription plan to use your own AWS credentials.')) {
+            if (currentMode === 'demo' || !currentMode) {
+                if (confirm('🚀 Switch to Real Mode?\n\nYou will need a subscription plan to use your own AWS credentials.')) {
                     localStorage.setItem('univai_mode', 'real');
-                    window.location.href = 'pricing.html';
+                    modeLabel.textContent = 'Real';
+                    modeLabel.style.color = '#0066FF';
+                    pricingMenuItems.forEach(item => {
+                        item.classList.remove('hidden');
+                    });
+                    // No reload, just update UI
                 } else {
                     // User cancelled, revert switch
                     this.checked = false;
@@ -49,11 +53,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Switching to Demo mode
             if (currentMode === 'real') {
                 if (confirm('🧪 Switch to Demo Mode?\n\nYou will get access to all features for free with test credentials. Your current plan will remain active.')) {
-                    const user = JSON.parse(localStorage.getItem('univai_user') || '{}');
-                    user.mode = 'demo';
                     localStorage.setItem('univai_mode', 'demo');
-                    localStorage.setItem('univai_user', JSON.stringify(user));
-                    location.reload();
+                    modeLabel.textContent = 'Demo';
+                    modeLabel.style.color = '#F59E0B';
+                    pricingMenuItems.forEach(item => {
+                        item.classList.add('hidden');
+                    });
+                    // No reload, just update UI
                 } else {
                     // User cancelled, revert switch
                     this.checked = true;
