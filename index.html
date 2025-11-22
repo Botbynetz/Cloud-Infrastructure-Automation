@@ -32,48 +32,23 @@
     
     <!-- Header Row 1 Logo Styles -->
     <style>
-        .header-row-1 {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 10px 0;
-            z-index: 1001;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .logo-container {
-            text-align: center;
+        /* Header logo in center */
+        .header-logo {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
         }
         
         .header-logo-img {
-            height: 50px;
+            height: 45px;
             width: auto;
         }
         
-        /* Adjust main-header position (Row 2) */
-        .main-header {
-            top: 70px !important; /* Space for Row 1 */
-        }
-        
-        /* Adjust body padding */
-        body {
-            padding-top: 130px !important; /* Row 1 (70px) + Row 2 (60px) */
-        }
-        
         @media (max-width: 768px) {
-            .header-row-1 {
-                padding: 8px 0;
-            }
             .header-logo-img {
-                height: 40px;
-            }
-            .main-header {
-                top: 60px !important;
-            }
-            body {
-                padding-top: 120px !important;
+                height: 35px;
             }
         }
         
@@ -220,17 +195,10 @@
     <!-- Skip to Main Content (Accessibility) -->
     <a href="#main-content" class="skip-to-content">Skip to main content</a>
     
-    <!-- HEADER ROW 1: LOGO CENTERED (NEW) -->
-    <header class="header-row-1">
-        <div class="logo-container">
-            <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" class="header-logo-img">
-        </div>
-    </header>
-
-    <!-- HEADER ROW 2: ORIGINAL HEADER (KEEP AS IS) -->
+    <!-- MAIN HEADER -->
     <header class="main-header">
         <div class="header-container">
-            <!-- Left Side: Profile + Mode Toggle -->
+            <!-- Left Side: Profile + Mode Dropdown -->
             <div class="header-left">
                 <!-- Profile Button -->
                 <button class="profile-btn" id="profileBtn" aria-label="Profile">
@@ -263,7 +231,10 @@
                 </div>
             </div>
             
-            <!-- Logo (Center) - HIDDEN, using Row 1 instead -->
+            <!-- Center: Logo -->
+            <a href="index.html" class="header-logo">
+                <img src="frontend/assets/images/univai-logo.png" alt="UnivAI Cloud" class="header-logo-img">
+            </a>
             
             <!-- Right Side: Menu Button -->
             <div class="header-right">
