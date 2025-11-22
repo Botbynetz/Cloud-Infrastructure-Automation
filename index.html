@@ -39,7 +39,7 @@
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            z-index: 10;
+            z-index: 50;
         }
         
         .header-logo-img {
@@ -47,58 +47,59 @@
             width: auto;
         }
         
-        /* Make header-left and header-right higher z-index on mobile */
+        /* Make sure profile and menu don't overlap logo */
         .header-left,
         .header-right {
             position: relative;
-            z-index: 100;
+            z-index: 60;
         }
         
         @media (max-width: 768px) {
-            .header-logo {
-                position: static;
-                transform: none;
-                order: 2;
-                flex: 1;
-                justify-content: center;
-                z-index: 10;
-            }
-            
-            .header-container {
-                display: flex;
-                flex-wrap: nowrap;
-            }
-            
-            .header-left {
-                order: 1;
-                display: flex;
-                gap: 8px;
-                flex-shrink: 0;
-            }
-            
-            .header-right {
-                order: 3;
-                flex-shrink: 0;
-            }
-            
+            /* Smaller logo on mobile */
             .header-logo-img {
-                height: 35px;
+                height: 32px;
             }
             
-            /* Hide mode dropdown text on very small screens */
-            @media (max-width: 480px) {
-                .mode-text {
-                    display: none;
-                }
-                
-                .mode-dropdown-btn {
-                    padding: 8px 12px;
-                    min-width: 50px;
-                }
-                
-                .dropdown-arrow {
-                    margin: 0;
-                }
+            /* Smaller profile button */
+            .profile-btn {
+                width: 35px !important;
+                height: 35px !important;
+            }
+            
+            /* Compact mode dropdown */
+            .mode-dropdown-btn {
+                padding: 6px 10px !important;
+                font-size: 12px !important;
+            }
+            
+            /* Smaller menu button */
+            .menu-btn {
+                width: 38px !important;
+                height: 38px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* Even smaller for tiny screens */
+            .header-logo-img {
+                height: 28px;
+            }
+            
+            .profile-btn {
+                width: 32px !important;
+                height: 32px !important;
+            }
+            
+            .mode-dropdown-btn {
+                padding: 6px 8px !important;
+                font-size: 11px !important;
+            }
+            
+            .mode-text {
+                max-width: 60px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
     </style>
