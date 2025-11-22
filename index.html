@@ -39,6 +39,7 @@
             transform: translateX(-50%);
             display: flex;
             align-items: center;
+            z-index: 10;
         }
         
         .header-logo-img {
@@ -46,11 +47,61 @@
             width: auto;
         }
         
+        /* Make header-left and header-right higher z-index on mobile */
+        .header-left,
+        .header-right {
+            position: relative;
+            z-index: 100;
+        }
+        
         @media (max-width: 768px) {
+            .header-logo {
+                position: static;
+                transform: none;
+                order: 2;
+                flex: 1;
+                justify-content: center;
+                z-index: 10;
+            }
+            
+            .header-container {
+                display: flex;
+                flex-wrap: nowrap;
+            }
+            
+            .header-left {
+                order: 1;
+                display: flex;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+            
+            .header-right {
+                order: 3;
+                flex-shrink: 0;
+            }
+            
             .header-logo-img {
                 height: 35px;
             }
+            
+            /* Hide mode dropdown text on very small screens */
+            @media (max-width: 480px) {
+                .mode-text {
+                    display: none;
+                }
+                
+                .mode-dropdown-btn {
+                    padding: 8px 12px;
+                    min-width: 50px;
+                }
+                
+                .dropdown-arrow {
+                    margin: 0;
+                }
+            }
         }
+    </style>
         
         /* Mode Dropdown Styles */
         .mode-dropdown-container {
