@@ -89,6 +89,128 @@
                 padding-top: 140px !important;
             }
         }
+        
+        /* Mode Dropdown Styles */
+        .mode-dropdown-container {
+            position: relative;
+            margin-left: 15px;
+        }
+        
+        .mode-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #FF9500 0%, #FF6B00 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 149, 0, 0.2);
+        }
+        
+        .mode-dropdown-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+        }
+        
+        .mode-dropdown-btn.real-mode {
+            background: linear-gradient(135deg, #0066FF 0%, #0052CC 100%);
+            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.2);
+        }
+        
+        .mode-dropdown-btn.real-mode:hover {
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        }
+        
+        .dropdown-arrow {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .mode-dropdown-btn.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .mode-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            min-width: 260px;
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .mode-dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .mode-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        
+        .mode-option:hover {
+            background: #F5F7FA;
+        }
+        
+        .mode-option.active {
+            border-color: #0066FF;
+            background: #F0F5FF;
+        }
+        
+        .mode-icon {
+            font-size: 24px;
+        }
+        
+        .mode-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .mode-info strong {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+        
+        .mode-info small {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .mode-dropdown-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .mode-dropdown-menu {
+                min-width: 240px;
+            }
+        }
     </style>
     
     <!-- Service Worker -->
@@ -130,13 +252,28 @@
                          alt="Profile" id="userAvatar">
                 </button>
                 
-                <!-- Mode Toggle Switch -->
-                <div class="mode-toggle" id="modeToggle">
-                    <span class="mode-label" id="modeLabel">Demo</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="modeSwitch">
-                        <span class="toggle-slider"></span>
-                    </label>
+                <!-- Mode Dropdown -->
+                <div class="mode-dropdown-container">
+                    <button class="mode-dropdown-btn" id="modeDropdownBtn" aria-label="Switch Mode">
+                        <span class="mode-text" id="modeText">Demo Mode</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="mode-dropdown-menu" id="modeDropdownMenu">
+                        <button class="mode-option demo-option" data-mode="demo">
+                            <span class="mode-icon">🧪</span>
+                            <span class="mode-info">
+                                <strong>Demo Mode</strong>
+                                <small>Free access, no charges</small>
+                            </span>
+                        </button>
+                        <button class="mode-option real-option" data-mode="real">
+                            <span class="mode-icon">✅</span>
+                            <span class="mode-info">
+                                <strong>Real Mode</strong>
+                                <small>Deploy real infrastructure</small>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -1273,6 +1410,85 @@
     </main>
 
     <script src="script.js"></script>
+    
+    <!-- Mode Dropdown Script -->
+    <script>
+        // Mode Dropdown Functionality
+        const modeDropdownBtn = document.getElementById('modeDropdownBtn');
+        const modeDropdownMenu = document.getElementById('modeDropdownMenu');
+        const modeText = document.getElementById('modeText');
+        const modeOptions = document.querySelectorAll('.mode-option');
+        
+        // Get current mode from localStorage
+        let currentMode = localStorage.getItem('univai_mode') || 'demo';
+        
+        // Update button appearance
+        function updateModeButton() {
+            if (currentMode === 'demo') {
+                modeText.textContent = 'Demo Mode';
+                modeDropdownBtn.classList.remove('real-mode');
+            } else {
+                modeText.textContent = 'Real Mode';
+                modeDropdownBtn.classList.add('real-mode');
+            }
+            
+            // Update active option
+            modeOptions.forEach(option => {
+                if (option.dataset.mode === currentMode) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+        }
+        
+        // Toggle dropdown
+        modeDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            modeDropdownBtn.classList.toggle('active');
+            modeDropdownMenu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            modeDropdownBtn.classList.remove('active');
+            modeDropdownMenu.classList.remove('show');
+        });
+        
+        // Prevent dropdown from closing when clicking inside
+        modeDropdownMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Handle mode selection
+        modeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const selectedMode = option.dataset.mode;
+                
+                if (selectedMode !== currentMode) {
+                    currentMode = selectedMode;
+                    localStorage.setItem('univai_mode', currentMode);
+                    updateModeButton();
+                    
+                    // Show notification
+                    const modeName = currentMode === 'demo' ? 'Demo Mode' : 'Real Mode';
+                    alert(`Switched to ${modeName}!`);
+                    
+                    // Reload page to apply changes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                }
+                
+                // Close dropdown
+                modeDropdownBtn.classList.remove('active');
+                modeDropdownMenu.classList.remove('show');
+            });
+        });
+        
+        // Initialize on page load
+        updateModeButton();
+    </script>
     
     <!-- Chatbot Widget -->
     <link rel="stylesheet" href="chatbot.css">
